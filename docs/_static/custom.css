@@ -1,0 +1,4 @@
+li.current > a {
+    font-weight: bold;
+    color: white;
+}
