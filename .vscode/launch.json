@@ -5,12 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
+            "name": "setup.py sdist",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/setup.py",
             "args": [
-                "sdist"
+                "sdist",
             ],
             "console": "integratedTerminal",
             "justMyCode": false

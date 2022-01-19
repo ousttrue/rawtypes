@@ -1,10 +1,14 @@
 # Command
 
-## sdist
+順番に処理される。
 
-`MANIFEST.in` で中身を制御。
+```
+python setup.py sdist bdist_wheel
+```
 
-* <https://packaging.python.org/en/latest/guides/using-manifest-in/>
+```{toctree}
+sdist
+```
 
 ## check
 
