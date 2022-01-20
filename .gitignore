@@ -1,6 +1,7 @@
 /_build/
 /.venv/
 /dist/
-/*.egg-info/
+*.egg-info
 MANIFEST
 *.pyc
+__pycache__/
