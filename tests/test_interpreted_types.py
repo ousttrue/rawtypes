@@ -5,9 +5,9 @@ from rawtypes.clang import cindex
 
 
 def parse(src: str) -> cindex.TranslationUnit:
-    import pycindex
-    unsaved = pycindex.Unsaved('tmp.h', src)
-    return pycindex.get_tu('tmp.h', unsaved=[unsaved])
+    from rawtypes import clang_util
+    unsaved = clang_util.Unsaved('tmp.h', src)
+    return clang_util.get_tu('tmp.h', unsaved=[unsaved])
 
 
 def first(tu: cindex.TranslationUnit, pred: Callable[[cindex.Cursor], bool]) -> cindex.Cursor:
@@ -31,7 +31,7 @@ def parse_get_result_type(src: str) -> interpreted_types.BaseType:
 
 def parse_get_param_type(i: int, src: str) -> interpreted_types.BaseType:
     tu, c = parse_get_func(src)
-    from generator.declarations.typewrap import TypeWrap
+    from rawtypes.declarations.typewrap import TypeWrap
     p = TypeWrap.get_function_params(c)[i].cursor
     return interpreted_types.from_cursor(p.type, p)
 
@@ -114,7 +114,8 @@ class TestInterpretedTypes(unittest.TestCase):
         typedef = parse_get_param_type(0, '''typedef int INT
         void func(INT p0);
         ''')
-        self.assertIsInstance(typedef, interpreted_types.primitive_types.Int32Type)
+        self.assertIsInstance(
+            typedef, interpreted_types.primitive_types.Int32Type)
 
         const_p = parse_get_param_type(0, '''
         struct Some{

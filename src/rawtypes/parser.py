@@ -15,13 +15,13 @@ class Parser:
         sio = io.StringIO()
         for header in headers:
             sio.write(f'#include "{header.name}"\n')
-        import pycindex
+        from . import clang_util
 
         self.headers = headers
 
         include_dirs = [str(header.parent)for header in headers]
-        unsaved = pycindex.Unsaved('tmp.h', sio.getvalue())
-        self.tu = pycindex.get_tu(
+        unsaved = clang_util.Unsaved('tmp.h', sio.getvalue())
+        self.tu = clang_util.get_tu(
             'tmp.h', include_dirs=include_dirs, unsaved=[unsaved], flags=['-DNOMINMAX'])
         self.functions: List[FunctionDecl] = []
         self.enums: List[EnumDecl] = []
@@ -87,5 +87,5 @@ class Parser:
         return False
 
     def traverse(self):
-        import pycindex
-        pycindex.traverse(self.tu, self.callback)
+        from . import clang_util
+        clang_util.traverse(self.tu, self.callback)
