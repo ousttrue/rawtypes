@@ -5,3 +5,4 @@
 MANIFEST
 *.pyc
 __pycache__/
+/src/rawtypes/clang

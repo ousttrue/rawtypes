@@ -1,7 +1,7 @@
 from typing import NamedTuple, Optional, List
 import logging
 import re
-from clang import cindex
+from rawtypes.clang import cindex
 
 logger = logging.getLogger(__name__)
 

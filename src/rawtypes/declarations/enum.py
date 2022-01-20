@@ -1,6 +1,6 @@
 from typing import NamedTuple, Tuple
 import io
-from clang import cindex
+from rawtypes.clang import cindex
 
 
 class EnumDecl(NamedTuple):

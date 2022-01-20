@@ -1,7 +1,7 @@
 from typing import Tuple, List
 import io
 import pathlib
-from clang import cindex
+from rawtypes.clang import cindex
 from .header import Header
 from .parser import Parser
 from .declarations import function

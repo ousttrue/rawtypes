@@ -2,7 +2,7 @@ from typing import List, Union
 import io
 import pathlib
 import logging
-from clang import cindex
+from rawtypes.clang import cindex
 from .declarations.typedef import TypedefDecl
 from .declarations.struct import StructDecl
 from .declarations.enum import EnumDecl

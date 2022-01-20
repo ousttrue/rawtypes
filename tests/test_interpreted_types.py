@@ -1,7 +1,7 @@
 from typing import Callable, Tuple
 import unittest
 from rawtypes import interpreted_types
-from clang import cindex
+from rawtypes.clang import cindex
 
 
 def parse(src: str) -> cindex.TranslationUnit:

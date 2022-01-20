@@ -1,7 +1,7 @@
 from typing import Optional, NamedTuple
 import re
 #
-from clang import cindex
+from rawtypes.clang import cindex
 from .basetype import BaseType
 from . import primitive_types
 from .pointer_types import PointerType, ReferenceType, ArrayType, RefenreceToStdArrayType

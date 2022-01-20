@@ -1,4 +1,4 @@
-from clang import cindex
+from rawtypes.clang import cindex
 from .basetype import BaseType
 
 

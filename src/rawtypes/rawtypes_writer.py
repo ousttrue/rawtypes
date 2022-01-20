@@ -2,7 +2,7 @@ from typing import List, Tuple, Iterable, Optional
 import io
 import pathlib
 #
-from clang import cindex
+from rawtypes.clang import cindex
 #
 from .parser import Parser
 from .header import Header

@@ -2,7 +2,7 @@ from typing import Iterable, List, Tuple, NamedTuple
 import pathlib
 import logging
 import io
-from clang import cindex
+from rawtypes.clang import cindex
 from .typewrap import TypeWrap
 from .. import interpreted_types
 
