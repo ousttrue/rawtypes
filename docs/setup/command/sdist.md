@@ -1,5 +1,9 @@
 # sdist
 
+```py
+sub_commands = [('check', checking_metadata)]
+```
+
 <https://docs.python.org/ja/3/distutils/sourcedist.html>
 
 ```
@@ -10,6 +14,10 @@ python setup.py sdist --formats=gztar
 `MANIFEST.in` で中身を制御。
 
 * <https://packaging.python.org/en/latest/guides/using-manifest-in/>
+
+## subcommand check
+
+* <https://docs.python.org/ja/3/distutils/examples.html#checking-a-package>
 
 ## sdist する前にコード生成したい
 
