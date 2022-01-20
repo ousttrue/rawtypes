@@ -37,3 +37,36 @@ setup.py:1: DeprecationWarning: The distutils package is deprecated and slated f
 command/index
 pypi
 ```
+
+## version
+
+git のタグからバージョンを付ける。
+
+```py
+setup(
+    use_scm_version=True,
+    setup_requires=['setuptools_scm']
+)
+```
+
+## README.md
+
+```py
+from setuptools import setup
+
+# read the contents of your README file
+from pathlib import Path
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
+
+setup(
+    name='an_example_package',
+    # other arguments omitted
+    long_description=long_description,
+    long_description_content_type='text/markdown'
+)
+```
+
+## license 情報
+
+## meta 情報
