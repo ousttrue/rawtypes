@@ -1,5 +1,7 @@
 # Command
 
+* [setuptools コマンド覚書](https://qiita.com/JhonnyBravo/items/b8bae2578f07f31e4de7)
+
 順番に処理される。
 
 ```

@@ -34,5 +34,6 @@ setup.py:1: DeprecationWarning: The distutils package is deprecated and slated f
 `setuptools.setup` を使おう。
 
 ```{toctree}
-command
+command/index
+pypi
 ```
