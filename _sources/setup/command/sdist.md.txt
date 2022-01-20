@@ -19,11 +19,9 @@ python setup.py sdist --formats=gztar
 
 * <https://docs.python.org/ja/3/distutils/examples.html#checking-a-package>
 
-## sdist する前にコード生成したい
+## `sdist/build_ext` する前にコード生成したい
 
 (生成物はバージョン管理しない)
 
 * clang.cindex から生成する `.cpp`
 * python / clang.cindex から生成する `.pyi`
-
-`sdist` が依存する `check` を改造してみよう。

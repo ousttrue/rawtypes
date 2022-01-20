@@ -228,14 +228,13 @@
 <li><p><a class="reference external" href="https://docs.python.org/ja/3/distutils/examples.html#checking-a-package">https://docs.python.org/ja/3/distutils/examples.html#checking-a-package</a></p></li>
 </ul>
 </section>
-<section id="id1">
-<h2>sdist する前にコード生成したい<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<section id="sdist-build-ext">
+<h2><code class="docutils literal notranslate"><span class="pre">sdist/build_ext</span></code> する前にコード生成したい<a class="headerlink" href="#sdist-build-ext" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>(生成物はバージョン管理しない)</p>
 <ul class="simple">
 <li><p>clang.cindex から生成する <code class="docutils literal notranslate"><span class="pre">.cpp</span></code></p></li>
 <li><p>python / clang.cindex から生成する <code class="docutils literal notranslate"><span class="pre">.pyi</span></code></p></li>
 </ul>
-<p><code class="docutils literal notranslate"><span class="pre">sdist</span></code> が依存する <code class="docutils literal notranslate"><span class="pre">check</span></code> を改造してみよう。</p>
 </section>
 </section>
 
@@ -292,7 +291,7 @@
             <ul>
 <li><a class="reference internal" href="#">sdist</a><ul>
 <li><a class="reference internal" href="#subcommand-check">subcommand check</a></li>
-<li><a class="reference internal" href="#id1">sdist する前にコード生成したい</a></li>
+<li><a class="reference internal" href="#sdist-build-ext"><code class="docutils literal notranslate"><span class="pre">sdist/build_ext</span></code> する前にコード生成したい</a></li>
 </ul>
 </li>
 </ul>
