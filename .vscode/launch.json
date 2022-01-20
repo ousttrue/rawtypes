@@ -14,6 +14,15 @@
             ],
             "console": "integratedTerminal",
             "justMyCode": false
+        },
+        {
+            "name": "generate rawtypes.clang.cindex typings",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/rawtypes/clang_util/generate_cindex_stub.py",
+            "args": [],
+            "console": "integratedTerminal",
+            "justMyCode": false
         }
     ]
 }

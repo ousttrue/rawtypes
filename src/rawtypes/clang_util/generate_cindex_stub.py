@@ -4,18 +4,20 @@ import logging
 import argparse
 import pathlib
 import io
+import pathlib
 import re
 from inspect import signature
-from . import get_tu
-from ..clang import cindex
+from rawtypes import clang_util
+from rawtypes.clang import cindex
 
+HERE = pathlib.Path(__file__).absolute().parent
 logger = logging.getLogger(__name__)
 
 
 class Parser:
     def __init__(self, entrypoint: str):
         self.entrypoint = entrypoint
-        self.tu = get_tu(self.entrypoint)
+        self.tu = clang_util.get_tu(self.entrypoint)
         self.functions = []
         self.enums = []
 
@@ -37,7 +39,7 @@ class Parser:
         return True
 
     def traverse(self):
-        get_tu.traverse(self.tu, self.filter)
+        clang_util.traverse(self.tu, self.filter)
 
 
 def remove_prefix(values: List[str]):
@@ -122,21 +124,9 @@ def generate_instance(w: io.IOBase, obj: object):
     w.write('\n')
 
 
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--src')
-    parser.add_argument('--dst')
-    args = parser.parse_args()
-
-    src = pathlib.Path(
-        args.src if args.src else "C:/Program Files/LLVM/include/clang-c/Index.h").absolute()
+def generate(src: pathlib.Path, dst: pathlib.Path):
     parser = Parser(str(src))
     parser.traverse()
-
-    dst = pathlib.Path(
-        args.dst if args.dst else "typings/clang/cindex.pyi").absolute()
     dst.parent.mkdir(parents=True, exist_ok=True)
     with dst.open('w') as w:
         w.write('''from typing import ClassVar, Any
@@ -156,3 +146,20 @@ class BaseEnumeration(object):
         generate_instance(w, parser.enums[0][0].location)
         # type
         generate_instance(w, parser.functions[0][-1].result_type)
+
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG)
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--src')
+    parser.add_argument('--dst')
+    args = parser.parse_args()
+
+    src = pathlib.Path(
+        args.src if args.src else "C:/Program Files/LLVM/include/clang-c/Index.h").absolute()
+
+    dst = pathlib.Path(
+        args.dst if args.dst else (HERE.parent.parent.parent / "src/rawtypes/clang/cindex.pyi")).absolute()
+
+    generate(src, dst)
