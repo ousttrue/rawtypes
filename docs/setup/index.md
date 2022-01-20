@@ -51,6 +51,22 @@ setup(
 
 ## README.md
 
+```py
+from setuptools import setup
+
+# read the contents of your README file
+from pathlib import Path
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
+
+setup(
+    name='an_example_package',
+    # other arguments omitted
+    long_description=long_description,
+    long_description_content_type='text/markdown'
+)
+```
+
 ## license 情報
 
 ## meta 情報
