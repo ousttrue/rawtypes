@@ -37,3 +37,9 @@ setup.py:1: DeprecationWarning: The distutils package is deprecated and slated f
 command/index
 pypi
 ```
+
+## README.md
+
+## license 情報
+
+## meta 情報
