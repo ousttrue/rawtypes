@@ -47,7 +47,8 @@ if not CLANG_SRC.exists():
 
 
 setuptools.setup(name='rawtypes',
-                 version='1.0',
+                 use_scm_version=True,
+                 setup_requires=['setuptools_scm'],
                  package_dir={'': 'src'},
                  packages=setuptools.find_packages("src"),
                  )

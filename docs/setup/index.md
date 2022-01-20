@@ -38,6 +38,17 @@ command/index
 pypi
 ```
 
+## version
+
+git のタグからバージョンを付ける。
+
+```py
+setup(
+    use_scm_version=True,
+    setup_requires=['setuptools_scm']
+)
+```
+
 ## README.md
 
 ## license 情報
