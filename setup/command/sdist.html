@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="索引" href="../../genindex.html" /><link rel="search" title="検索" href="../../search.html" /><link rel="next" title="pypi" href="../pypi.html" /><link rel="prev" title="Command" href="index.html" />
+<link rel="index" title="索引" href="../../genindex.html" /><link rel="search" title="検索" href="../../search.html" /><link rel="next" title="install" href="install.html" /><link rel="prev" title="build_ext" href="build_ext.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.01.02"/>
         <title>sdist - rawtypes ドキュメント</title>
@@ -158,7 +158,10 @@
   <ul class="current">
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../index.html">setup.py</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2 current has-children"><a class="reference internal" href="index.html">Command</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="build_py.html">build_py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build_ext.html">build_ext</a></li>
 <li class="toctree-l3 current current-page"><a class="current reference internal" href="#">sdist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install.html">install</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../pypi.html">pypi</a></li>
@@ -207,6 +210,9 @@
         <article role="main">
           <section class="tex2jax_ignore mathjax_ignore" id="sdist">
 <h1>sdist<a class="headerlink" href="#sdist" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="n">sub_commands</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">'check'</span><span class="p">,</span> <span class="n">checking_metadata</span><span class="p">)]</span>
+</pre></div>
+</div>
 <p><a class="reference external" href="https://docs.python.org/ja/3/distutils/sourcedist.html">https://docs.python.org/ja/3/distutils/sourcedist.html</a></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">sdist</span> <span class="o">--</span><span class="n">formats</span><span class="o">=</span><span class="n">gztar</span>
 <span class="c1"># =&gt; dist/foo-1.0.tar.gz</span>
@@ -216,6 +222,12 @@
 <ul class="simple">
 <li><p><a class="reference external" href="https://packaging.python.org/en/latest/guides/using-manifest-in/">https://packaging.python.org/en/latest/guides/using-manifest-in/</a></p></li>
 </ul>
+<section id="subcommand-check">
+<h2>subcommand check<a class="headerlink" href="#subcommand-check" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/ja/3/distutils/examples.html#checking-a-package">https://docs.python.org/ja/3/distutils/examples.html#checking-a-package</a></p></li>
+</ul>
+</section>
 <section id="id1">
 <h2>sdist する前にコード生成したい<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>(生成物はバージョン管理しない)</p>
@@ -232,23 +244,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="../pypi.html">
+          <a class="next-page" href="install.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">pypi</div>
+                <div class="title">install</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="index.html">
+          <a class="prev-page" href="build_ext.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Command</div>
+                <div class="title">build_ext</div>
                 
               </div>
             </a>
@@ -279,6 +291,7 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">sdist</a><ul>
+<li><a class="reference internal" href="#subcommand-check">subcommand check</a></li>
 <li><a class="reference internal" href="#id1">sdist する前にコード生成したい</a></li>
 </ul>
 </li>

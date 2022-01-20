@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="索引" href="../../genindex.html" /><link rel="search" title="検索" href="../../search.html" /><link rel="next" title="sdist" href="sdist.html" /><link rel="prev" title="setup.py" href="../index.html" />
+<link rel="index" title="索引" href="../../genindex.html" /><link rel="search" title="検索" href="../../search.html" /><link rel="next" title="build_py" href="build_py.html" /><link rel="prev" title="setup.py" href="../index.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.01.02"/>
         <title>Command - rawtypes ドキュメント</title>
@@ -158,7 +158,10 @@
   <ul class="current">
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../index.html">setup.py</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2 current has-children current-page"><a class="current reference internal" href="#">Command</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="build_py.html">build_py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build_ext.html">build_ext</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sdist.html">sdist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install.html">install</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../pypi.html">pypi</a></li>
@@ -216,16 +219,30 @@
 </div>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="build_py.html">build_py</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="build_py.html#extend">extend</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="build_ext.html">build_ext</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="build_ext.html#id1">build_ext</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="sdist.html">sdist</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sdist.html#subcommand-check">subcommand check</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sdist.html#id1">sdist する前にコード生成したい</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">install</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="install.html#extend">extend</a></li>
 </ul>
 </li>
 </ul>
 </div>
-<section id="check">
-<h2>check<a class="headerlink" href="#check" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<section id="extend">
+<h2>extend<a class="headerlink" href="#extend" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/ja/3/distutils/examples.html#checking-a-package">https://docs.python.org/ja/3/distutils/examples.html#checking-a-package</a></p></li>
+<li><p><a class="reference external" href="https://blog.amedama.jp/entry/2015/09/17/224627">Python: セットアップスクリプト (setup.py) に自作のコマンドを追加する</a></p></li>
+<li><p><a class="reference external" href="https://jichu4n.com/posts/how-to-add-custom-build-steps-and-commands-to-setuppy/">https://jichu4n.com/posts/how-to-add-custom-build-steps-and-commands-to-setuppy/</a></p></li>
 </ul>
 </section>
 </section>
@@ -235,12 +252,12 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="sdist.html">
+          <a class="next-page" href="build_py.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">sdist</div>
+                <div class="title">build_py</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -282,7 +299,7 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Command</a><ul>
-<li><a class="reference internal" href="#check">check</a></li>
+<li><a class="reference internal" href="#extend">extend</a></li>
 </ul>
 </li>
 </ul>

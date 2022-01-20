@@ -3,14 +3,14 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="検索" href="../search.html" /><link rel="next" title="CXCursor: カーソルを走査する" href="traverse.html" /><link rel="prev" title="clang.cindex の python module" href="python_module.html" />
+<link rel="index" title="索引" href="../../genindex.html" /><link rel="search" title="検索" href="../../search.html" /><link rel="next" title="sdist" href="sdist.html" /><link rel="prev" title="build_py" href="build_py.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.01.02"/>
-        <title>C/C++ のソースをパースして TranslaionUnit を得る - rawtypes ドキュメント</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=df49af52631e7917044a9c21a57f7b83170a6dd0" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=fade93df149f7c5fedb3ff897f799dc7d283b420" />
+        <title>build_ext - rawtypes ドキュメント</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=df49af52631e7917044a9c21a57f7b83170a6dd0" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=fade93df149f7c5fedb3ff897f799dc7d283b420" />
     
     
 
@@ -124,7 +124,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">rawtypes  ドキュメント</div></a>
+      <a href="../../index.html"><div class="brand">rawtypes  ドキュメント</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -144,42 +144,42 @@
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
   <span class="sidebar-brand-text">rawtypes  ドキュメント</span>
   
-</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder=検索 name="q" aria-label="検索">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../setup/index.html">setup.py</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../setup/command/index.html">Command</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../setup/command/build_py.html">build_py</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../setup/command/build_ext.html">build_ext</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../setup/command/sdist.html">sdist</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../setup/command/install.html">install</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../index.html">setup.py</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 current has-children"><a class="reference internal" href="index.html">Command</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="build_py.html">build_py</a></li>
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">build_ext</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdist.html">sdist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="install.html">install</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../setup/pypi.html">pypi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pypi.html">pypi</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">clang.cindex パースと情報収集</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="python_module.html">clang.cindex の python module</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">C/C++ のソースをパースして TranslaionUnit を得る</a></li>
-<li class="toctree-l2"><a class="reference internal" href="traverse.html">CXCursor: カーソルを走査する</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="cursor_kind/index.html">CursorKind 毎の処理</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="cursor_kind/function_decl.html">FUNCTION_DECL</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../cindex/index.html">clang.cindex パースと情報収集</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../cindex/python_module.html">clang.cindex の python module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cindex/get_tu.html">C/C++ のソースをパースして TranslaionUnit を得る</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cindex/traverse.html">CXCursor: カーソルを走査する</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../cindex/cursor_kind/index.html">CursorKind 毎の処理</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../cindex/cursor_kind/function_decl.html">FUNCTION_DECL</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="type/index.html">CXType: 型の処理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cindex/type/index.html">CXType: 型の処理</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">使用例</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../examples/imgui.html">ImGui</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../examples/index.html">使用例</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/imgui.html">ImGui</a></li>
 </ul>
 </li>
 </ul>
@@ -208,37 +208,13 @@
           </label>
         </div>
         <article role="main">
-          <section class="tex2jax_ignore mathjax_ignore" id="c-c-translaionunit">
-<h1>C/C++ のソースをパースして TranslaionUnit を得る<a class="headerlink" href="#c-c-translaionunit" title="このヘッドラインへのパーマリンク">¶</a></h1>
-<p>path が parse のエントリポイントとなる。</p>
-<p>unsaved file はメモリ上のファイルに仮の名前を与えてパースする仕組み。
-エディタで未保存のファイルを対象にする他に、
-複数のヘッダーを一度にパースしたい場合に
-まとめて include する一時ファイルをメモリ上で済ます用途がある。</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// unsaved content</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">"a.h"</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">"b.h"</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">"c.h"</span><span class="cp"></span>
-</pre></div>
-</div>
-<section id="compiler">
-<h2>compiler 引数<a class="headerlink" href="#compiler" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>arguments の与え方で vc の <code class="docutils literal notranslate"><span class="pre">cl.exe</span></code> のようにふるまわせることができる。</p>
+          <section class="tex2jax_ignore mathjax_ignore" id="build-ext">
+<h1>build_ext<a class="headerlink" href="#build-ext" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<section id="id1">
+<h2>build_ext<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <ul class="simple">
-<li><p>-D による define</p></li>
-<li><p>-I による include パス</p></li>
-<li><p>c++17 などの対応レベル</p></li>
+<li><p><a class="reference external" href="https://stackoverflow.com/questions/42585210/extending-setuptools-extension-to-use-cmake-in-setup-py">https://stackoverflow.com/questions/42585210/extending-setuptools-extension-to-use-cmake-in-setup-py</a></p></li>
 </ul>
-<p>などをよく使う。</p>
-</section>
-<section id="flags">
-<h2>flags<a class="headerlink" href="#flags" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">cindex.TranslationUnit.PARSE_SKIP_FUNCTION_BODIES</span></code></p></li>
-</ul>
-<p>など。関数の中身をスキップする。
-言語バインディングの生成をする場合には関数のシグニチャのみが必要。</p>
-<p>マクロの制御などもあり、指定しないと出現しない cursor がある。</p>
 </section>
 </section>
 
@@ -247,23 +223,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="traverse.html">
+          <a class="next-page" href="sdist.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">CXCursor: カーソルを走査する</div>
+                <div class="title">sdist</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="python_module.html">
+          <a class="prev-page" href="build_py.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">clang.cindex の python module</div>
+                <div class="title">build_py</div>
                 
               </div>
             </a>
@@ -273,7 +249,7 @@
               Copyright &#169; 2022, ousttrue |
           Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
           <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
-            | <a class="muted-link" href="../_sources/cindex/get_tu.md.txt"
+            | <a class="muted-link" href="../../_sources/setup/command/build_ext.md.txt"
                rel="nofollow">
               ソースコードを表示
             </a>
@@ -293,9 +269,8 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">C/C++ のソースをパースして TranslaionUnit を得る</a><ul>
-<li><a class="reference internal" href="#compiler">compiler 引数</a></li>
-<li><a class="reference internal" href="#flags">flags</a></li>
+<li><a class="reference internal" href="#">build_ext</a><ul>
+<li><a class="reference internal" href="#id1">build_ext</a></li>
 </ul>
 </li>
 </ul>
@@ -307,11 +282,11 @@
       
     </aside>
   </div>
-</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/scripts/furo.js"></script>
-    <script src="../_static/translations.js"></script>
+</div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/scripts/furo.js"></script>
+    <script src="../../_static/translations.js"></script>
     </body>
 </html>
