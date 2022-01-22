@@ -1,8 +1,16 @@
 import setuptools
 import pathlib
+import os, platform
 HERE = pathlib.Path(__file__).absolute().parent
 CLANG_SRC = HERE / 'src/rawtypes/clang/__init__.py'
 CLANG_PYTHON_BASE_URL = 'https://raw.githubusercontent.com/llvm/llvm-project/llvmorg-13.0.0/clang/bindings/python/clang/'
+
+
+if os.name == 'nt':
+    CLANG_HEADER = pathlib.Path('C:/Program Files/LLVM/include/clang-c/Index.h')
+elif platform.system() == 'Linux':
+    # ubuntu: libclang-13-dev
+    CLANG_HEADER = pathlib.Path('/usr/lib/llvm-13/include/clang-c/Index.h')
 
 
 def patch_enum(src):
@@ -38,7 +46,7 @@ def download_clang_cindex():
     sys.path.append(str(HERE / 'src'))
     from rawtypes.clang_util import generate_cindex_stub
     generate_cindex_stub.generate(
-        pathlib.Path('C:/Program Files/LLVM/include/clang-c/Index.h'),
+        CLANG_HEADER,
         CLANG_SRC.parent / 'cindex.pyi')
 
 

@@ -1,4 +1,5 @@
 from typing import NamedTuple, List, Optional, Callable
+import os, platform
 from ..clang import cindex
 
 
@@ -28,7 +29,13 @@ def get_tu(entrypoint: str,
         arguments.extend(flags)
 
     # path of libclang.dll
-    cindex.Config.library_path = 'C:\\Program Files\\LLVM\\bin'
+    if os.name == 'nt':
+        cindex.Config.library_path = 'C:\\Program Files\\LLVM\\bin'
+    elif platform.system() == 'Linux':
+        # ubuntu
+        # apt install libclang1-13
+        cindex.Config.library_path = '/usr/lib/x86_64-linux-gnu'
+        cindex.Config.library_file = 'libclang-13.so.1'
 
     index = cindex.Index.create()
 
