@@ -35,7 +35,7 @@ def download_clang_cindex():
     http_get(CLANG_PYTHON_BASE_URL, CLANG_SRC.parent, 'enumerations.py')
     # generate typing
     import sys
-    sys.path.append(str(HERE))
+    sys.path.append(str(HERE / 'src'))
     from rawtypes.clang_util import generate_cindex_stub
     generate_cindex_stub.generate(
         pathlib.Path('C:/Program Files/LLVM/include/clang-c/Index.h'),
