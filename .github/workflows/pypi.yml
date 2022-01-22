@@ -16,6 +16,7 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.x'
+    - run: wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
     - run: sudo apt install libclang-13-dev 
     - run: python setup.py sdist
     - name: Publish a Python distribution to PyPI
