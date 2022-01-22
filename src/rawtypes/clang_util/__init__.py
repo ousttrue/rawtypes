@@ -30,8 +30,9 @@ def get_tu(entrypoint: str,
 
     # path of libclang.dll
     if os.environ['LLVM_PATH']:
+        # https://github.com/KyleMayes/install-llvm-action
         cindex.Config.library_path = os.environ['LLVM_PATH'] + '/lib'
-        cindex.Config.library_file = 'libclang-13.so'
+        cindex.Config.library_file = 'libclang.so'
     elif os.name == 'nt':
         cindex.Config.library_path = 'C:\\Program Files\\LLVM\\bin'
     elif platform.system() == 'Linux':
