@@ -30,7 +30,7 @@ def get_tu(entrypoint: str,
 
     # path of libclang.dll
     if os.environ['LLVM_PATH']:
-        cindex.Config.library_path = pathlib.Path(os.environ['LLVM_PATH'] + '/lib'
+        cindex.Config.library_path = os.environ['LLVM_PATH'] + '/lib'
         cindex.Config.library_file = 'libclang-13.so'
     elif os.name == 'nt':
         cindex.Config.library_path = 'C:\\Program Files\\LLVM\\bin'
