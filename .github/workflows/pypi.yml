@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - run: wget -q -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
-    - run: sudo cat llvm.list >> /etc/apt/sources.list
+    - run: sudo sh -c "cat llvm.list >> /etc/apt/sources.list"
     - run: sudo apt install libclang-13-dev 
     - uses: actions/checkout@v2
     - name: Set up Python 3.x
