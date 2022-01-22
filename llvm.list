@@ -1,0 +1,13 @@
+# https://apt.llvm.org/
+#
+# Focal (20.04) LTS
+#
+deb http://apt.llvm.org/focal/ llvm-toolchain-focal main
+deb-src http://apt.llvm.org/focal/ llvm-toolchain-focal main
+# 12
+deb http://apt.llvm.org/focal/ llvm-toolchain-focal-12 main
+deb-src http://apt.llvm.org/focal/ llvm-toolchain-focal-12 main
+# 13
+deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main
+deb-src http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main
+
