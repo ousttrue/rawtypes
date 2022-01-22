@@ -7,7 +7,7 @@ CLANG_PYTHON_BASE_URL = 'https://raw.githubusercontent.com/llvm/llvm-project/llv
 
 
 if os.environ['LLVM_PATH']:
-    CLANG_HEADER = pathlib.Path(os.environ['LLVM_PATH'] + 'include/clang-c/Index.h')
+    CLANG_HEADER = pathlib.Path(os.environ['LLVM_PATH']) / 'include/clang-c/Index.h'
 elif os.name == 'nt':
     CLANG_HEADER = pathlib.Path('C:/Program Files/LLVM/include/clang-c/Index.h')
 elif platform.system() == 'Linux':
