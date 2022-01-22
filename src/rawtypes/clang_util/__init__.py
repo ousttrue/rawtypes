@@ -29,13 +29,16 @@ def get_tu(entrypoint: str,
         arguments.extend(flags)
 
     # path of libclang.dll
-    if os.name == 'nt':
+    if os.environ['LLVM_PATH']:
+        cindex.Config.library_path = pathlib.Path(os.environ['LLVM_PATH'] + '/lib'
+        cindex.Config.library_file = 'libclang-13.so'
+    elif os.name == 'nt':
         cindex.Config.library_path = 'C:\\Program Files\\LLVM\\bin'
     elif platform.system() == 'Linux':
         # ubuntu
         # apt install libclang1-13
         cindex.Config.library_path = '/usr/lib/x86_64-linux-gnu'
-        cindex.Config.library_file = 'libclang-13.so.1'
+        cindex.Config.library_file = 'libclang-13.so'
 
     index = cindex.Index.create()
 

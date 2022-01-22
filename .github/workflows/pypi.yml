@@ -12,9 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - run: wget -q -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
-    - run: sudo sh -c "cat llvm.list >> /etc/apt/sources.list"
-    - run: sudo apt install libclang-13-dev 
+    - name: Install LLVM and Clang
+      uses: KyleMayes/install-llvm-action@v1
+      with:
+        version: "13.0"
     - name: Set up Python 3.x
       uses: actions/setup-python@v2
       with:

@@ -6,7 +6,9 @@ CLANG_SRC = HERE / 'src/rawtypes/clang/__init__.py'
 CLANG_PYTHON_BASE_URL = 'https://raw.githubusercontent.com/llvm/llvm-project/llvmorg-13.0.0/clang/bindings/python/clang/'
 
 
-if os.name == 'nt':
+if os.environ['LLVM_PATH']:
+    CLANG_HEADER = pathlib.Path(os.environ['LLVM_PATH'] + 'include/clang-c/Index.h')
+elif os.name == 'nt':
     CLANG_HEADER = pathlib.Path('C:/Program Files/LLVM/include/clang-c/Index.h')
 elif platform.system() == 'Linux':
     # ubuntu: libclang-13-dev
