@@ -1,4 +1,5 @@
-from typing import List, Tuple, Iterable, Optional
+from typing import List, Tuple, Iterable, Optional, NamedTuple
+import logging
 import io
 import pathlib
 #
@@ -12,6 +13,8 @@ from .declarations.struct import StructDecl
 from .interpreted_types import wrap_types
 from .pyi_writer import write_pyi
 from . import interpreted_types
+
+logger = logging.getLogger(__name__)
 
 CTYPS_CAST = '''
 static PyObject* s_ctypes = nullptr;
@@ -32,7 +35,7 @@ static void s_initialize()
         return;
     }
     // ctypes
-    s_ctypes = PyImport_ImportModule("ctypes");    
+    s_ctypes = PyImport_ImportModule("ctypes");
     s_ctypes_c_void_p = PyObject_GetAttrString(s_ctypes, "c_void_p");
     s_ctypes_addressof = PyObject_GetAttrString(s_ctypes, "addressof");
     s_ctypes_Array = PyObject_GetAttrString(s_ctypes, "Array");
@@ -64,7 +67,7 @@ T ctypes_get_pointer(PyObject *src)
         PyErr_Clear();
     }
 
-    // ctypes.Array   
+    // ctypes.Array
     // ctypes.Structure
     if(PyObject_IsInstance(src, s_ctypes_Array) || PyObject_IsInstance(src, s_ctypes_Structure) || PyObject_IsInstance(src, s_ctypes__CFuncPtr)){
         if(PyObject *p = PyObject_CallFunction(s_ctypes_addressof, "O", src))
@@ -73,7 +76,7 @@ T ctypes_get_pointer(PyObject *src)
             Py_DECREF(p);
             return (T)pp;
         }
-PyErr_Print();        
+PyErr_Print();
         PyErr_Clear();
     }
 
@@ -147,7 +150,7 @@ static ImVec2 get_ImVec2(PyObject *src)
 
 C_VOID_P = '''
 static PyObject* c_void_p(const void* address)
-{   
+{
     return PyObject_CallFunction(s_ctypes_c_void_p, "K", (uintptr_t)address);
 }
 '''
@@ -187,7 +190,17 @@ def get_params(indent: str, cursor: cindex.Cursor) -> Tuple[List[interpreted_typ
     return types, format, sio_extract.getvalue(), sio_cpp_from_py.getvalue()
 
 
-def write_function(w: io.IOBase, f: FunctionDecl, overload: str):
+class PyMethodDef(NamedTuple):
+    name: str
+    meth: str
+    flags: str
+    doc: str
+
+    def __str__(self):
+        return f'{{"{self.name}", {self.meth}, {self.flags}, "{self.doc}"}}'
+
+
+def write_function(w: io.IOBase, f: FunctionDecl, overload: str) -> PyMethodDef:
     # signature
     func_name = f'{f.path.stem}_{f.spelling}{overload}'
 
@@ -217,10 +230,10 @@ def write_function(w: io.IOBase, f: FunctionDecl, overload: str):
 
 ''')
 
-    return f'{{"{f.spelling}{overload}", {func_name}, METH_VARARGS, "{namespace}{f.spelling}"}},\n'
+    return PyMethodDef(f"{f.spelling}{overload}", func_name, "METH_VARARGS", f"{namespace}{f.spelling}")
 
 
-def write_method(w: io.IOBase, c: cindex.Cursor,  m: cindex.Cursor):
+def write_method(w: io.IOBase, c: cindex.Cursor,  m: cindex.Cursor) -> PyMethodDef:
     # signature
     func_name = f'{c.spelling}_{m.spelling}'
 
@@ -259,7 +272,7 @@ def write_method(w: io.IOBase, c: cindex.Cursor,  m: cindex.Cursor):
 
 ''')
 
-    return f'{{"{c.spelling}_{m.spelling}", {c.spelling}_{m.spelling}, METH_VARARGS, "{c.spelling}::{m.spelling}"}},\n'
+    return PyMethodDef(f"{c.spelling}_{m.spelling}", f"{c.spelling}_{m.spelling}", "METH_VARARGS", f"{c.spelling}::{m.spelling}")
 
 
 def write_ctypes_method(w: io.IOBase, cursor: cindex.Cursor, method: cindex.Cursor, *, pyi=False):
@@ -280,9 +293,9 @@ def write_ctypes_method(w: io.IOBase, cursor: cindex.Cursor, method: cindex.Curs
 
     indent = '        '
 
-    w.write(f'{indent}from . import impl\n')
+    w.write(f'{indent}from .impl import imgui\n')
     w.write(
-        f'{indent}return impl.{cursor.spelling}_{method.spelling}(self, *args)\n')
+        f'{indent}return imgui.{cursor.spelling}_{method.spelling}(self, *args)\n')
 
 
 def write_struct(w: io.IOBase, s: StructDecl, flags: wrap_types.WrapFlags) -> Iterable[Tuple[cindex.Cursor, cindex.Cursor]]:
@@ -338,9 +351,9 @@ def write_struct(w: io.IOBase, s: StructDecl, flags: wrap_types.WrapFlags) -> It
         w.write('    pass\n\n')
 
 
-def write_header(w: io.IOBase, parser: Parser, header: Header, ctw: io.IOBase):
+def write_header(w: io.IOBase, parser: Parser, header: Header, ctw: io.IOBase) -> Iterable[PyMethodDef]:
     w.write(f'''
-#include <{header.path.name}>
+# include <{header.path.name}>
 
 ''')
     if header.path.name == 'imgui.h':
@@ -375,87 +388,135 @@ def write_header(w: io.IOBase, parser: Parser, header: Header, ctw: io.IOBase):
         yield write_function(w, f, overload)
 
 
+class ModuleInfo:
+    def __init__(self, name) -> None:
+        self.name = name
+        self.functios = []
+
+    def write_to(self, w: io.IOBase):
+        sio = io.StringIO()
+        for func in self.functios:
+            sio.write(f'    {func},\n')
+        w.write(f'''
+{{ // {self.name}
+    static PyMethodDef Methods[] = {{
+    {sio.getvalue()}
+        {{NULL, NULL, 0, NULL}}        /* Sentinel */
+    }};
+
+    static struct PyModuleDef module = {{
+        PyModuleDef_HEAD_INIT,
+        "{self.name}",   /* name of module */
+        nullptr, /* module documentation, may be NULL */
+        -1,       /* size of per-interpreter state of the module,
+                    or -1 if the module keeps state in global variables. */
+        Methods
+    }};
+
+    auto m = PyModule_Create(&module);
+    assert(m);
+    // if (!m){{
+    //     return NULL;
+    // }}
+
+    // add submodule
+    PyDict_SetItemString(__dict__, "pydear.impl.{self.name}", m);
+}}
+''')
+
+
 def write(package_dir: pathlib.Path, parser: Parser, headers: List[Header]):
 
-    cpp_path = package_dir / 'rawtypes/implmodule.cpp'
+    cpp_path=package_dir / 'rawtypes/implmodule.cpp'
     cpp_path.parent.mkdir(parents=True, exist_ok=True)
 
-    ctypes_path = package_dir / 'ctypes.py'
+    ctypes_path=package_dir / 'ctypes.py'
 
     with cpp_path.open('w') as w:
         with ctypes_path.open('w') as ctw:
             w.write('''// generated
-#define PY_SSIZE_T_CLEAN
-#ifdef _DEBUG
-  #undef _DEBUG
-  #include <Python.h>
-  #define _DEBUG
-  #include <iostream>
-#else
-  #include <Python.h>
-#endif
+# define PY_SSIZE_T_CLEAN
+# ifdef _DEBUG
+  # undef _DEBUG
+  # include <Python.h>
+  # define _DEBUG
+  # include <iostream>
+# else
+  # include <Python.h>
+# endif
 
-#include <string>
-#include <string_view>
-#include <unordered_map>
+# include <string>
+# include <string_view>
+# include <unordered_map>
 
 ''')
 
             w.write(CTYPS_CAST)
             w.write(C_VOID_P)
 
-            sio = io.StringIO()
+            modules=[]
             for header in headers:
+                # separate header to submodule
+                info=ModuleInfo(header.path.stem)
+                modules.append(info)
+
                 for method in write_header(w, parser, header, ctw):
-                    sio.write('    ')
-                    sio.write(method)
+                    info.functios.append(method)
 
             w.write(f'''
-static PyMethodDef Methods[] = {{
-{sio.getvalue()}
-    {{NULL, NULL, 0, NULL}}        /* Sentinel */
-}};
-
-static struct PyModuleDef module = {{
-    PyModuleDef_HEAD_INIT,
-    "impl",   /* name of module */
-    nullptr, /* module documentation, may be NULL */
-    -1,       /* size of per-interpreter state of the module,
-                 or -1 if the module keeps state in global variables. */
-    Methods
-}};
-
 PyMODINIT_FUNC
 PyInit_impl(void)
 {{
-#ifdef _DEBUG
+# ifdef _DEBUG
     std::cout << "DEBUG_BUILD sizeof: ImGuiIO: " << sizeof(ImGuiIO) << std::endl;
-#endif
+# endif
 
-    auto m = PyModule_Create(&module);
-    if (!m){{
+auto __dict__ = PyImport_GetModuleDict();
+PyObject *__root__ = nullptr;
+{{ // create empty root module
+    static PyMethodDef Methods[] = {{
+        {{NULL, NULL, 0, NULL}}        /* Sentinel */
+    }};
+
+    static struct PyModuleDef module = {{
+        PyModuleDef_HEAD_INIT,
+        "impl",   /* name of module */
+        nullptr, /* module documentation, may be NULL */
+        -1,       /* size of per-interpreter state of the module,
+                    or -1 if the module keeps state in global variables. */
+        Methods
+    }};
+
+    __root__ = PyModule_Create(&module);
+    if (!__root__){{
         return NULL;
     }}
+}}
+''')
 
+            for module_info in modules:
+                module_info.write_to(w)
+
+            w.write(f'''
     static auto ImplError = PyErr_NewException("impl.error", NULL, NULL);
     Py_XINCREF(ImplError);
-    if (PyModule_AddObject(m, "error", ImplError) < 0) {{
+    if (PyModule_AddObject(__root__, "error", ImplError) < 0) {{
         Py_XDECREF(ImplError);
         Py_CLEAR(ImplError);
-        Py_DECREF(m);
+        Py_DECREF(__root__);
         return NULL;
     }}
 
     s_initialize();
 
-    return m;
+    return __root__;
 }}
 ''')
 
     #
     # pyi
     #
-    pyi_path = package_dir / '__init__.pyi'
+    pyi_path=package_dir / '__init__.pyi'
     with pyi_path.open('w') as pyi:
         pyi.write('''import ctypes
 from . imgui_enum import *
