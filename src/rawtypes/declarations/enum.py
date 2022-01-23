@@ -1,6 +1,7 @@
 from typing import NamedTuple, Tuple
 import io
 from rawtypes.clang import cindex
+import pathlib
 
 
 class EnumDecl(NamedTuple):
@@ -9,6 +10,10 @@ class EnumDecl(NamedTuple):
     @property
     def cursor(self) -> cindex.Cursor:
         return self.cursors[-1]
+
+    @property
+    def path(self) -> pathlib.Path:
+        return pathlib.Path(self.cursor.location.file.name)
 
     def write_to(self, w: io.IOBase):
         w.write(f'class {self.cursor.spelling}(IntEnum):\n')

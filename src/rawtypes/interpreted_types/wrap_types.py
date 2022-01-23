@@ -200,7 +200,7 @@ class PointerToStructType(PointerType):
 
     def py_value(self, value: str) -> str:
         if is_wrap_type(self.base.name):
-            return f'ctypes_cast(c_void_p({value}), "{self.base.name}")'
+            return f'ctypes_cast(c_void_p({value}), "{self.base.name}", "imgui")'
         else:
             return f'c_void_p({value})'
 
@@ -255,6 +255,6 @@ class ReferenceToStructType(ReferenceType):
         sio.write(f'{indent}auto py_value = c_void_p(value);\n')
         if is_wrap_type(self.base.name):
             sio.write(
-                f'{indent}py_value = ctypes_cast(py_value, "{self.base.name}");\n')
+                f'{indent}py_value = ctypes_cast(py_value, "{self.base.name}", "imgui");\n')
         sio.write(f'{indent}return py_value;\n')
         return sio.getvalue()

@@ -26,8 +26,7 @@ static PyObject* s_ctypes_POINTER = nullptr;
 static PyObject* s_ctypes__CFuncPtr = nullptr;
 static PyObject* s_ctypes_cast = nullptr;
 static PyObject* s_value = nullptr;
-static PyObject* s_pydear_ctypes = nullptr;
-
+static std::unordered_map<std::string, PyObject*> s_pydear_ctypes;
 static void s_initialize()
 {
     if(s_ctypes)
@@ -46,7 +45,6 @@ static void s_initialize()
     //
     s_value = PyUnicode_FromString("value");
     //
-    s_pydear_ctypes = PyImport_ImportModule("pydear.ctypes");
 }
 
 template<typename T>
@@ -83,25 +81,40 @@ PyErr_Print();
     return (T)nullptr;
 }
 
-static PyObject* GetCTypesType(const char *t)
+static PyObject* GetCTypesType(const char *t, const char *sub)
 {
     static std::unordered_map<std::string, PyObject*> s_map;
-    auto found = s_map.find(t);
-    if(found!=s_map.end())
     {
-        return found->second;
+        auto found = s_map.find(t);
+        if(found!=s_map.end())
+        {
+            return found->second;
+        }
     }
 
-    auto T = PyObject_GetAttrString(s_pydear_ctypes, t);
+    PyObject *p = nullptr;
+    {
+        auto found = s_pydear_ctypes.find(sub);
+        if(found==s_pydear_ctypes.end())
+        {
+            p = PyImport_ImportModule((std::string("pydear.") + sub).c_str());
+            s_pydear_ctypes.insert(std::make_pair(sub, p));
+        }
+        else{
+            p = found->second;
+        }
+    }
+
+    auto T = PyObject_GetAttrString(p, t);
     auto result = PyObject_CallFunction(s_ctypes_POINTER, "O", T);
     s_map.insert(std::make_pair(std::string(t), result));
     return result;
 }
 
-static PyObject* ctypes_cast(PyObject *src, const char *t)
+static PyObject* ctypes_cast(PyObject *src, const char *t, const char *sub)
 {
     // ctypes.cast(src, ctypes.POINTER(t))[0]
-    auto ptype = GetCTypesType(t);
+    auto ptype = GetCTypesType(t, sub);
     auto p = PyObject_CallFunction(s_ctypes_cast, "OO", src, ptype);
     Py_DECREF(src);
     auto py_value = PySequence_GetItem(p, 0);
@@ -157,6 +170,7 @@ static PyObject* c_void_p(const void* address)
 
 CTYPES_BEGIN = '''from typing import Iterable, Type, Tuple
 import ctypes
+from enum import IntEnum
 '''
 
 
@@ -351,7 +365,7 @@ def write_struct(w: io.IOBase, s: StructDecl, flags: wrap_types.WrapFlags) -> It
         w.write('    pass\n\n')
 
 
-def write_header(w: io.IOBase, parser: Parser, header: Header, ctw: io.IOBase) -> Iterable[PyMethodDef]:
+def write_header(w: io.IOBase, parser: Parser, header: Header, package_dir: pathlib.Path) -> Iterable[PyMethodDef]:
     w.write(f'''
 # include <{header.path.name}>
 
@@ -359,18 +373,44 @@ def write_header(w: io.IOBase, parser: Parser, header: Header, ctw: io.IOBase) -
     if header.path.name == 'imgui.h':
         w.write(IMGUI_TYPE)
 
-    # structs
-    ctw.write(CTYPES_BEGIN)
-    ctw.write(wrap_types.IMVECTOR)
-    for wrap_type in wrap_types.WRAP_TYPES:
-        for t in parser.typedef_struct_list:
-            if wrap_type.name == t.cursor.spelling:
-                match t:
-                    case StructDecl():
-                        if t.path != header.path:
-                            continue
-                        for struct, method in write_struct(ctw, t, wrap_type):
-                            yield write_method(w, struct, method)
+    #
+    # ctypes
+    #
+    with (package_dir / f'{header.path.stem}.py').open('w') as ew:
+        ew.write(CTYPES_BEGIN)
+        ew.write(f'from .impl.{header.path.stem} import *\n')
+        ew.write(wrap_types.IMVECTOR)
+        for wrap_type in wrap_types.WRAP_TYPES:
+            # structs
+            for t in parser.typedef_struct_list:
+                if wrap_type.name == t.cursor.spelling:
+                    match t:
+                        case StructDecl():
+                            if t.path != header.path:
+                                continue
+                            for struct, method in write_struct(ew, t, wrap_type):
+                                yield write_method(w, struct, method)
+
+        #
+        # enum
+        #
+        ew.write('from enum import IntEnum\n\n')
+        for e in parser.enums:
+            if e.path != header.path:
+                continue
+            e.write_to(ew)
+
+    #
+    # pyi
+    #
+    with (package_dir / f'{header.path.stem}.pyi').open('w') as pyi:
+        pyi.write('''import ctypes
+from . imgui_enum import *
+from typing import Any, Union, Tuple, TYpe, Iterable
+''')
+
+        pyi.write(wrap_types.IMVECTOR)
+        write_pyi(header, pyi, parser)
 
     # functions
     overload_map = {}
@@ -427,14 +467,11 @@ class ModuleInfo:
 
 def write(package_dir: pathlib.Path, parser: Parser, headers: List[Header]):
 
-    cpp_path=package_dir / 'rawtypes/implmodule.cpp'
+    cpp_path = package_dir / 'rawtypes/implmodule.cpp'
     cpp_path.parent.mkdir(parents=True, exist_ok=True)
 
-    ctypes_path=package_dir / 'ctypes.py'
-
     with cpp_path.open('w') as w:
-        with ctypes_path.open('w') as ctw:
-            w.write('''// generated
+        w.write('''// generated
 # define PY_SSIZE_T_CLEAN
 # ifdef _DEBUG
   # undef _DEBUG
@@ -451,19 +488,19 @@ def write(package_dir: pathlib.Path, parser: Parser, headers: List[Header]):
 
 ''')
 
-            w.write(CTYPS_CAST)
-            w.write(C_VOID_P)
+        w.write(CTYPS_CAST)
+        w.write(C_VOID_P)
 
-            modules=[]
-            for header in headers:
-                # separate header to submodule
-                info=ModuleInfo(header.path.stem)
-                modules.append(info)
+        modules = []
+        for header in headers:
+            # separate header to submodule
+            info = ModuleInfo(header.path.stem)
+            modules.append(info)
 
-                for method in write_header(w, parser, header, ctw):
-                    info.functios.append(method)
+            for method in write_header(w, parser, header, package_dir):
+                info.functios.append(method)
 
-            w.write(f'''
+        w.write(f'''
 PyMODINIT_FUNC
 PyInit_impl(void)
 {{
@@ -494,10 +531,10 @@ PyObject *__root__ = nullptr;
 }}
 ''')
 
-            for module_info in modules:
-                module_info.write_to(w)
+        for module_info in modules:
+            module_info.write_to(w)
 
-            w.write(f'''
+        w.write(f'''
     static auto ImplError = PyErr_NewException("impl.error", NULL, NULL);
     Py_XINCREF(ImplError);
     if (PyModule_AddObject(__root__, "error", ImplError) < 0) {{
@@ -512,17 +549,3 @@ PyObject *__root__ = nullptr;
     return __root__;
 }}
 ''')
-
-    #
-    # pyi
-    #
-    pyi_path=package_dir / '__init__.pyi'
-    with pyi_path.open('w') as pyi:
-        pyi.write('''import ctypes
-from . imgui_enum import *
-from typing import Any, Union, Tuple
-''')
-
-        pyi.write(wrap_types.IMVECTOR)
-        for header in headers:
-            write_pyi(header, pyi, parser)
