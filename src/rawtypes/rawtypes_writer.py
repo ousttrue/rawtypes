@@ -465,7 +465,7 @@ class ModuleInfo:
 ''')
 
 
-def write(package_dir: pathlib.Path, parser: Parser, headers: List[Header]):
+def write(package_dir: pathlib.Path, parser: Parser, headers: List[Header]) -> pathlib.Path:
 
     cpp_path = package_dir / 'rawtypes/implmodule.cpp'
     cpp_path.parent.mkdir(parents=True, exist_ok=True)
@@ -549,3 +549,5 @@ PyObject *__root__ = nullptr;
     return __root__;
 }}
 ''')
+
+    return cpp_path
