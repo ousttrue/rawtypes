@@ -11,7 +11,7 @@ class Generator:
         self.headers = list(headers)
         self.parser = Parser([header.path for header in headers])
         self.parser.traverse()
-        self.types = TypeRegisteration()
+        self.types = TypeManager()
 
     def generate(self, package_dir: pathlib.Path) -> pathlib.Path:
         cpp_path = package_dir / 'rawtypes/implmodule.cpp'

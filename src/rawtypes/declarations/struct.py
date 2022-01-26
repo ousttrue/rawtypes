@@ -5,7 +5,7 @@ import pathlib
 from rawtypes.clang import cindex
 #
 from .typewrap import TypeWrap
-from ..interpreted_types import WrapFlags, TypeRegisteration
+from ..interpreted_types import WrapFlags, TypeManager
 from . import function
 
 
@@ -123,7 +123,7 @@ class StructDecl(NamedTuple):
         if not fields and not methods and not flags.custom_methods:
             pyx.write('    pass\n\n')
 
-    def write_pyi(self, type_map: TypeRegisteration, pyi: io.IOBase, *, flags: WrapFlags = WrapFlags('')):
+    def write_pyi(self, type_map: TypeManager, pyi: io.IOBase, *, flags: WrapFlags = WrapFlags('')):
         cursor = self.cursors[-1]
 
         definition = cursor.get_definition()

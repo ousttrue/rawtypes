@@ -89,7 +89,7 @@ class TypeProcessor(NamedTuple):
     process: Callable[[TypeWithCursor], Optional[BaseType]]
 
 
-class TypeRegisteration:
+class TypeManager:
     def __init__(self) -> None:
         self.WRAP_TYPES: List[WrapFlags] = []
         self.processors: List[TypeProcessor] = []
@@ -155,7 +155,7 @@ class TypeRegisteration:
                 pointee = c.type.get_pointee()
                 base = self.get(TypeWithCursor(pointee, c.cursor))
                 if isinstance(base, StructType) and any(t for t in self.WRAP_TYPES if t.name == base.name):
-                    return PointerToStructType(base, is_const=c.type.is_const_qualified())
+                    return PointerToStructType(base, is_const=c.type.is_const_qualified(), is_wrap_type=self.is_wrap_type(base.name))
 
                 return PointerType(base, is_const=c.type.is_const_qualified())
 
@@ -163,7 +163,7 @@ class TypeRegisteration:
                 pointee = c.type.get_pointee()
                 base = self.get(TypeWithCursor(pointee, c.cursor))
                 if isinstance(base, StructType) and any(t for t in self.WRAP_TYPES if t.name == base.name):
-                    return ReferenceToStructType(base, is_const=c.type.is_const_qualified())
+                    return ReferenceToStructType(base, is_const=c.type.is_const_qualified(), is_wrap_type=self.is_wrap_type(base.name))
 
                 return ReferenceType(base, is_const=c.type.is_const_qualified())
 

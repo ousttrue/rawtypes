@@ -225,7 +225,7 @@ def write_function(w: io.IOBase, type_map, f: FunctionDecl, overload: str) -> Py
     return PyMethodDef(f"{f.spelling}{overload}", func_name, "METH_VARARGS", f"{namespace}{f.spelling}")
 
 
-def write_method(w: io.IOBase, type_map: interpreted_types.TypeRegisteration, c: cindex.Cursor,  m: cindex.Cursor) -> PyMethodDef:
+def write_method(w: io.IOBase, type_map: interpreted_types.TypeManager, c: cindex.Cursor,  m: cindex.Cursor) -> PyMethodDef:
     # signature
     func_name = f'{c.spelling}_{m.spelling}'
 
@@ -267,7 +267,7 @@ def write_method(w: io.IOBase, type_map: interpreted_types.TypeRegisteration, c:
     return PyMethodDef(f"{c.spelling}_{m.spelling}", f"{c.spelling}_{m.spelling}", "METH_VARARGS", f"{c.spelling}::{m.spelling}")
 
 
-def write_ctypes_method(w: io.IOBase, types: interpreted_types.TypeRegisteration, cursor: cindex.Cursor, method: cindex.Cursor, *, pyi=False):
+def write_ctypes_method(w: io.IOBase, types: interpreted_types.TypeManager, cursor: cindex.Cursor, method: cindex.Cursor, *, pyi=False):
     params = TypeWrap.get_function_params(method)
     result = TypeWrap.from_function_result(method)
     result_t = types.from_cursor(result.type, result.cursor)
@@ -290,7 +290,7 @@ def write_ctypes_method(w: io.IOBase, types: interpreted_types.TypeRegisteration
         f'{indent}return imgui.{cursor.spelling}_{method.spelling}(self, *args)\n')
 
 
-def write_struct(w: io.IOBase, types: interpreted_types.TypeRegisteration, s: StructDecl, flags: WrapFlags) -> Iterable[Tuple[cindex.Cursor, cindex.Cursor]]:
+def write_struct(w: io.IOBase, types: interpreted_types.TypeManager, s: StructDecl, flags: WrapFlags) -> Iterable[Tuple[cindex.Cursor, cindex.Cursor]]:
     cursor = s.cursors[-1]
 
     definition = cursor.get_definition()
