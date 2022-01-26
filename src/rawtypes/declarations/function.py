@@ -154,6 +154,9 @@ def write_pyx_method(type_map: TypeManager, pyx: io.IOBase, cursor: cindex.Curso
 class FunctionDecl(NamedTuple):
     cursors: Tuple[cindex.Cursor, ...]
 
+    def __repr__(self) -> str:
+        return self.spelling
+
     @property
     def cursor(self) -> cindex.Cursor:
         return self.cursors[-1]

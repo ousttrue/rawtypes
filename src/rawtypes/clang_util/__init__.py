@@ -1,7 +1,8 @@
 from typing import NamedTuple, List, Optional, Callable
 import os, platform
 from ..clang import cindex
-
+import logging
+logger = logging.getLogger(__name__)
 
 class Unsaved(NamedTuple):
     name: str
@@ -42,7 +43,7 @@ def get_tu(entrypoint: str,
         cindex.Config.library_file = 'libclang-13.so'
 
     index = cindex.Index.create()
-
+    logger.debug(arguments)
     tu = index.parse(entrypoint, arguments, unsaved,
                      cindex.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD |
                      cindex.TranslationUnit.PARSE_SKIP_FUNCTION_BODIES)

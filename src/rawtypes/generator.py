@@ -7,9 +7,14 @@ from .interpreted_types import *
 
 
 class Generator:
-    def __init__(self, *headers: Header) -> None:
+    def __init__(self, *headers: Header, include_dirs = []) -> None:
         self.headers = list(headers)
-        self.parser = Parser([header.path for header in headers])
+
+        targets = []
+        for header in headers:
+            targets.append(header.path)
+            include_dirs += header.include_dirs
+        self.parser = Parser([header.path for header in headers], include_dirs=include_dirs)
         self.parser.traverse()
         self.types = TypeManager()
 

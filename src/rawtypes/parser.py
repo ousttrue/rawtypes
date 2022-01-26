@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class Parser:
-    def __init__(self, headers: List[pathlib.Path]) -> None:
+    def __init__(self, headers: List[pathlib.Path], *, include_dirs=[]) -> None:
         sio = io.StringIO()
         for header in headers:
             sio.write(f'#include "{header.name}"\n')
@@ -19,7 +19,8 @@ class Parser:
 
         self.headers = headers
 
-        include_dirs = [str(header.parent)for header in headers]
+        include_dirs = [str(header.parent)for header in headers] + \
+            [str(dir) for dir in include_dirs]
         unsaved = clang_util.Unsaved('tmp.h', sio.getvalue())
         self.tu = clang_util.get_tu(
             'tmp.h', include_dirs=include_dirs, unsaved=[unsaved], flags=['-DNOMINMAX'])
@@ -49,10 +50,12 @@ class Parser:
                     return True
                 case (
                     cindex.CursorKind.MACRO_DEFINITION
-                    | cindex.CursorKind.MACRO_INSTANTIATION
                     | cindex.CursorKind.INCLUSION_DIRECTIVE
                     | cindex.CursorKind.FUNCTION_TEMPLATE
                 ):
+                    pass
+
+                case cindex.CursorKind.MACRO_INSTANTIATION:
                     pass
 
                 case (
@@ -76,12 +79,12 @@ class Parser:
                     self.typedef_struct_list.append(StructDecl(cursor_path))
                 case cindex.CursorKind.CLASS_DECL:
                     self.typedef_struct_list.append(StructDecl(cursor_path))
+                case cindex.CursorKind.UNEXPOSED_DECL:
+                    # extern C etc...
+                    return True
                 case _:
-                    tokens = [token.spelling for token in cursor.get_tokens()]
-                    if tokens and tokens[0] == 'extern':
-                        return True
-                    else:
-                        logger.debug(cursor.kind)
+                    logger.debug(cursor.kind)
+
         else:
             if not location.file.name.startswith('C:'):
                 if location.file.name not in self.skip:
@@ -93,3 +96,9 @@ class Parser:
     def traverse(self):
         from . import clang_util
         clang_util.traverse(self.tu, self.callback)
+
+    def get_function(self, name) -> FunctionDecl:
+        for f in self.functions:
+            if f.spelling == name:
+                return f
+        raise KeyError(name)
