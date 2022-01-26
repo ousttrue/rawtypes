@@ -11,7 +11,7 @@ def write_pyi(header: Header, generator, pyi: io.IOBase):
         for v in generator.types.WRAP_TYPES:
             for func in types:
                 if func.cursor.spelling == v.name:
-                    func.write_pyi(pyi, flags=v)
+                    func.write_pyi(generator.types, pyi, flags=v)
 
     funcs = [x for x in generator.parser.functions if pathlib.Path(
         x.cursor.location.file.name) == header.path]

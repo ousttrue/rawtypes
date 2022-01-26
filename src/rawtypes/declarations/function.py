@@ -4,6 +4,7 @@ import logging
 import io
 from rawtypes.clang import cindex
 from .typewrap import TypeWrap
+from ..interpreted_types import TypeRegisteration
 
 logger = logging.getLogger(__name__)
 
@@ -116,7 +117,7 @@ def write_pyx_function(type_map, pyx: io.IOBase, function: cindex.Cursor, *, pyi
     pyx.write('\n')
 
 
-def write_pyx_method(type_map, pyx: io.IOBase, cursor: cindex.Cursor, method: cindex.Cursor, *, pyi=False):
+def write_pyx_method(type_map: TypeRegisteration, pyx: io.IOBase, cursor: cindex.Cursor, method: cindex.Cursor, *, pyi=False):
     params = TypeWrap.get_function_params(method)
     result = TypeWrap.from_function_result(method)
     result_t = type_map.from_cursor(result.type, result.cursor)

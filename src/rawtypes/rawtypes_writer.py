@@ -225,7 +225,7 @@ def write_function(w: io.IOBase, type_map, f: FunctionDecl, overload: str) -> Py
     return PyMethodDef(f"{f.spelling}{overload}", func_name, "METH_VARARGS", f"{namespace}{f.spelling}")
 
 
-def write_method(w: io.IOBase, generator, c: cindex.Cursor,  m: cindex.Cursor) -> PyMethodDef:
+def write_method(w: io.IOBase, type_map: interpreted_types.TypeRegisteration, c: cindex.Cursor,  m: cindex.Cursor) -> PyMethodDef:
     # signature
     func_name = f'{c.spelling}_{m.spelling}'
 
@@ -236,7 +236,7 @@ def write_method(w: io.IOBase, generator, c: cindex.Cursor,  m: cindex.Cursor) -
         f'static PyObject *{func_name}(PyObject *self, PyObject *args){{\n')
 
     # prams
-    types, format, extract, cpp_from_py = get_params(generator, indent, m)
+    types, format, extract, cpp_from_py = type_map.get_params(indent, m)
 
     format = 'O' + format
 
@@ -257,7 +257,7 @@ def write_method(w: io.IOBase, generator, c: cindex.Cursor,  m: cindex.Cursor) -
     # call & result
     call_params = ', '.join(t.cpp_call_name(i) for i, t in enumerate(types))
     call = f'ptr->{m.spelling}({call_params})'
-    w.write(generator.from_cursor(
+    w.write(type_map.from_cursor(
         result.type, result.cursor).cpp_result(indent, call))
 
     w.write(f'''}}
@@ -267,10 +267,10 @@ def write_method(w: io.IOBase, generator, c: cindex.Cursor,  m: cindex.Cursor) -
     return PyMethodDef(f"{c.spelling}_{m.spelling}", f"{c.spelling}_{m.spelling}", "METH_VARARGS", f"{c.spelling}::{m.spelling}")
 
 
-def write_ctypes_method(w: io.IOBase, generator, cursor: cindex.Cursor, method: cindex.Cursor, *, pyi=False):
+def write_ctypes_method(w: io.IOBase, types: interpreted_types.TypeRegisteration, cursor: cindex.Cursor, method: cindex.Cursor, *, pyi=False):
     params = TypeWrap.get_function_params(method)
     result = TypeWrap.from_function_result(method)
-    result_t = generator.from_cursor(result.type, result.cursor)
+    result_t = types.from_cursor(result.type, result.cursor)
 
     # signature
     w.write(
@@ -290,7 +290,7 @@ def write_ctypes_method(w: io.IOBase, generator, cursor: cindex.Cursor, method: 
         f'{indent}return imgui.{cursor.spelling}_{method.spelling}(self, *args)\n')
 
 
-def write_struct(w: io.IOBase, generator, s: StructDecl, flags: WrapFlags) -> Iterable[Tuple[cindex.Cursor, cindex.Cursor]]:
+def write_struct(w: io.IOBase, types: interpreted_types.TypeRegisteration, s: StructDecl, flags: WrapFlags) -> Iterable[Tuple[cindex.Cursor, cindex.Cursor]]:
     cursor = s.cursors[-1]
 
     definition = cursor.get_definition()
@@ -307,7 +307,7 @@ def write_struct(w: io.IOBase, generator, s: StructDecl, flags: WrapFlags) -> It
             name = field.name
             if flags.custom_fields.get(name):
                 name = '_' + name
-            w.write(generator.from_cursor(
+            w.write(types.from_cursor(
                 field.cursor.type, field.cursor).ctypes_field(indent, name))
         w.write('    ]\n\n')
 
@@ -331,7 +331,7 @@ def write_struct(w: io.IOBase, generator, s: StructDecl, flags: WrapFlags) -> It
     methods = TypeWrap.get_struct_methods(cursor, includes=flags.methods)
     if methods:
         for method in methods:
-            write_ctypes_method(w, generator, cursor, method)
+            write_ctypes_method(w, types, cursor, method)
             yield cursor, method
 
     for code in flags.custom_methods:
@@ -366,8 +366,8 @@ def write_header(w: io.IOBase, generator, header: Header, package_dir: pathlib.P
                         case StructDecl():
                             if t.path != header.path:
                                 continue
-                            for struct, method in write_struct(ew, generator, t, wrap_type):
-                                yield write_method(w, generator, struct, method)
+                            for struct, method in write_struct(ew, generator.types, t, wrap_type):
+                                yield write_method(w, generator.types, struct, method)
 
         #
         # enum
