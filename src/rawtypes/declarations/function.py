@@ -45,32 +45,6 @@ def self_cj(src: Iterable[str]) -> str:
 
 
 '''
-PXD
-'''
-
-
-def write_pxd_function(pxd: io.IOBase, function: cindex.Cursor):
-    params = [param.c_type_with_name for param in TypeWrap.get_function_params(
-        function)]
-    result = TypeWrap.from_function_result(function)
-    pxd.write(
-        f'    {result.c_type} {function.spelling}{cj(params)}\n')
-
-
-def write_pxd_constructor(pxd: io.IOBase, klass: cindex.Cursor, constructor: cindex.Cursor):
-    params = TypeWrap.get_function_params(constructor)
-    pxd.write(
-        f'        {klass.spelling}{cj(param.c_type_with_name for param in params)}\n')
-
-
-def write_pxd_method(pxd: io.IOBase, method: cindex.Cursor):
-    params = TypeWrap.get_function_params(method)
-    result = TypeWrap.from_function_result(method)
-    pxd.write(
-        f'        {result.c_type} {method.spelling}{cj(param.c_type_with_name for param in params)}\n')
-
-
-'''
 PYX
 '''
 
