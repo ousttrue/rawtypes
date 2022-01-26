@@ -2,6 +2,9 @@ from typing import Callable, Tuple
 import unittest
 from rawtypes import interpreted_types
 from rawtypes.clang import cindex
+from rawtypes.generator import Generator
+
+generator = Generator()
 
 
 def parse(src: str) -> cindex.TranslationUnit:
@@ -26,14 +29,14 @@ def parse_get_func(src: str) -> Tuple[cindex.TranslationUnit, cindex.Cursor]:
 
 def parse_get_result_type(src: str) -> interpreted_types.BaseType:
     tu, c = parse_get_func(src)
-    return interpreted_types.from_cursor(c.result_type, c)
+    return generator.types.from_cursor(c.result_type, c)
 
 
 def parse_get_param_type(i: int, src: str) -> interpreted_types.BaseType:
     tu, c = parse_get_func(src)
     from rawtypes.declarations.typewrap import TypeWrap
     p = TypeWrap.get_function_params(c)[i].cursor
-    return interpreted_types.from_cursor(p.type, p)
+    return generator.types.from_cursor(p.type, p)
 
 
 class TestInterpretedTypes(unittest.TestCase):

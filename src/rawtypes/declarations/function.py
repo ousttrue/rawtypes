@@ -4,7 +4,6 @@ import logging
 import io
 from rawtypes.clang import cindex
 from .typewrap import TypeWrap
-from .. import interpreted_types
 
 logger = logging.getLogger(__name__)
 
@@ -75,25 +74,25 @@ PYX
 '''
 
 
-def extract_parameters(pyx: io.IOBase, params: List[TypeWrap], indent: str) -> List[str]:
+def extract_parameters(type_map, pyx: io.IOBase, params: List[TypeWrap], indent: str) -> List[str]:
     param_names = []
     for i, param in enumerate(params):
-        t = interpreted_types.from_cursor(param.cursor.type, param.cursor)
+        t = type_map.from_cursor(param.cursor.type, param.cursor)
         pyx.write(f'{t.cdef_param(indent, i, param.name)}')
         param_names.append(t.call_param(i))
     return param_names
 
 
-def write_pyx_function(pyx: io.IOBase, function: cindex.Cursor, *, pyi=False, overload=1, prefix=''):
+def write_pyx_function(type_map, pyx: io.IOBase, function: cindex.Cursor, *, pyi=False, overload=1, prefix=''):
     result = TypeWrap.from_function_result(function)
-    result_t = interpreted_types.from_cursor(result.type, result.cursor)
+    result_t = type_map.from_cursor(result.type, result.cursor)
     params = TypeWrap.get_function_params(function)
 
     overload = '' if overload == 1 else f'_{overload}'
 
     # signature
     pyx.write(
-        f"def {prefix}{function.spelling}{overload}{cj(interpreted_types.from_cursor(param.type, param.cursor).param(param.name, param.default_value(True), pyi=pyi) for param in params)}")
+        f"def {prefix}{function.spelling}{overload}{cj(type_map.from_cursor(param.type, param.cursor).param(param.name, param.default_value(True), pyi=pyi) for param in params)}")
     # return type
     pyx.write(f'->{result_t.result_typing(pyi=pyi)}:')
 
@@ -106,7 +105,7 @@ def write_pyx_function(pyx: io.IOBase, function: cindex.Cursor, *, pyi=False, ov
     indent = '    '
 
     # cdef parameters
-    param_names = extract_parameters(pyx, params, indent)
+    param_names = extract_parameters(type_map, pyx, params, indent)
 
     # body
     call = f'impl.{function.spelling}{cj(param_names)}'
@@ -117,14 +116,14 @@ def write_pyx_function(pyx: io.IOBase, function: cindex.Cursor, *, pyi=False, ov
     pyx.write('\n')
 
 
-def write_pyx_method(pyx: io.IOBase, cursor: cindex.Cursor, method: cindex.Cursor, *, pyi=False):
+def write_pyx_method(type_map, pyx: io.IOBase, cursor: cindex.Cursor, method: cindex.Cursor, *, pyi=False):
     params = TypeWrap.get_function_params(method)
     result = TypeWrap.from_function_result(method)
-    result_t = interpreted_types.from_cursor(result.type, result.cursor)
+    result_t = type_map.from_cursor(result.type, result.cursor)
 
     # signature
     pyx.write(
-        f'    def {method.spelling}{self_cj(interpreted_types.from_cursor(param.cursor.type, param.cursor).param(param.name, param.default_value, pyi=pyi) for param in params)}')
+        f'    def {method.spelling}{self_cj(type_map.from_cursor(param.cursor.type, param.cursor).param(param.name, param.default_value, pyi=pyi) for param in params)}')
     pyx.write(f'->{result_t.result_typing(pyi=pyi)}:')
 
     if pyi:
@@ -140,7 +139,7 @@ def write_pyx_method(pyx: io.IOBase, cursor: cindex.Cursor, method: cindex.Curso
         f'{indent}cdef impl.{cursor.spelling} *ptr = <impl.{cursor.spelling}*><uintptr_t>ctypes.addressof(self)\n')
 
     # cdef parameters
-    param_names = extract_parameters(pyx, params, indent)
+    param_names = extract_parameters(type_map, pyx, params, indent)
 
     # body
     call = f'ptr.{method.spelling}{cj(param_names)}'

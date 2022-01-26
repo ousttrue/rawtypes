@@ -5,9 +5,8 @@ import pathlib
 from rawtypes.clang import cindex
 #
 from .typewrap import TypeWrap
-from ..interpreted_types.wrap_types import WrapFlags
+from ..interpreted_types import WrapFlags
 from . import function
-from ..interpreted_types import from_cursor
 
 
 def is_forward_declaration(cursor: cindex.Cursor) -> bool:
@@ -73,7 +72,7 @@ class StructDecl(NamedTuple):
 
         pxd.write('\n')
 
-    def write_pyx_ctypes(self, pyx: io.IOBase, *, flags: WrapFlags = WrapFlags('')):
+    def write_pyx_ctypes(self, generator, pyx: io.IOBase, *, flags: WrapFlags = WrapFlags('')):
         cursor = self.cursors[-1]
 
         definition = cursor.get_definition()
@@ -90,7 +89,7 @@ class StructDecl(NamedTuple):
                 name = field.name
                 if flags.custom_fields.get(name):
                     name = '_' + name
-                pyx.write(from_cursor(field.cursor.type,
+                pyx.write(generator.from_cursor(field.cursor.type,
                           field.cursor).ctypes_field(indent, name))
             pyx.write('    ]\n\n')
 
@@ -114,7 +113,7 @@ class StructDecl(NamedTuple):
         methods = TypeWrap.get_struct_methods(cursor, includes=flags.methods)
         if methods:
             for method in methods:
-                function.write_pyx_method(pyx, cursor, method)
+                function.write_pyx_method(generator, pyx, cursor, method)
 
         for code in flags.custom_methods:
             for l in code.splitlines():
@@ -124,7 +123,7 @@ class StructDecl(NamedTuple):
         if not fields and not methods and not flags.custom_methods:
             pyx.write('    pass\n\n')
 
-    def write_pyi(self, pyi: io.IOBase, *, flags: WrapFlags = WrapFlags('')):
+    def write_pyi(self, generator, pyi: io.IOBase, *, flags: WrapFlags = WrapFlags('')):
         cursor = self.cursors[-1]
 
         definition = cursor.get_definition()
@@ -139,7 +138,7 @@ class StructDecl(NamedTuple):
                 name = field.name
                 if flags.custom_fields.get(name):
                     name = '_' + name
-                pyi.write(from_cursor(field.type, field.cursor).pyi_field(
+                pyi.write(generator.from_cursor(field.type, field.cursor).pyi_field(
                     '    ', field.name))
             pyi.write('\n')
 
@@ -151,7 +150,7 @@ class StructDecl(NamedTuple):
         methods = TypeWrap.get_struct_methods(cursor, includes=flags.methods)
         if methods:
             for method in methods:
-                function.write_pyx_method(pyi, cursor, method, pyi=True)
+                function.write_pyx_method(generator, pyi, cursor, method, pyi=True)
 
         for custom in flags.custom_methods:
             l = next(iter(custom.splitlines()))

@@ -10,7 +10,7 @@ from .header import Header
 from .declarations.typewrap import TypeWrap
 from .declarations.function import FunctionDecl
 from .declarations.struct import StructDecl
-from .interpreted_types import wrap_types
+from .interpreted_types import wrap_types, WrapFlags
 from .pyi_writer import write_pyi
 from . import interpreted_types
 
@@ -182,28 +182,6 @@ def get_namespace(cursors: Tuple[cindex.Cursor, ...]) -> str:
     return sio.getvalue()
 
 
-def get_params(indent: str, cursor: cindex.Cursor) -> Tuple[List[interpreted_types.basetype.BaseType], str, str, str]:
-    sio_extract = io.StringIO()
-    sio_cpp_from_py = io.StringIO()
-    types = []
-    format = ''
-    last_format = None
-    for i, param in enumerate(TypeWrap.get_function_params(cursor)):
-        t = interpreted_types.from_cursor(param.type, param.cursor)
-        sio_extract.write(t.cpp_param_declare(indent, i, param.name))
-        types.append(t)
-        d = param.default_value(use_filter=False)
-        if not last_format and d:
-            format += '|'
-        last_format = d
-        format += t.format
-        if d:
-            d = d.split('=', maxsplit=1)[1]
-        sio_cpp_from_py.write(t.cpp_from_py(
-            indent, i, d))
-    return types, format, sio_extract.getvalue(), sio_cpp_from_py.getvalue()
-
-
 class PyMethodDef(NamedTuple):
     name: str
     meth: str
@@ -214,7 +192,7 @@ class PyMethodDef(NamedTuple):
         return f'{{"{self.name}", {self.meth}, {self.flags}, "{self.doc}"}}'
 
 
-def write_function(w: io.IOBase, f: FunctionDecl, overload: str) -> PyMethodDef:
+def write_function(w: io.IOBase, type_map, f: FunctionDecl, overload: str) -> PyMethodDef:
     # signature
     func_name = f'{f.path.stem}_{f.spelling}{overload}'
 
@@ -225,7 +203,7 @@ def write_function(w: io.IOBase, f: FunctionDecl, overload: str) -> PyMethodDef:
         f'static PyObject *{func_name}(PyObject *self, PyObject *args){{\n')
 
     # prams
-    types, format, extract, cpp_from_py = get_params(indent, f.cursor)
+    types, format, extract, cpp_from_py = type_map.get_params(indent, f.cursor)
     w.write(extract)
 
     extract_params = ''.join(', &' + t.cpp_extract_name(i)
@@ -237,7 +215,7 @@ def write_function(w: io.IOBase, f: FunctionDecl, overload: str) -> PyMethodDef:
     # call & result
     call_params = ', '.join(t.cpp_call_name(i) for i, t in enumerate(types))
     call = f'{namespace}{f.spelling}({call_params})'
-    w.write(interpreted_types.from_cursor(
+    w.write(type_map.from_cursor(
         result.type, result.cursor).cpp_result(indent, call))
 
     w.write(f'''}}
@@ -247,7 +225,7 @@ def write_function(w: io.IOBase, f: FunctionDecl, overload: str) -> PyMethodDef:
     return PyMethodDef(f"{f.spelling}{overload}", func_name, "METH_VARARGS", f"{namespace}{f.spelling}")
 
 
-def write_method(w: io.IOBase, c: cindex.Cursor,  m: cindex.Cursor) -> PyMethodDef:
+def write_method(w: io.IOBase, generator, c: cindex.Cursor,  m: cindex.Cursor) -> PyMethodDef:
     # signature
     func_name = f'{c.spelling}_{m.spelling}'
 
@@ -258,7 +236,7 @@ def write_method(w: io.IOBase, c: cindex.Cursor,  m: cindex.Cursor) -> PyMethodD
         f'static PyObject *{func_name}(PyObject *self, PyObject *args){{\n')
 
     # prams
-    types, format, extract, cpp_from_py = get_params(indent, m)
+    types, format, extract, cpp_from_py = get_params(generator, indent, m)
 
     format = 'O' + format
 
@@ -279,7 +257,7 @@ def write_method(w: io.IOBase, c: cindex.Cursor,  m: cindex.Cursor) -> PyMethodD
     # call & result
     call_params = ', '.join(t.cpp_call_name(i) for i, t in enumerate(types))
     call = f'ptr->{m.spelling}({call_params})'
-    w.write(interpreted_types.from_cursor(
+    w.write(generator.from_cursor(
         result.type, result.cursor).cpp_result(indent, call))
 
     w.write(f'''}}
@@ -289,10 +267,10 @@ def write_method(w: io.IOBase, c: cindex.Cursor,  m: cindex.Cursor) -> PyMethodD
     return PyMethodDef(f"{c.spelling}_{m.spelling}", f"{c.spelling}_{m.spelling}", "METH_VARARGS", f"{c.spelling}::{m.spelling}")
 
 
-def write_ctypes_method(w: io.IOBase, cursor: cindex.Cursor, method: cindex.Cursor, *, pyi=False):
+def write_ctypes_method(w: io.IOBase, generator, cursor: cindex.Cursor, method: cindex.Cursor, *, pyi=False):
     params = TypeWrap.get_function_params(method)
     result = TypeWrap.from_function_result(method)
-    result_t = interpreted_types.from_cursor(result.type, result.cursor)
+    result_t = generator.from_cursor(result.type, result.cursor)
 
     # signature
     w.write(
@@ -312,7 +290,7 @@ def write_ctypes_method(w: io.IOBase, cursor: cindex.Cursor, method: cindex.Curs
         f'{indent}return imgui.{cursor.spelling}_{method.spelling}(self, *args)\n')
 
 
-def write_struct(w: io.IOBase, s: StructDecl, flags: wrap_types.WrapFlags) -> Iterable[Tuple[cindex.Cursor, cindex.Cursor]]:
+def write_struct(w: io.IOBase, generator, s: StructDecl, flags: WrapFlags) -> Iterable[Tuple[cindex.Cursor, cindex.Cursor]]:
     cursor = s.cursors[-1]
 
     definition = cursor.get_definition()
@@ -329,7 +307,7 @@ def write_struct(w: io.IOBase, s: StructDecl, flags: wrap_types.WrapFlags) -> It
             name = field.name
             if flags.custom_fields.get(name):
                 name = '_' + name
-            w.write(interpreted_types.from_cursor(
+            w.write(generator.from_cursor(
                 field.cursor.type, field.cursor).ctypes_field(indent, name))
         w.write('    ]\n\n')
 
@@ -353,7 +331,7 @@ def write_struct(w: io.IOBase, s: StructDecl, flags: wrap_types.WrapFlags) -> It
     methods = TypeWrap.get_struct_methods(cursor, includes=flags.methods)
     if methods:
         for method in methods:
-            write_ctypes_method(w, cursor, method)
+            write_ctypes_method(w, generator, cursor, method)
             yield cursor, method
 
     for code in flags.custom_methods:
@@ -365,7 +343,7 @@ def write_struct(w: io.IOBase, s: StructDecl, flags: wrap_types.WrapFlags) -> It
         w.write('    pass\n\n')
 
 
-def write_header(w: io.IOBase, parser: Parser, header: Header, package_dir: pathlib.Path) -> Iterable[PyMethodDef]:
+def write_header(w: io.IOBase, generator, header: Header, package_dir: pathlib.Path) -> Iterable[PyMethodDef]:
     w.write(f'''
 # include <{header.path.name}>
 
@@ -379,23 +357,23 @@ def write_header(w: io.IOBase, parser: Parser, header: Header, package_dir: path
     with (package_dir / f'{header.path.stem}.py').open('w') as ew:
         ew.write(CTYPES_BEGIN)
         ew.write(f'from .impl.{header.path.stem} import *\n')
-        ew.write(wrap_types.IMVECTOR)
-        for wrap_type in wrap_types.WRAP_TYPES:
+        ew.write(header.begin)
+        for wrap_type in generator.types.WRAP_TYPES:
             # structs
-            for t in parser.typedef_struct_list:
+            for t in generator.parser.typedef_struct_list:
                 if wrap_type.name == t.cursor.spelling:
                     match t:
                         case StructDecl():
                             if t.path != header.path:
                                 continue
-                            for struct, method in write_struct(ew, t, wrap_type):
-                                yield write_method(w, struct, method)
+                            for struct, method in write_struct(ew, generator, t, wrap_type):
+                                yield write_method(w, generator, struct, method)
 
         #
         # enum
         #
         ew.write('from enum import IntEnum\n\n')
-        for e in parser.enums:
+        for e in generator.parser.enums:
             if e.path != header.path:
                 continue
             e.write_to(ew)
@@ -409,12 +387,12 @@ from . imgui_enum import *
 from typing import Any, Union, Tuple, TYpe, Iterable
 ''')
 
-        pyi.write(wrap_types.IMVECTOR)
-        write_pyi(header, pyi, parser)
+        pyi.write(header.begin)
+        write_pyi(header, generator, pyi)
 
     # functions
     overload_map = {}
-    for f in parser.functions:
+    for f in generator.parser.functions:
         if header.path != f.path:
             continue
         if f.is_exclude_function():
@@ -425,7 +403,7 @@ from typing import Any, Union, Tuple, TYpe, Iterable
         overload = ''
         if overload_count > 1:
             overload += f'_{overload_count}'
-        yield write_function(w, f, overload)
+        yield write_function(w, generator.types, f, overload)
 
 
 class ModuleInfo:
@@ -463,91 +441,3 @@ class ModuleInfo:
     PyDict_SetItemString(__dict__, "pydear.impl.{self.name}", m);
 }}
 ''')
-
-
-def write(package_dir: pathlib.Path, parser: Parser, headers: List[Header]) -> pathlib.Path:
-
-    cpp_path = package_dir / 'rawtypes/implmodule.cpp'
-    cpp_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with cpp_path.open('w') as w:
-        w.write('''// generated
-# define PY_SSIZE_T_CLEAN
-# ifdef _DEBUG
-  # undef _DEBUG
-  # include <Python.h>
-  # define _DEBUG
-  # include <iostream>
-# else
-  # include <Python.h>
-# endif
-
-# include <string>
-# include <string_view>
-# include <unordered_map>
-
-''')
-
-        w.write(CTYPS_CAST)
-        w.write(C_VOID_P)
-
-        modules = []
-        for header in headers:
-            # separate header to submodule
-            info = ModuleInfo(header.path.stem)
-            modules.append(info)
-
-            for method in write_header(w, parser, header, package_dir):
-                info.functios.append(method)
-
-        w.write(f'''
-PyMODINIT_FUNC
-PyInit_impl(void)
-{{
-# ifdef _DEBUG
-    std::cout << "DEBUG_BUILD sizeof: ImGuiIO: " << sizeof(ImGuiIO) << std::endl;
-# endif
-
-auto __dict__ = PyImport_GetModuleDict();
-PyObject *__root__ = nullptr;
-{{ // create empty root module
-    static PyMethodDef Methods[] = {{
-        {{NULL, NULL, 0, NULL}}        /* Sentinel */
-    }};
-
-    static struct PyModuleDef module = {{
-        PyModuleDef_HEAD_INIT,
-        "impl",   /* name of module */
-        nullptr, /* module documentation, may be NULL */
-        -1,       /* size of per-interpreter state of the module,
-                    or -1 if the module keeps state in global variables. */
-        Methods
-    }};
-
-    __root__ = PyModule_Create(&module);
-    if (!__root__){{
-        return NULL;
-    }}
-}}
-''')
-
-        for module_info in modules:
-            module_info.write_to(w)
-
-        w.write(f'''
-    static auto ImplError = PyErr_NewException("impl.error", NULL, NULL);
-    Py_XINCREF(ImplError);
-    if (PyModule_AddObject(__root__, "error", ImplError) < 0) {{
-        Py_XDECREF(ImplError);
-        Py_CLEAR(ImplError);
-        Py_DECREF(__root__);
-        return NULL;
-    }}
-
-    s_initialize();
-
-    return __root__;
-}}
-''')
-
-    return cpp_path
