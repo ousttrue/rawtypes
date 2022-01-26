@@ -176,6 +176,11 @@ def get(c: TypeWithCursor) -> BaseType:
         case cindex.TypeKind.ENUM:
             return EnumType(c.type.spelling)
 
+        case cindex.TypeKind.ELABORATED:
+            deref = c.ref_from_children()
+            assert deref.referenced.kind == cindex.CursorKind.STRUCT_DECL
+            return StructType(deref.referenced.spelling, deref.referenced, is_const=c.type.is_const_qualified())
+
     raise RuntimeError(f"unknown type: {c.type.kind}")
 
 

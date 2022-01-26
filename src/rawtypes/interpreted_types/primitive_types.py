@@ -84,6 +84,12 @@ class UInt8Type(PrimitiveType):
     def ctypes_type(self) -> str:
         return 'ctypes.c_uint8'
 
+    def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
+        if default_value:
+            return f'{indent}unsigned char p{i} = t{i} ? PyLong_AsUnsignedLong(t{i}) : {default_value};\n'
+        else:
+            return f'{indent}unsigned char p{i} = PyLong_AsUnsignedLong(t{i});\n'
+
 
 class UInt16Type(PrimitiveType):
     def __init__(self, is_const=False):

@@ -77,7 +77,11 @@ class Parser:
                 case cindex.CursorKind.CLASS_DECL:
                     self.typedef_struct_list.append(StructDecl(cursor_path))
                 case _:
-                    logger.debug(cursor.kind)
+                    tokens = [token.spelling for token in cursor.get_tokens()]
+                    if tokens and tokens[0] == 'extern':
+                        return True
+                    else:
+                        logger.debug(cursor.kind)
         else:
             if not location.file.name.startswith('C:'):
                 if location.file.name not in self.skip:
