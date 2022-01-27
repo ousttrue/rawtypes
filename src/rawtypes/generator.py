@@ -29,43 +29,6 @@ from enum import IntEnum
 '''
 
 
-class ModuleInfo:
-    def __init__(self, name) -> None:
-        self.name = name
-        self.functios = []
-
-    def write_to(self, w: io.IOBase):
-        sio = io.StringIO()
-        for func in self.functios:
-            sio.write(f'    {func},\n')
-        w.write(f'''
-{{ // {self.name}
-    static PyMethodDef Methods[] = {{
-    {sio.getvalue()}
-        {{NULL, NULL, 0, NULL}}        /* Sentinel */
-    }};
-
-    static struct PyModuleDef module = {{
-        PyModuleDef_HEAD_INIT,
-        "{self.name}",   /* name of module */
-        nullptr, /* module documentation, may be NULL */
-        -1,       /* size of per-interpreter state of the module,
-                    or -1 if the module keeps state in global variables. */
-        Methods
-    }};
-
-    auto m = PyModule_Create(&module);
-    assert(m);
-    // if (!m){{
-    //     return NULL;
-    // }}
-
-    // add submodule
-    PyDict_SetItemString(__dict__, "pydear.impl.{self.name}", m);
-}}
-''')
-
-
 def get_namespace(cursors: Tuple[cindex.Cursor, ...]) -> str:
     sio = io.StringIO()
     for cursor in cursors:
@@ -108,15 +71,14 @@ class Generator:
         modules = []
         headers = []
         for header in self.headers:
-            # separate header to submodule
-            info = ModuleInfo(header.path.stem)
             sio = io.StringIO()
-            info.write_to(sio)
-            modules.append(sio.getvalue())
-
-            sio = io.StringIO()
+            methods = []
             for method in self.write_header(sio, header, package_dir):
-                info.functios.append(method)
+                methods.append(method)
+
+            template = self.env.get_template("module.cpp")
+            modules.append(template.render(
+                module_name=header.path.stem, methods=methods))
             headers.append(sio.getvalue())
 
         with cpp_path.open('w') as w:
