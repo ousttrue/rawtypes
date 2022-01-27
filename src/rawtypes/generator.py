@@ -35,17 +35,13 @@ class PyMethodDef(NamedTuple):
 
 class Generator:
     def __init__(self, *headers: Header, include_dirs=[]) -> None:
+        # parse
         self.headers = list(headers)
-
-        targets = []
-        for header in headers:
-            targets.append(header.path)
-            include_dirs += header.include_dirs
         self.parser = Parser(
-            [header.path for header in headers], include_dirs=include_dirs)
+            [header.path for header in headers], include_dirs=sum([header.include_dirs for header in headers], include_dirs))
         self.parser.traverse()
+        # prepare
         self.types = TypeManager()
-
         self.env = Environment(
             loader=PackageLoader("rawtypes"),
         )
