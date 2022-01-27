@@ -7,9 +7,10 @@ logger = logging.getLogger(__name__)
 
 
 class Header:
-    def __init__(self, path: pathlib.Path, *, prefix: str = '', include_dirs: List[pathlib.Path] = None, begin = '') -> None:
+    def __init__(self, path: pathlib.Path, *, prefix: str = '', include_dirs: List[pathlib.Path] = None, begin='', cpp_begin='') -> None:
         self.path = path
         self.prefix = prefix
         self.include_dirs = include_dirs or ()
         self.current_nemespace: Optional[str] = None
         self.begin = begin
+        self.cpp_begin = cpp_begin

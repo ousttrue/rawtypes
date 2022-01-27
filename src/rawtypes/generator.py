@@ -9,20 +9,6 @@ from .declarations.typedef import TypedefDecl
 from .declarations.function import FunctionDecl, write_pyx_function
 
 
-IMGUI_TYPE = '''
-static ImVec2 get_ImVec2(PyObject *src)
-{
-    float x, y;
-    if(PyArg_ParseTuple(src, "ff", &x, &y))
-    {
-        return {x, y};
-    }
-    PyErr_Clear();
-
-    return {};
-}
-'''
-
 CTYPES_BEGIN = '''from typing import Iterable, Type, Tuple
 import ctypes
 from enum import IntEnum
@@ -72,9 +58,69 @@ class Generator:
         headers = []
         for header in self.headers:
             sio = io.StringIO()
+            sio.write(f'''
+# include <{header.path.name}>
+
+''')
+            sio.write(header.cpp_begin)
+
+            # functions
             methods = []
-            for method in self.write_header(sio, header, package_dir):
+            overload_map = {}
+            for f in self.parser.functions:
+                if header.path != f.path:
+                    continue
+                if f.is_exclude_function():
+                    continue
+
+                overload_count = overload_map.get(f.spelling, 0) + 1
+                overload_map[f.spelling] = overload_count
+                overload = ''
+                if overload_count > 1:
+                    overload += f'_{overload_count}'
+                method = self.write_function(sio, f, overload)
                 methods.append(method)
+
+            #
+            # ctypes
+            #
+            with (package_dir / f'{header.path.stem}.py').open('w') as ew:
+                ew.write(CTYPES_BEGIN)
+                ew.write(f'from .impl.{header.path.stem} import *\n')
+                ew.write(header.begin)
+                for wrap_type in self.types.WRAP_TYPES:
+                    # structs
+                    for t in self.parser.typedef_struct_list:
+                        if wrap_type.name == t.cursor.spelling:
+                            match t:
+                                case StructDecl():
+                                    if t.path != header.path:
+                                        continue
+                                    for struct, method in self.write_struct(ew, t, wrap_type):
+                                        method = self.write_method(
+                                            sio, struct, method)
+                                        methods.append(method)
+
+                #
+                # enum
+                #
+                ew.write('from enum import IntEnum\n\n')
+                for e in self.parser.enums:
+                    if e.path != header.path:
+                        continue
+                    e.write_to(ew)
+
+            #
+            # pyi
+            #
+            with (package_dir / f'{header.path.stem}.pyi').open('w') as pyi:
+                pyi.write('''import ctypes
+from . imgui_enum import *
+from typing import Any, Union, Tuple, TYpe, Iterable
+''')
+
+                pyi.write(header.begin)
+                self.write_pyi(header, pyi)
 
             template = self.env.get_template("module.cpp")
             modules.append(template.render(
@@ -86,68 +132,6 @@ class Generator:
             w.write(template.render(headers=headers, modules=modules))
 
         return cpp_path
-
-    def write_header(self, w: io.IOBase, header: Header, package_dir: pathlib.Path) -> Iterable[PyMethodDef]:
-        w.write(f'''
-# include <{header.path.name}>
-
-''')
-        if header.path.name == 'imgui.h':
-            w.write(IMGUI_TYPE)
-
-        #
-        # ctypes
-        #
-        with (package_dir / f'{header.path.stem}.py').open('w') as ew:
-            ew.write(CTYPES_BEGIN)
-            ew.write(f'from .impl.{header.path.stem} import *\n')
-            ew.write(header.begin)
-            for wrap_type in self.types.WRAP_TYPES:
-                # structs
-                for t in self.parser.typedef_struct_list:
-                    if wrap_type.name == t.cursor.spelling:
-                        match t:
-                            case StructDecl():
-                                if t.path != header.path:
-                                    continue
-                                for struct, method in self.write_struct(ew, t, wrap_type):
-                                    yield self.write_method(w, struct, method)
-
-            #
-            # enum
-            #
-            ew.write('from enum import IntEnum\n\n')
-            for e in self.parser.enums:
-                if e.path != header.path:
-                    continue
-                e.write_to(ew)
-
-        #
-        # pyi
-        #
-        with (package_dir / f'{header.path.stem}.pyi').open('w') as pyi:
-            pyi.write('''import ctypes
-from . imgui_enum import *
-from typing import Any, Union, Tuple, TYpe, Iterable
-''')
-
-            pyi.write(header.begin)
-            self.write_pyi(header, pyi)
-
-        # functions
-        overload_map = {}
-        for f in self.parser.functions:
-            if header.path != f.path:
-                continue
-            if f.is_exclude_function():
-                continue
-
-            overload_count = overload_map.get(f.spelling, 0) + 1
-            overload_map[f.spelling] = overload_count
-            overload = ''
-            if overload_count > 1:
-                overload += f'_{overload_count}'
-            yield self.write_function(w, f, overload)
 
     def write_struct(self, w: io.IOBase, s: StructDecl, flags: WrapFlags) -> Iterable[Tuple[cindex.Cursor, cindex.Cursor]]:
         cursor = s.cursors[-1]

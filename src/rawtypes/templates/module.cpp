@@ -1,9 +1,9 @@
-{ // {self.name}
+{ // {{ module_name }}
     static PyMethodDef Methods[] = {
-// clang-format off
-{% for method in methods -%}
-{{ method }},
-{% endfor -%} // clang-format on
+        // clang-format off
+        {% for method in methods -%}
+        {{ method }},
+        {% endfor -%} // clang-format on
         {NULL, NULL, 0, NULL}        /* Sentinel */
     };
 

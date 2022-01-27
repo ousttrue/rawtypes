@@ -165,9 +165,9 @@ PyInit_impl(void) {
   }
 
   // clang-format off
-{% for module in modules %}
-{{ module }}
-{% endfor %}
+  {% for module in modules -%}
+  {{ module }}
+  {% endfor -%}
   // clang-format on
 
   static auto ImplError = PyErr_NewException("impl.error", NULL, NULL);
