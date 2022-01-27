@@ -47,39 +47,14 @@ class Generator:
         )
 
     def generate(self, package_dir: pathlib.Path) -> pathlib.Path:
-        cpp_path = package_dir / 'rawtypes/implmodule.cpp'
-        cpp_path.parent.mkdir(parents=True, exist_ok=True)
 
         modules = []
         headers = []
         for header in self.headers:
-            sio = io.StringIO()
-            sio.write(f'''
-# include <{header.path.name}>
-
-''')
-            sio.write(header.cpp_begin)
-
-            # functions
-            methods = []
-            overload_map = {}
-            for f in self.parser.functions:
-                if header.path != f.path:
-                    continue
-                if f.is_exclude_function():
-                    continue
-
-                overload_count = overload_map.get(f.spelling, 0) + 1
-                overload_map[f.spelling] = overload_count
-                overload = ''
-                if overload_count > 1:
-                    overload += f'_{overload_count}'
-                method = self.write_function(sio, f, overload)
-                methods.append(method)
-
             #
             # ctypes
             #
+            struct_and_methods = []
             with (package_dir / f'{header.path.stem}.py').open('w') as ew:
                 ew.write(CTYPES_BEGIN)
                 ew.write(f'from .impl.{header.path.stem} import *\n')
@@ -93,13 +68,10 @@ class Generator:
                                     if t.path != header.path:
                                         continue
                                     for struct, method in self.write_struct(ew, t, wrap_type):
-                                        method = self.write_method(
-                                            sio, struct, method)
-                                        methods.append(method)
+                                        struct_and_methods.append(
+                                            (struct, method))
 
-                #
                 # enum
-                #
                 ew.write('from enum import IntEnum\n\n')
                 for e in self.parser.enums:
                     if e.path != header.path:
@@ -118,15 +90,51 @@ from typing import Any, Union, Tuple, TYpe, Iterable
                 pyi.write(header.begin)
                 self.write_pyi(header, pyi)
 
+            #
+            # cpp
+            #
+            sio = io.StringIO()
+            sio.write(f'''
+# include <{header.path.name}>
+
+''')
+            sio.write(header.cpp_begin)
+            methods = []
+            overload_map = {}
+            for f in self.parser.functions:
+                if header.path != f.path:
+                    continue
+                if f.is_exclude_function():
+                    continue
+
+                overload_count = overload_map.get(f.spelling, 0) + 1
+                overload_map[f.spelling] = overload_count
+                overload = ''
+                if overload_count > 1:
+                    overload += f'_{overload_count}'
+                namespace = get_namespace(f.cursors)
+                func_name = f'{f.path.stem}_{f.spelling}{overload}'
+                self.write_c_function(sio, f, namespace, func_name, overload)
+                method = PyMethodDef(
+                    f"{f.spelling}{overload}", func_name, "METH_VARARGS", f"{namespace}{f.spelling}")
+                methods.append(method)
+
+            for struct, method in struct_and_methods:
+                self.write_c_method(sio, struct, method)
+                method = PyMethodDef(
+                    f"{struct.spelling}_{method.spelling}", f"{struct.spelling}_{method.spelling}", "METH_VARARGS", f"{struct.spelling}::{method.spelling}")
+                methods.append(method)
+
             template = self.env.get_template("module.cpp")
             modules.append(template.render(
                 module_name=header.path.stem, methods=methods))
             headers.append(sio.getvalue())
 
+        cpp_path = package_dir / 'rawtypes/implmodule.cpp'
+        cpp_path.parent.mkdir(parents=True, exist_ok=True)
         with cpp_path.open('w') as w:
             template = self.env.get_template("impl.cpp")
             w.write(template.render(headers=headers, modules=modules))
-
         return cpp_path
 
     def write_struct(self, w: io.IOBase, s: StructDecl, flags: WrapFlags) -> Iterable[Tuple[cindex.Cursor, cindex.Cursor]]:
@@ -181,7 +189,7 @@ from typing import Any, Union, Tuple, TYpe, Iterable
         if not fields:  # and not methods and not flags.custom_methods:
             w.write('    pass\n\n')
 
-    def write_method(self, w: io.IOBase, c: cindex.Cursor,  m: cindex.Cursor) -> PyMethodDef:
+    def write_c_method(self, w: io.IOBase, c: cindex.Cursor,  m: cindex.Cursor):
         # signature
         func_name = f'{c.spelling}_{m.spelling}'
 
@@ -221,8 +229,6 @@ from typing import Any, Union, Tuple, TYpe, Iterable
 
 ''')
 
-        return PyMethodDef(f"{c.spelling}_{m.spelling}", f"{c.spelling}_{m.spelling}", "METH_VARARGS", f"{c.spelling}::{m.spelling}")
-
     def write_pyi(self, header: Header, pyi: io.IOBase):
         types = [x for x in self.parser.typedef_struct_list if pathlib.Path(
             x.cursor.location.file.name) == header.path]
@@ -254,11 +260,7 @@ from typing import Any, Union, Tuple, TYpe, Iterable
                     self.types, pyi, typedef_or_struct.cursor, pyi=True, overload=count, prefix=header.prefix)
                 overload[name] = count
 
-    def write_function(self, w: io.IOBase, f: FunctionDecl, overload: str) -> PyMethodDef:
-        # signature
-        func_name = f'{f.path.stem}_{f.spelling}{overload}'
-
-        namespace = get_namespace(f.cursors)
+    def write_c_function(self, w: io.IOBase, f: FunctionDecl, namespace: str, func_name: str, overload: str):
         result = TypeWrap.from_function_result(f.cursor)
         indent = '  '
         w.write(
@@ -285,8 +287,6 @@ from typing import Any, Union, Tuple, TYpe, Iterable
         w.write(f'''}}
 
 ''')
-
-        return PyMethodDef(f"{f.spelling}{overload}", func_name, "METH_VARARGS", f"{namespace}{f.spelling}")
 
     def write_ctypes_method(self, w: io.IOBase, cursor: cindex.Cursor, method: cindex.Cursor, *, pyi=False):
         params = TypeWrap.get_function_params(method)
