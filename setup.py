@@ -64,7 +64,7 @@ setuptools.setup(name='rawtypes',
                  setup_requires=['setuptools_scm'],
                  package_dir={'': 'src'},
                  packages=setuptools.find_packages("src"),
-                 package_data={'rawtypes': ['templates/*']},
+                 package_data={'rawtypes.generator': ['templates/*']},
                  long_description=(HERE / 'README.md').read_text(),
                  long_description_content_type='text/markdown'
                  )

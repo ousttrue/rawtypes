@@ -144,6 +144,10 @@ class FunctionCursor(NamedTuple):
         return self.cursor.spelling
 
     @property
+    def result(self) -> TypeWrap:
+        return TypeWrap.from_function_result(self.cursor)
+
+    @property
     def params(self) -> List[TypeWrap]:
         return TypeWrap.get_function_params(self.cursor)
 

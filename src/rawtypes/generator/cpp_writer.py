@@ -2,14 +2,13 @@
 from jinja2 import Environment
 from rawtypes.interpreted_types import TypeManager
 from rawtypes.parser.function_cursor import FunctionCursor
-from rawtypes.parser.typewrap import TypeWrap
 
 
 def to_c_function(function_cursor: FunctionCursor, env: Environment, type_manager: TypeManager, *, namespace: str = '', func_name: str = '') -> str:
     if not func_name:
         func_name = function_cursor.spelling
 
-    result = TypeWrap.from_function_result(function_cursor.cursor)
+    result = function_cursor.result
     indent = '  '
     # prams
     types, format, extract, cpp_from_py = type_manager.get_params(
