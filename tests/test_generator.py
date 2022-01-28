@@ -22,7 +22,7 @@ class TestGenerator(unittest.TestCase):
         f = parser.get_function('clang_getNullCursor')
         self.assertIsNotNone(f)
 
-        # generator.generate(HERE.parent / 'tmp')
+        generator.generate(HERE.parent / 'tmp')
 
         # struct 値渡し
         # struct 値返し

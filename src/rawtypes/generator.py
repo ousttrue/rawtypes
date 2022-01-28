@@ -114,7 +114,7 @@ from typing import Any, Union, Tuple, TYpe, Iterable
                     overload += f'_{overload_count}'
                 namespace = get_namespace(f.cursors)
                 func_name = f'{f.path.stem}_{f.spelling}{overload}'
-                self.write_c_function(sio, f, namespace, func_name, overload)
+                sio.write(self.to_c_function(f, namespace, func_name))
                 method = PyMethodDef(
                     f"{f.spelling}{overload}", func_name, "METH_VARARGS", f"{namespace}{f.spelling}")
                 methods.append(method)
@@ -260,7 +260,8 @@ from typing import Any, Union, Tuple, TYpe, Iterable
                     self.types, pyi, typedef_or_struct.cursor, pyi=True, overload=count, prefix=header.prefix)
                 overload[name] = count
 
-    def write_c_function(self, w: io.IOBase, f: FunctionDecl, namespace: str, func_name: str, overload: str):
+    def to_c_function(self, f: FunctionDecl, namespace: str, func_name: str) -> str:
+        w = io.StringIO()
         result = TypeWrap.from_function_result(f.cursor)
         indent = '  '
         w.write(
@@ -287,6 +288,7 @@ from typing import Any, Union, Tuple, TYpe, Iterable
         w.write(f'''}}
 
 ''')
+        return w.getvalue()
 
     def write_ctypes_method(self, w: io.IOBase, cursor: cindex.Cursor, method: cindex.Cursor, *, pyi=False):
         params = TypeWrap.get_function_params(method)
