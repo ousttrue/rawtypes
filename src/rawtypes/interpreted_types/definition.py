@@ -31,6 +31,9 @@ class TypedefType(BaseType):
         else:
             return f'{indent}{self.name} p{i} = ctypes_get_pointer<{self.name}>(t{i});\n'
 
+    def py_value(self, value: str) -> str:
+        return self.base.py_value(value)
+
 
 class StructType(BaseType):
     cursor: cindex.Cursor
@@ -59,6 +62,9 @@ class StructType(BaseType):
 {indent}cdef void* value = <void*>{call}
 {indent}return ctypes.c_void_p(value)
 '''
+
+    def py_value(self, value: str) -> str:
+        return f'/* TODO: return by value */c_void_p({value})'
 
 
 class EnumType(BaseType):

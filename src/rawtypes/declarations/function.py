@@ -167,7 +167,10 @@ class FunctionDecl(NamedTuple):
                     return True
         return False
 
-    def to_c_function(self, namespace: str, func_name: str, type_manager: TypeManager) -> str:
+    def to_c_function(self, type_manager: TypeManager, *, namespace: str = '', func_name: str = '') -> str:
+        if not func_name:
+            func_name = self.cursor.spelling
+
         w = io.StringIO()
         result = TypeWrap.from_function_result(self.cursor)
         indent = '  '
@@ -189,8 +192,8 @@ class FunctionDecl(NamedTuple):
         call_params = ', '.join(t.cpp_call_name(i)
                                 for i, t in enumerate(types))
         call = f'{namespace}{self.spelling}({call_params})'
-        w.write(type_manager.from_cursor(
-            result.type, result.cursor).cpp_result(indent, call))
+        result_type = type_manager.from_cursor(result.type, result.cursor)
+        w.write(result_type.cpp_result(indent, call))
 
         w.write(f'''}}
 

@@ -3,6 +3,7 @@ import ctypes
 import pathlib
 import rawtypes.generator
 from rawtypes.header import Header
+from rawtypes.interpreted_types import WrapFlags
 import logging
 logging.basicConfig(level=logging.DEBUG)
 HERE = pathlib.Path(__file__).absolute().parent
@@ -16,13 +17,18 @@ class TestGenerator(unittest.TestCase):
         generator = rawtypes.generator.Generator(
             Header(CINDEX_HEADER, include_dirs=[CINDEX_HEADER.parent.parent]))
 
-        parser = generator.parser
-
         # CINDEX_LINKAGE CXCursor clang_getNullCursor(void);
-        f = parser.get_function('clang_getNullCursor')
+        f = generator.parser.get_function('clang_getNullCursor')
         self.assertIsNotNone(f)
 
-        generator.generate(HERE.parent / 'tmp')
+        generator.type_manager.WRAP_TYPES.append(
+            WrapFlags('CxCursor', True)
+        )
+
+        s = f.to_c_function(generator.type_manager)
+        print(s)
+
+        # generator.generate(HERE.parent / 'tmp')
 
         # struct 値渡し
         # struct 値返し
