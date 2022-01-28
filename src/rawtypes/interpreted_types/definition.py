@@ -38,9 +38,12 @@ class TypedefType(BaseType):
 class StructType(BaseType):
     cursor: cindex.Cursor
 
-    def __init__(self, name: str, cursor: cindex.Cursor, is_const=False):
+    def __init__(self, name: str, cursor: cindex.Cursor, is_const=False, is_wrap_type=False):
+        if name.startswith('struct '):
+            name = name[7:]
         super().__init__(name, is_const=is_const)
         self.cursor = cursor
+        self.is_wrap_type = is_wrap_type
 
     @property
     def ctypes_type(self) -> str:
@@ -64,7 +67,9 @@ class StructType(BaseType):
 '''
 
     def py_value(self, value: str) -> str:
-        return f'/* TODO: return by value. create ctypes and memcpy */c_void_p({value})'
+        if not self.is_wrap_type:
+            raise NotImplemented("return by value. but no python type")
+        return f'ctypes_copy({value}, "{self.name}", "nanovg")'
 
 
 class EnumType(BaseType):

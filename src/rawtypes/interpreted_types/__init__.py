@@ -95,6 +95,8 @@ class TypeManager:
         self.processors: List[TypeProcessor] = []
 
     def is_wrap_type(self, name: str) -> bool:
+        if name.startswith('struct '):
+            name = name[7:]
         for w in self.WRAP_TYPES:
             if w.name == name:
                 return True
@@ -202,7 +204,7 @@ class TypeManager:
                 return EnumType(c.type.spelling)
 
             case cindex.TypeKind.ELABORATED:
-                return StructType(c.type.spelling, c.cursor, is_const=c.type.is_const_qualified())
+                return StructType(c.type.spelling, c.cursor, is_const=c.type.is_const_qualified(), is_wrap_type=self.is_wrap_type(c.type.spelling))
 
 
         raise RuntimeError(f"unknown type: {c.type.kind}")

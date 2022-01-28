@@ -41,6 +41,15 @@ static void s_initialize() {
   //
 }
 
+static void *ctypes_get_addressof(PyObject *src) {
+  if (PyObject *p = PyObject_CallFunction(s_ctypes_addressof, "O", src)) {
+    auto pp = PyLong_AsVoidPtr(p);
+    Py_DECREF(p);
+    return pp;
+  }
+  return nullptr;
+}
+
 template <typename T> T ctypes_get_pointer(PyObject *src) {
   if (!src) {
     return (T) nullptr;
@@ -61,10 +70,8 @@ template <typename T> T ctypes_get_pointer(PyObject *src) {
   if (PyObject_IsInstance(src, s_ctypes_Array) ||
       PyObject_IsInstance(src, s_ctypes_Structure) ||
       PyObject_IsInstance(src, s_ctypes__CFuncPtr)) {
-    if (PyObject *p = PyObject_CallFunction(s_ctypes_addressof, "O", src)) {
-      auto pp = PyLong_AsVoidPtr(p);
-      Py_DECREF(p);
-      return (T)pp;
+    if (void *p = ctypes_get_addressof(src)) {
+      return (T)p;
     }
     PyErr_Print();
     PyErr_Clear();
@@ -131,6 +138,17 @@ static PyObject *py_string(const std::string_view &src) {
 
 static PyObject *c_void_p(const void *address) {
   return PyObject_CallFunction(s_ctypes_c_void_p, "K", (uintptr_t)address);
+}
+
+template <typename T>
+static PyObject *ctypes_copy(const T &src, const char *t, const char *sub) {
+  auto ptype = GetCTypesType(t, sub);
+  auto obj = PyObject_CallFunction(ptype, "");
+  // get ptr
+  auto p = ctypes_get_addressof(obj);  
+  // memcpy
+  memcpy(p, &src, sizeof(T));
+  return obj;
 }
 
 // clang-format off

@@ -22,7 +22,7 @@ class TestGenerator(unittest.TestCase):
         self.assertIsNotNone(f)
 
         generator.type_manager.WRAP_TYPES.append(
-            WrapFlags('CxCursor', True)
+            WrapFlags('CXCursor', True)
         )
 
         s = f.to_c_function(generator.env, generator.type_manager)
