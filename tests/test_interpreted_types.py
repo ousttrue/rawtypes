@@ -2,7 +2,7 @@ from typing import Callable, Tuple
 import unittest
 from rawtypes import interpreted_types
 from rawtypes.clang import cindex
-from rawtypes.generator import Generator
+from rawtypes.generator.generator import Generator
 
 generator = Generator()
 
@@ -34,7 +34,7 @@ def parse_get_result_type(src: str) -> interpreted_types.BaseType:
 
 def parse_get_param_type(i: int, src: str) -> interpreted_types.BaseType:
     tu, c = parse_get_func(src)
-    from rawtypes.typewrap import TypeWrap
+    from rawtypes.parser.typewrap import TypeWrap
     p = TypeWrap.get_function_params(c)[i].cursor
     return generator.type_manager.from_cursor(p.type, p)
 

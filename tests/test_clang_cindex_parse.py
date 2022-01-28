@@ -1,10 +1,12 @@
 import unittest
 import ctypes
 import pathlib
-import rawtypes.generator
-from rawtypes.parser.header import Header
-from rawtypes.interpreted_types import WrapFlags
 import logging
+from rawtypes.generator.cpp_writer import to_c_function
+from rawtypes.parser.header import Header
+from rawtypes.parser.struct_cursor import WrapFlags
+import rawtypes.generator.generator
+
 logging.basicConfig(level=logging.DEBUG)
 HERE = pathlib.Path(__file__).absolute().parent
 
@@ -13,7 +15,7 @@ CINDEX_HEADER = pathlib.Path("C:/Program Files/LLVM/include/clang-c/Index.h")
 
 class TestGenerator(unittest.TestCase):
     def setUp(self) -> None:
-        self.generator = rawtypes.generator.Generator(
+        self.generator = rawtypes.generator.generator.Generator(
             Header(CINDEX_HEADER, include_dirs=[CINDEX_HEADER.parent.parent]))
         self.generator.type_manager.WRAP_TYPES.append(
             WrapFlags('CXCursor', True)
@@ -27,7 +29,7 @@ class TestGenerator(unittest.TestCase):
         f = self.generator.parser.get_function('clang_getNullCursor')
         self.assertIsNotNone(f)
 
-        s = f.to_c_function(self.generator.env, self.generator.type_manager)
+        s = to_c_function(f, self.generator.env, self.generator.type_manager)
         print(s)
 
     def test_clang_equalLocations(self):
@@ -38,7 +40,7 @@ class TestGenerator(unittest.TestCase):
         f = self.generator.parser.get_function('clang_equalLocations')
         self.assertIsNotNone(f)
 
-        s = f.to_c_function(self.generator.env, self.generator.type_manager)
+        s = to_c_function(f, self.generator.env, self.generator.type_manager)
         print(s)
 
         params = f.params

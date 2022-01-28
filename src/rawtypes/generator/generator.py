@@ -1,12 +1,14 @@
 from typing import List, Iterable
 import pathlib
 from jinja2 import Environment, PackageLoader, select_autoescape
-from .parser.header import Header
-from .parser import Parser
-from .interpreted_types import *
-from .parser.struct_cursor import StructCursor
-from .parser.typedef_cursor import TypedefCursor
-from .parser.function_cursor import FunctionCursor, write_pyx_function
+
+from rawtypes.generator.cpp_writer import to_c_function
+from ..parser.header import Header
+from ..parser import Parser
+from ..interpreted_types import *
+from ..parser.struct_cursor import StructCursor, WrapFlags
+from ..parser.typedef_cursor import TypedefCursor
+from ..parser.function_cursor import FunctionCursor, write_pyx_function
 
 
 CTYPES_BEGIN = '''from typing import Iterable, Type, Tuple
@@ -50,7 +52,7 @@ class Generator:
         # prepare
         self.type_manager = TypeManager()
         self.env = Environment(
-            loader=PackageLoader("rawtypes"),
+            loader=PackageLoader("rawtypes.generator"),
         )
 
     def generate(self, package_dir: pathlib.Path) -> pathlib.Path:
@@ -122,7 +124,7 @@ from typing import Any, Union, Tuple, TYpe, Iterable
                     overload += f'_{overload_count}'
                 namespace = get_namespace(f.cursors)
                 func_name = f'{f.path.stem}_{f.spelling}{overload}'
-                sio.write(f.to_c_function(self.env, self.type_manager,
+                sio.write(to_c_function(f, self.env, self.type_manager,
                           namespace=namespace, func_name=func_name))
                 sio.write('\n')
                 method = PyMethodDef(

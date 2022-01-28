@@ -4,22 +4,13 @@ import re
 import io
 #
 from rawtypes.clang import cindex
+from rawtypes.parser.function_cursor import FunctionCursor
 from .basetype import BaseType
 from . import primitive_types
 from .pointer_types import PointerType, ReferenceType, ArrayType, RefenreceToStdArrayType
 from .wrap_types import PointerToStructType, ReferenceToStructType
 from .definition import StructType, TypedefType, EnumType
 from .string import StringType, CStringType
-from ..typewrap import TypeWrap
-
-
-class WrapFlags(NamedTuple):
-    name: str
-    fields: bool = False
-    custom_fields: Dict[str, str] = {}
-    methods: Union[bool, Tuple[str, ...]] = False
-    custom_methods: Tuple[str, ...] = ()
-    default_constructor: bool = False
 
 
 class TypeWithCursor(NamedTuple):
@@ -109,7 +100,7 @@ class TypeManager:
                 return True
         return False
 
-    def get(self, c: TypeWithCursor, is_const = False) -> BaseType:
+    def get(self, c: TypeWithCursor, is_const=False) -> BaseType:
         is_const = is_const or c.type.is_const_qualified()
         for t in self.processors:
             value = t.process(c)
@@ -212,13 +203,13 @@ class TypeManager:
     def from_cursor(self, cursor_type: cindex.Type, cursor: cindex.Cursor) -> BaseType:
         return self.get(TypeWithCursor(cursor_type, cursor))
 
-    def get_params(self, indent: str, cursor: cindex.Cursor) -> Params:
+    def get_params(self, indent: str, f: FunctionCursor) -> Params:
         sio_extract = io.StringIO()
         sio_cpp_from_py = io.StringIO()
         types = []
         format = ''
         last_format = None
-        for i, param in enumerate(TypeWrap.get_function_params(cursor)):
+        for i, param in enumerate(f.params):
             t = self.from_cursor(param.type, param.cursor)
             sio_extract.write(t.cpp_param_declare(indent, i, param.name))
             types.append(t)

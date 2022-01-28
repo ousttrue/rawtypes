@@ -2,7 +2,7 @@ from typing import NamedTuple, Tuple
 import io
 import re
 from rawtypes.clang import cindex
-from ..interpreted_types import WrapFlags
+
 
 FP_PATTERN = re.compile(r'(.*)\(\*\)(.*)')
 
@@ -29,8 +29,8 @@ class TypedefCursor(NamedTuple):
         pxd.write(
             f'    ctypedef {type_name(underlying_type.spelling, cursor.spelling)}\n')
 
-    def write_pyx_ctypes(self, pyx: io.IOBase, *, flags: WrapFlags = WrapFlags('')):
+    def write_pyx_ctypes(self, pyx: io.IOBase, *, flags=None):
         pass
 
-    def write_pyi(self, pyi: io.IOBase, *, flags: WrapFlags = WrapFlags('')):
+    def write_pyi(self, pyi: io.IOBase, *, flags=None):
         pass

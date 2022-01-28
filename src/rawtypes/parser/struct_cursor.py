@@ -1,12 +1,20 @@
-from typing import NamedTuple, Tuple
+from typing import NamedTuple, Tuple, Dict, Union
 import io
 import pathlib
 #
 from rawtypes.clang import cindex
 #
-from ..typewrap import TypeWrap
-from ..interpreted_types import WrapFlags, TypeManager
+from .typewrap import TypeWrap
 from . import function_cursor
+
+
+class WrapFlags(NamedTuple):
+    name: str
+    fields: bool = False
+    custom_fields: Dict[str, str] = {}
+    methods: Union[bool, Tuple[str, ...]] = False
+    custom_methods: Tuple[str, ...] = ()
+    default_constructor: bool = False
 
 
 def is_forward_declaration(cursor: cindex.Cursor) -> bool:
@@ -113,7 +121,8 @@ class StructCursor(NamedTuple):
         methods = TypeWrap.get_struct_methods(cursor, includes=flags.methods)
         if methods:
             for method in methods:
-                function_cursor.write_pyx_method(generator, pyx, cursor, method)
+                function_cursor.write_pyx_method(
+                    generator, pyx, cursor, method)
 
         for code in flags.custom_methods:
             for l in code.splitlines():
@@ -123,7 +132,7 @@ class StructCursor(NamedTuple):
         if not fields and not methods and not flags.custom_methods:
             pyx.write('    pass\n\n')
 
-    def write_pyi(self, type_map: TypeManager, pyi: io.IOBase, *, flags: WrapFlags = WrapFlags('')):
+    def write_pyi(self, type_map, pyi: io.IOBase, *, flags: WrapFlags = WrapFlags('')):
         cursor = self.cursors[-1]
 
         definition = cursor.get_definition()
@@ -150,7 +159,8 @@ class StructCursor(NamedTuple):
         methods = TypeWrap.get_struct_methods(cursor, includes=flags.methods)
         if methods:
             for method in methods:
-                function_cursor.write_pyx_method(type_map, pyi, cursor, method, pyi=True)
+                function_cursor.write_pyx_method(
+                    type_map, pyi, cursor, method, pyi=True)
 
         for custom in flags.custom_methods:
             l = next(iter(custom.splitlines()))

@@ -4,8 +4,7 @@ import logging
 import io
 from jinja2 import Environment
 from rawtypes.clang import cindex
-from ..typewrap import TypeWrap
-from ..interpreted_types import TypeManager
+from .typewrap import TypeWrap
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +91,7 @@ def write_pyx_function(type_map, pyx: io.IOBase, function: cindex.Cursor, *, pyi
     pyx.write('\n')
 
 
-def write_pyx_method(type_map: TypeManager, pyx: io.IOBase, cursor: cindex.Cursor, method: cindex.Cursor, *, pyi=False):
+def write_pyx_method(type_map, pyx: io.IOBase, cursor: cindex.Cursor, method: cindex.Cursor, *, pyi=False):
     params = TypeWrap.get_function_params(method)
     result = TypeWrap.from_function_result(method)
     result_t = type_map.from_cursor(result.type, result.cursor)
@@ -171,31 +170,3 @@ class FunctionCursor(NamedTuple):
                     # function pointer
                     return True
         return False
-
-    def to_c_function(self, env: Environment, type_manager: TypeManager, *, namespace: str = '', func_name: str = '') -> str:
-        if not func_name:
-            func_name = self.spelling
-
-        result = TypeWrap.from_function_result(self.cursor)
-        indent = '  '
-        # prams
-        types, format, extract, cpp_from_py = type_manager.get_params(
-            indent, self.cursor)
-        extract_params = ''.join(', &' + t.cpp_extract_name(i)
-                                 for i, t in enumerate(types))
-
-        # call & result
-        call_params = ', '.join(t.cpp_call_name(i)
-                                for i, t in enumerate(types))
-        call = f'{namespace}{self.spelling}({call_params})'
-        result_type = type_manager.from_cursor(result.type, result.cursor)
-
-        template = env.get_template("pycfunc.cpp")
-        return template.render(
-            func_name=func_name,
-            extract=extract,
-            format=format,
-            extract_params=extract_params,
-            cpp_from_py=cpp_from_py,
-            result=result_type.cpp_result(indent, call)
-        )
