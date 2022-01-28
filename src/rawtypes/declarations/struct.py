@@ -6,7 +6,7 @@ from rawtypes.clang import cindex
 #
 from .typewrap import TypeWrap
 from ..interpreted_types import WrapFlags, TypeManager
-from . import function
+from . import function_cursor
 
 
 def is_forward_declaration(cursor: cindex.Cursor) -> bool:
@@ -65,10 +65,10 @@ class StructDecl(NamedTuple):
                 pxd.write(f'        {field.c_type_with_name}\n')
 
             for child in constructors:
-                function.write_pxd_constructor(pxd, cursor, child)
+                function_cursor.write_pxd_constructor(pxd, cursor, child)
 
             for child in methods:
-                function.write_pxd_method(pxd, child)
+                function_cursor.write_pxd_method(pxd, child)
 
         pxd.write('\n')
 
@@ -113,7 +113,7 @@ class StructDecl(NamedTuple):
         methods = TypeWrap.get_struct_methods(cursor, includes=flags.methods)
         if methods:
             for method in methods:
-                function.write_pyx_method(generator, pyx, cursor, method)
+                function_cursor.write_pyx_method(generator, pyx, cursor, method)
 
         for code in flags.custom_methods:
             for l in code.splitlines():
@@ -150,7 +150,7 @@ class StructDecl(NamedTuple):
         methods = TypeWrap.get_struct_methods(cursor, includes=flags.methods)
         if methods:
             for method in methods:
-                function.write_pyx_method(type_map, pyi, cursor, method, pyi=True)
+                function_cursor.write_pyx_method(type_map, pyi, cursor, method, pyi=True)
 
         for custom in flags.custom_methods:
             l = next(iter(custom.splitlines()))

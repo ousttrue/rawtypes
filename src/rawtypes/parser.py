@@ -6,7 +6,7 @@ from rawtypes.clang import cindex
 from .declarations.typedef import TypedefDecl
 from .declarations.struct import StructDecl
 from .declarations.enum import EnumDecl
-from .declarations.function import FunctionDecl
+from .declarations.function_cursor import FunctionCursor
 logger = logging.getLogger(__name__)
 
 
@@ -24,7 +24,7 @@ class Parser:
         unsaved = clang_util.Unsaved('tmp.h', sio.getvalue())
         self.tu = clang_util.get_tu(
             'tmp.h', include_dirs=include_dirs, definitions=definitions, unsaved=[unsaved], flags=['-DNOMINMAX'])
-        self.functions: List[FunctionDecl] = []
+        self.functions: List[FunctionCursor] = []
         self.enums: List[EnumDecl] = []
         self.typedef_struct_list: List[Union[TypedefDecl, StructDecl]] = []
 
@@ -68,7 +68,7 @@ class Parser:
                     if(cursor.spelling.startswith('operator ')):
                         pass
                     else:                        
-                        self.functions.append(FunctionDecl(cursor_path))
+                        self.functions.append(FunctionCursor(cursor_path))
                 case cindex.CursorKind.ENUM_DECL:
                     self.enums.append(EnumDecl(cursor_path))
                 case cindex.CursorKind.TYPEDEF_DECL:
@@ -99,7 +99,7 @@ class Parser:
         from . import clang_util
         clang_util.traverse(self.tu, self.callback)
 
-    def get_function(self, name) -> FunctionDecl:
+    def get_function(self, name) -> FunctionCursor:
         for f in self.functions:
             if f.spelling == name:
                 return f

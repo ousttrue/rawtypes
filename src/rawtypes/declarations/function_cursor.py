@@ -126,7 +126,7 @@ def write_pyx_method(type_map: TypeManager, pyx: io.IOBase, cursor: cindex.Curso
     pyx.write('\n')
 
 
-class FunctionDecl(NamedTuple):
+class FunctionCursor(NamedTuple):
     cursors: Tuple[cindex.Cursor, ...]
 
     def __repr__(self) -> str:

@@ -40,3 +40,6 @@ class TestGenerator(unittest.TestCase):
 
         s = f.to_c_function(self.generator.env, self.generator.type_manager)
         print(s)
+
+        params = f.params
+        self.assertEqual(2, len(params))

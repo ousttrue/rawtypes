@@ -6,7 +6,7 @@ from .parser import Parser
 from .interpreted_types import *
 from .declarations.struct import StructDecl
 from .declarations.typedef import TypedefDecl
-from .declarations.function import FunctionDecl, write_pyx_function
+from .declarations.function_cursor import FunctionCursor, write_pyx_function
 
 
 CTYPES_BEGIN = '''from typing import Iterable, Type, Tuple
