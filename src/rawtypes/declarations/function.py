@@ -144,6 +144,10 @@ class FunctionDecl(NamedTuple):
     def spelling(self) -> str:
         return self.cursor.spelling
 
+    @property
+    def params(self) -> List[TypeWrap]:
+        return TypeWrap.get_function_params(self.cursor)
+
     def is_exclude_function(self) -> bool:
         cursor = self.cursor
         if cursor.spelling in EXCLUDE_FUNCS:

@@ -36,7 +36,6 @@ class PyMethodDef(NamedTuple):
 class Generator:
     def __init__(self, *headers: Header, include_dirs=[]) -> None:
         # parse
-        self.headers = list(headers)
         include_dirs = sum(
             [list(header.include_dirs) for header in headers], include_dirs)
         self.parser = Parser(
@@ -45,6 +44,8 @@ class Generator:
             definitions=sum([list(header.definitions)
                             for header in headers], [])
         )
+        self.headers = [
+            header for header in headers if not header.include_only]
         self.parser.traverse()
         # prepare
         self.type_manager = TypeManager()
@@ -100,17 +101,18 @@ from typing import Any, Union, Tuple, TYpe, Iterable
             # cpp
             #
             sio = io.StringIO()
-            sio.write(f'''
-# include <{header.path.name}>
+            sio.write(header.before_include)
+            sio.write(f'# include <{header.path.name}>\n')
+            sio.write(header.after_include)
 
-''')
-            sio.write(header.cpp_begin)
             methods = []
             overload_map = {}
             for f in self.parser.functions:
                 if header.path != f.path:
                     continue
                 if f.is_exclude_function():
+                    continue
+                if not header.if_include(f.spelling):
                     continue
 
                 overload_count = overload_map.get(f.spelling, 0) + 1

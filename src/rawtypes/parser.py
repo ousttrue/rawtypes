@@ -67,7 +67,7 @@ class Parser:
                 case cindex.CursorKind.FUNCTION_DECL:
                     if(cursor.spelling.startswith('operator ')):
                         pass
-                    else:
+                    else:                        
                         self.functions.append(FunctionDecl(cursor_path))
                 case cindex.CursorKind.ENUM_DECL:
                     self.enums.append(EnumDecl(cursor_path))
@@ -82,6 +82,8 @@ class Parser:
                 case cindex.CursorKind.UNEXPOSED_DECL:
                     # extern C etc...
                     return True
+                case cindex.CursorKind.VAR_DECL:
+                    pass
                 case _:
                     logger.debug(cursor.kind)
 

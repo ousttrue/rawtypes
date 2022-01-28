@@ -128,8 +128,8 @@ class TestInterpretedTypes(unittest.TestCase):
         void func(const SOME *p0);
         ''')
         self.assertIsInstance(const_p, interpreted_types.PointerType)
-        self.assertIsInstance(const_p.base, interpreted_types.TypedefType)
-        self.assertIsInstance(const_p.base.base, interpreted_types.StructType)
+        self.assertIsInstance(const_p.base, interpreted_types.StructType)
+        self.assertIsNone(const_p.base.base)
 
 # typedef
 

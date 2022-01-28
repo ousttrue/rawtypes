@@ -101,6 +101,20 @@ static PyObject *GetCTypesType(const char *t, const char *sub) {
   }
 
   auto T = PyObject_GetAttrString(p, t);
+  s_map.insert(std::make_pair(std::string(t), T));
+  return T;
+}
+
+static PyObject *GetCTypesPointerType(const char *t, const char *sub) {
+  static std::unordered_map<std::string, PyObject *> s_map;
+  {
+    auto found = s_map.find(t);
+    if (found != s_map.end()) {
+      return found->second;
+    }
+  }
+
+  auto T = GetCTypesType(t, sub);
   auto result = PyObject_CallFunction(s_ctypes_POINTER, "O", T);
   s_map.insert(std::make_pair(std::string(t), result));
   return result;
@@ -108,7 +122,7 @@ static PyObject *GetCTypesType(const char *t, const char *sub) {
 
 static PyObject *ctypes_cast(PyObject *src, const char *t, const char *sub) {
   // ctypes.cast(src, ctypes.POINTER(t))[0]
-  auto ptype = GetCTypesType(t, sub);
+  auto ptype = GetCTypesPointerType(t, sub);
   auto p = PyObject_CallFunction(s_ctypes_cast, "OO", src, ptype);
   Py_DECREF(src);
   auto py_value = PySequence_GetItem(p, 0);
@@ -143,9 +157,9 @@ static PyObject *c_void_p(const void *address) {
 template <typename T>
 static PyObject *ctypes_copy(const T &src, const char *t, const char *sub) {
   auto ptype = GetCTypesType(t, sub);
-  auto obj = PyObject_CallFunction(ptype, "");
+  auto obj = PyObject_CallNoArgs(ptype);
   // get ptr
-  auto p = ctypes_get_addressof(obj);  
+  auto p = (T*)ctypes_get_addressof(obj);  
   // memcpy
   memcpy(p, &src, sizeof(T));
   return obj;

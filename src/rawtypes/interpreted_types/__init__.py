@@ -82,6 +82,13 @@ def is_void_p(base: BaseType) -> bool:
     return True
 
 
+class Params(NamedTuple):
+    types: List[BaseType]
+    format: str
+    extract: str
+    from_py: str
+
+
 STD_ARRAY = re.compile(r'(const )?std::array<(\w+), (\d+)> &')
 
 
@@ -102,8 +109,8 @@ class TypeManager:
                 return True
         return False
 
-    def get(self, c: TypeWithCursor) -> BaseType:
-
+    def get(self, c: TypeWithCursor, is_const = False) -> BaseType:
+        is_const = is_const or c.type.is_const_qualified()
         for t in self.processors:
             value = t.process(c)
             if value:
@@ -125,54 +132,54 @@ class TypeManager:
 
         match c.type.kind:
             case cindex.TypeKind.VOID:
-                return primitive_types.VoidType(c.type.is_const_qualified())
+                return primitive_types.VoidType(is_const)
 
             case cindex.TypeKind.BOOL:
-                return primitive_types.BoolType(c.type.is_const_qualified())
+                return primitive_types.BoolType(is_const)
 
-            case cindex.TypeKind.CHAR_S:
-                return primitive_types.Int8Type(c.type.is_const_qualified())
+            case cindex.TypeKind.CHAR_S | cindex.TypeKind.SCHAR:
+                return primitive_types.Int8Type(is_const)
             case cindex.TypeKind.SHORT:
-                return primitive_types.Int16Type(c.type.is_const_qualified())
+                return primitive_types.Int16Type(is_const)
             case cindex.TypeKind.INT:
-                return primitive_types.Int32Type(c.type.is_const_qualified())
+                return primitive_types.Int32Type(is_const)
             case cindex.TypeKind.LONGLONG:
-                return primitive_types.Int64Type(c.type.is_const_qualified())
+                return primitive_types.Int64Type(is_const)
 
             case cindex.TypeKind.UCHAR:
-                return primitive_types.UInt8Type(c.type.is_const_qualified())
+                return primitive_types.UInt8Type(is_const)
             case cindex.TypeKind.USHORT:
-                return primitive_types.UInt16Type(c.type.is_const_qualified())
+                return primitive_types.UInt16Type(is_const)
             case cindex.TypeKind.UINT:
-                return primitive_types.UInt32Type(c.type.is_const_qualified())
+                return primitive_types.UInt32Type(is_const)
             case cindex.TypeKind.ULONGLONG:
-                return primitive_types.UInt64Type(c.type.is_const_qualified())
+                return primitive_types.UInt64Type(is_const)
 
             case cindex.TypeKind.FLOAT:
-                return primitive_types.FloatType(c.type.is_const_qualified())
+                return primitive_types.FloatType(is_const)
             case cindex.TypeKind.DOUBLE:
-                return primitive_types.DoubleType(c.type.is_const_qualified())
+                return primitive_types.DoubleType(is_const)
 
             case cindex.TypeKind.POINTER:
                 pointee = c.type.get_pointee()
                 base = self.get(TypeWithCursor(pointee, c.cursor))
                 if isinstance(base, StructType) and any(t for t in self.WRAP_TYPES if t.name == base.name):
-                    return PointerToStructType(base, is_const=c.type.is_const_qualified(), is_wrap_type=self.is_wrap_type(base.name))
+                    return PointerToStructType(base, is_const=is_const, is_wrap_type=self.is_wrap_type(base.name))
 
-                return PointerType(base, is_const=c.type.is_const_qualified())
+                return PointerType(base, is_const=is_const)
 
             case cindex.TypeKind.LVALUEREFERENCE:
                 pointee = c.type.get_pointee()
                 base = self.get(TypeWithCursor(pointee, c.cursor))
                 if isinstance(base, StructType) and any(t for t in self.WRAP_TYPES if t.name == base.name):
-                    return ReferenceToStructType(base, is_const=c.type.is_const_qualified(), is_wrap_type=self.is_wrap_type(base.name))
+                    return ReferenceToStructType(base, is_const=is_const, is_wrap_type=self.is_wrap_type(base.name))
 
-                return ReferenceType(base, is_const=c.type.is_const_qualified())
+                return ReferenceType(base, is_const=is_const)
 
             case cindex.TypeKind.CONSTANTARRAY:
                 element = c.type.get_array_element_type()
                 base = self.get(TypeWithCursor(element, c.cursor))
-                return ArrayType(base, c.type.get_array_size(), is_const=c.type.is_const_qualified())
+                return ArrayType(base, c.type.get_array_size(), is_const=is_const)
 
             case cindex.TypeKind.TYPEDEF:
                 current = c
@@ -182,30 +189,30 @@ class TypeManager:
                         break
                     current = underlying
 
-                return self.get(current)
+                return self.get(current, is_const)
 
             case cindex.TypeKind.RECORD:
                 deref = c.ref_from_children()
                 assert deref
                 if deref:
                     assert deref.referenced.kind == cindex.CursorKind.STRUCT_DECL
-                    return StructType(deref.referenced.spelling, deref.referenced, is_const=c.type.is_const_qualified(), is_wrap_type=self.is_wrap_type(c.type.spelling))
+                    return StructType(deref.referenced.spelling, deref.referenced, is_const=is_const, is_wrap_type=self.is_wrap_type(c.type.spelling))
 
             case cindex.TypeKind.FUNCTIONPROTO:
-                return PointerType(primitive_types.VoidType(), is_const=c.type.is_const_qualified())
+                return PointerType(primitive_types.VoidType(), is_const=is_const)
 
             case cindex.TypeKind.ENUM:
                 return EnumType(c.type.spelling)
 
             case cindex.TypeKind.ELABORATED:
-                return StructType(c.type.spelling, c.cursor, is_const=c.type.is_const_qualified(), is_wrap_type=self.is_wrap_type(c.type.spelling))
+                return StructType(c.type.spelling, c.cursor, is_const=is_const, is_wrap_type=self.is_wrap_type(c.type.spelling))
 
         raise RuntimeError(f"unknown type: {c.type.kind}")
 
     def from_cursor(self, cursor_type: cindex.Type, cursor: cindex.Cursor) -> BaseType:
         return self.get(TypeWithCursor(cursor_type, cursor))
 
-    def get_params(self, indent: str, cursor: cindex.Cursor) -> Tuple[List[BaseType], str, str, str]:
+    def get_params(self, indent: str, cursor: cindex.Cursor) -> Params:
         sio_extract = io.StringIO()
         sio_cpp_from_py = io.StringIO()
         types = []
@@ -224,4 +231,4 @@ class TypeManager:
                 d = d.split('=', maxsplit=1)[1]
             sio_cpp_from_py.write(t.cpp_from_py(
                 indent, i, d))
-        return types, format, sio_extract.getvalue(), sio_cpp_from_py.getvalue()
+        return Params(types, format, sio_extract.getvalue(), sio_cpp_from_py.getvalue())

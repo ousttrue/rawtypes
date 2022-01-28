@@ -17,7 +17,7 @@ TYPING_MAP = {
 
 class VoidType(BaseType):
     def __init__(self, is_const=False):
-        super().__init__('void', is_const)
+        super().__init__('void', is_const=is_const)
 
     @property
     def ctypes_type(self) -> str:
@@ -60,7 +60,7 @@ class PrimitiveType(BaseType):
 
 class BoolType(PrimitiveType):
     def __init__(self, is_const=False):
-        super().__init__('bool', is_const)
+        super().__init__('bool', is_const=is_const)
 
     @property
     def ctypes_type(self) -> str:
@@ -78,7 +78,7 @@ class BoolType(PrimitiveType):
 
 class UInt8Type(PrimitiveType):
     def __init__(self, is_const=False):
-        super().__init__('unsigned char', is_const)
+        super().__init__('unsigned char', is_const=is_const)
 
     @property
     def ctypes_type(self) -> str:
@@ -90,10 +90,13 @@ class UInt8Type(PrimitiveType):
         else:
             return f'{indent}unsigned char p{i} = PyLong_AsUnsignedLong(t{i});\n'
 
+    def py_value(self, value: str):
+        return f'PyLong_FromUnsignedLong({value})'
+
 
 class UInt16Type(PrimitiveType):
     def __init__(self, is_const=False):
-        super().__init__('unsigned short', is_const)
+        super().__init__('unsigned short', is_const=is_const)
 
     @property
     def ctypes_type(self) -> str:
@@ -108,7 +111,7 @@ class UInt16Type(PrimitiveType):
 
 class UInt32Type(PrimitiveType):
     def __init__(self, is_const=False):
-        super().__init__('unsigned int', is_const)
+        super().__init__('unsigned int', is_const=is_const)
 
     @property
     def ctypes_type(self) -> str:
@@ -126,7 +129,7 @@ class UInt32Type(PrimitiveType):
 
 class UInt64Type(PrimitiveType):
     def __init__(self, is_const=False):
-        super().__init__('unsigned long long', is_const)
+        super().__init__('unsigned long long', is_const=is_const)
 
     @property
     def ctypes_type(self) -> str:
@@ -135,7 +138,7 @@ class UInt64Type(PrimitiveType):
 
 class SizeType(PrimitiveType):
     def __init__(self, is_const=False):
-        super().__init__('size_t', is_const)
+        super().__init__('size_t', is_const=is_const)
 
     @property
     def ctypes_type(self) -> str:
@@ -150,25 +153,40 @@ class SizeType(PrimitiveType):
 
 class Int8Type(PrimitiveType):
     def __init__(self, is_const=False):
-        super().__init__('char', is_const)
+        super().__init__('char', is_const=is_const)
 
     @property
     def ctypes_type(self) -> str:
         return 'ctypes.c_int8'
 
+    def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
+        if default_value:
+            return f'{indent}char p{i} = t{i} ? PyLong_AsLong(t{i}) : {default_value};\n'
+        else:
+            return f'{indent}char p{i} = PyLong_AsLong(t{i});\n'
+
+    def py_value(self, value: str):
+        return f'PyLong_FromChar({value})'
+
 
 class Int16Type(PrimitiveType):
     def __init__(self, is_const=False):
-        super().__init__('short', is_const)
+        super().__init__('short', is_const=is_const)
 
     @property
     def ctypes_type(self) -> str:
         return 'ctypes.c_int16'
 
+    def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
+        if default_value:
+            return f'{indent}short p{i} = t{i} ? PyLong_AsLong(t{i}) : {default_value};\n'
+        else:
+            return f'{indent}short p{i} = PyLong_AsLong(t{i});\n'
+
 
 class Int32Type(PrimitiveType):
     def __init__(self, is_const=False):
-        super().__init__('int', is_const)
+        super().__init__('int', is_const=is_const)
 
     @property
     def ctypes_type(self) -> str:
@@ -186,7 +204,7 @@ class Int32Type(PrimitiveType):
 
 class Int64Type(PrimitiveType):
     def __init__(self, is_const=False):
-        super().__init__('long long', is_const)
+        super().__init__('long long', is_const=is_const)
 
     @property
     def ctypes_type(self) -> str:
@@ -195,7 +213,7 @@ class Int64Type(PrimitiveType):
 
 class FloatType(PrimitiveType):
     def __init__(self, is_const=False):
-        super().__init__('float', is_const)
+        super().__init__('float', is_const=is_const)
 
     @property
     def ctypes_type(self) -> str:
@@ -213,7 +231,7 @@ class FloatType(PrimitiveType):
 
 class DoubleType(PrimitiveType):
     def __init__(self, is_const=False):
-        super().__init__('double', is_const)
+        super().__init__('double', is_const=is_const)
 
     @property
     def ctypes_type(self) -> str:

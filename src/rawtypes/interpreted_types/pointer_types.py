@@ -21,7 +21,7 @@ def add_impl(base: Optional[BaseType]) -> str:
 
 class PointerType(BaseType):
     def __init__(self, base: BaseType, is_const=False):
-        super().__init__(base.name + '*', base, is_const)
+        super().__init__(base.name + '*', base=base, is_const=is_const)
 
     def result_typing(self, pyi: bool) -> str:
         return 'ctypes.c_void_p'
@@ -56,9 +56,9 @@ class PointerType(BaseType):
 
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
         if default_value:
-            return f'{indent}{self.base.name} *p{i} = t{i} ? ctypes_get_pointer<{self.base.name}*>(t{i}) : {default_value};\n'
+            return f'{indent}{self.base.const_prefix}{self.base.name} *p{i} = t{i} ? ctypes_get_pointer<{self.base.const_prefix}{self.base.name}*>(t{i}) : {default_value};\n'
         else:
-            return f'{indent}{self.base.name} *p{i} = ctypes_get_pointer<{self.base.name}*>(t{i});\n'
+            return f'{indent}{self.base.const_prefix}{self.base.name} *p{i} = ctypes_get_pointer<{self.base.const_prefix}{self.base.name}*>(t{i});\n'
 
     def py_value(self, value: str) -> str:
         return f'c_void_p({value})'
@@ -144,7 +144,7 @@ class RefenreceToStdArrayType(BaseType):
     size: int
 
     def __init__(self, base: BaseType, size: int, is_const=False):
-        super().__init__(f'{base.name}[{size}]', base, is_const)
+        super().__init__(f'{base.name}[{size}]', base=base, is_const=is_const)
         self.size = size
 
     @property
