@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class Parser:
-    def __init__(self, headers: List[pathlib.Path], *, include_dirs=[]) -> None:
+    def __init__(self, headers: List[pathlib.Path], *, include_dirs=(), definitions=()) -> None:
         sio = io.StringIO()
         for header in headers:
             sio.write(f'#include "{header.name}"\n')
@@ -23,7 +23,7 @@ class Parser:
             [str(dir) for dir in include_dirs]
         unsaved = clang_util.Unsaved('tmp.h', sio.getvalue())
         self.tu = clang_util.get_tu(
-            'tmp.h', include_dirs=include_dirs, unsaved=[unsaved], flags=['-DNOMINMAX'])
+            'tmp.h', include_dirs=include_dirs, definitions=definitions, unsaved=[unsaved], flags=['-DNOMINMAX'])
         self.functions: List[FunctionDecl] = []
         self.enums: List[EnumDecl] = []
         self.typedef_struct_list: List[Union[TypedefDecl, StructDecl]] = []

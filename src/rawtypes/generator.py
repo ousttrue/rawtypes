@@ -37,8 +37,14 @@ class Generator:
     def __init__(self, *headers: Header, include_dirs=[]) -> None:
         # parse
         self.headers = list(headers)
+        include_dirs = sum(
+            [list(header.include_dirs) for header in headers], include_dirs)
         self.parser = Parser(
-            [header.path for header in headers], include_dirs=sum([header.include_dirs for header in headers], include_dirs))
+            [header.path for header in headers],
+            include_dirs=include_dirs,
+            definitions=sum([list(header.definitions)
+                            for header in headers], [])
+        )
         self.parser.traverse()
         # prepare
         self.type_manager = TypeManager()

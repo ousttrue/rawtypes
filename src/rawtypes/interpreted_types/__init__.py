@@ -182,20 +182,14 @@ class TypeManager:
                         break
                     current = underlying
 
-                base = self.get(current)
-                if is_primitive(base):
-                    return base
-                elif is_void_p(base):
-                    return base
-                else:
-                    return TypedefType(c.spelling, base, is_const=c.type.is_const_qualified())
+                return self.get(current)
 
             case cindex.TypeKind.RECORD:
                 deref = c.ref_from_children()
                 assert deref
                 if deref:
                     assert deref.referenced.kind == cindex.CursorKind.STRUCT_DECL
-                    return StructType(deref.referenced.spelling, deref.referenced, is_const=c.type.is_const_qualified())
+                    return StructType(deref.referenced.spelling, deref.referenced, is_const=c.type.is_const_qualified(), is_wrap_type=self.is_wrap_type(c.type.spelling))
 
             case cindex.TypeKind.FUNCTIONPROTO:
                 return PointerType(primitive_types.VoidType(), is_const=c.type.is_const_qualified())
@@ -205,7 +199,6 @@ class TypeManager:
 
             case cindex.TypeKind.ELABORATED:
                 return StructType(c.type.spelling, c.cursor, is_const=c.type.is_const_qualified(), is_wrap_type=self.is_wrap_type(c.type.spelling))
-
 
         raise RuntimeError(f"unknown type: {c.type.kind}")
 

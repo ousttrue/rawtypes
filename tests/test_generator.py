@@ -12,23 +12,31 @@ CINDEX_HEADER = pathlib.Path("C:/Program Files/LLVM/include/clang-c/Index.h")
 
 
 class TestGenerator(unittest.TestCase):
-
-    def test_generator(self):
-        generator = rawtypes.generator.Generator(
+    def setUp(self) -> None:
+        self.generator = rawtypes.generator.Generator(
             Header(CINDEX_HEADER, include_dirs=[CINDEX_HEADER.parent.parent]))
-
-        # CINDEX_LINKAGE CXCursor clang_getNullCursor(void);
-        f = generator.parser.get_function('clang_getNullCursor')
-        self.assertIsNotNone(f)
-
-        generator.type_manager.WRAP_TYPES.append(
+        self.generator.type_manager.WRAP_TYPES.append(
             WrapFlags('CXCursor', True)
         )
 
-        s = f.to_c_function(generator.env, generator.type_manager)
+    def test_clang_getNullCursor(self):
+        '''
+        // return by value
+        CINDEX_LINKAGE CXCursor clang_getNullCursor(void);
+        '''
+        f = self.generator.parser.get_function('clang_getNullCursor')
+        self.assertIsNotNone(f)
+
+        s = f.to_c_function(self.generator.env, self.generator.type_manager)
         print(s)
 
-        # generator.generate(HERE.parent / 'tmp')
+    def test_clang_equalLocations(self):
+        '''
+        // param by value
+        CINDEX_LINKAGE unsigned clang_equalLocations(CXSourceLocation loc1, CXSourceLocation loc2);
+        '''
+        f = self.generator.parser.get_function('clang_equalLocations')
+        self.assertIsNotNone(f)
 
-        # struct 値渡し
-        # struct 値返し
+        s = f.to_c_function(self.generator.env, self.generator.type_manager)
+        print(s)

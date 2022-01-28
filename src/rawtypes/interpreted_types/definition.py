@@ -66,6 +66,15 @@ class StructType(BaseType):
 {indent}return ctypes.c_void_p(value)
 '''
 
+    def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
+        if default_value:
+            raise NotImplementedError()
+        else:
+            return f'{indent}{self.name} *p{i} = ctypes_get_pointer<{self.name}*>(t{i});\n'
+
+    def cpp_call_name(self, i: int):
+        return f'*p{i}'
+
     def py_value(self, value: str) -> str:
         if not self.is_wrap_type:
             raise NotImplemented("return by value. but no python type")
