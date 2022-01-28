@@ -41,7 +41,7 @@ class Generator:
             [header.path for header in headers], include_dirs=sum([header.include_dirs for header in headers], include_dirs))
         self.parser.traverse()
         # prepare
-        self.types = TypeManager()
+        self.type_manager = TypeManager()
         self.env = Environment(
             loader=PackageLoader("rawtypes"),
         )
@@ -59,7 +59,7 @@ class Generator:
                 ew.write(CTYPES_BEGIN)
                 ew.write(f'from .impl.{header.path.stem} import *\n')
                 ew.write(header.begin)
-                for wrap_type in self.types.WRAP_TYPES:
+                for wrap_type in self.type_manager.WRAP_TYPES:
                     # structs
                     for t in self.parser.typedef_struct_list:
                         if wrap_type.name == t.cursor.spelling:
@@ -114,7 +114,7 @@ from typing import Any, Union, Tuple, TYpe, Iterable
                     overload += f'_{overload_count}'
                 namespace = get_namespace(f.cursors)
                 func_name = f'{f.path.stem}_{f.spelling}{overload}'
-                sio.write(self.to_c_function(f, namespace, func_name))
+                sio.write(f.to_c_function(namespace, func_name, self.type_manager))
                 method = PyMethodDef(
                     f"{f.spelling}{overload}", func_name, "METH_VARARGS", f"{namespace}{f.spelling}")
                 methods.append(method)
@@ -154,7 +154,7 @@ from typing import Any, Union, Tuple, TYpe, Iterable
                 name = field.name
                 if flags.custom_fields.get(name):
                     name = '_' + name
-                w.write(self.types.from_cursor(
+                w.write(self.type_manager.from_cursor(
                     field.cursor.type, field.cursor).ctypes_field(indent, name))
             w.write('    ]\n\n')
 
@@ -200,7 +200,7 @@ from typing import Any, Union, Tuple, TYpe, Iterable
             f'static PyObject *{func_name}(PyObject *self, PyObject *args){{\n')
 
         # prams
-        types, format, extract, cpp_from_py = self.types.get_params(indent, m)
+        types, format, extract, cpp_from_py = self.type_manager.get_params(indent, m)
 
         format = 'O' + format
 
@@ -222,7 +222,7 @@ from typing import Any, Union, Tuple, TYpe, Iterable
         call_params = ', '.join(t.cpp_call_name(i)
                                 for i, t in enumerate(types))
         call = f'ptr->{m.spelling}({call_params})'
-        w.write(self.types.from_cursor(
+        w.write(self.type_manager.from_cursor(
             result.type, result.cursor).cpp_result(indent, call))
 
         w.write(f'''}}
@@ -233,7 +233,7 @@ from typing import Any, Union, Tuple, TYpe, Iterable
         types = [x for x in self.parser.typedef_struct_list if pathlib.Path(
             x.cursor.location.file.name) == header.path]
         if types:
-            for v in self.types.WRAP_TYPES:
+            for v in self.type_manager.WRAP_TYPES:
                 for typedef_or_struct in types:
                     if typedef_or_struct.cursor.spelling == v.name:
                         match typedef_or_struct:
@@ -242,7 +242,7 @@ from typing import Any, Union, Tuple, TYpe, Iterable
                                     pyi, flags=v)
                             case StructDecl():
                                 typedef_or_struct.write_pyi(
-                                    self.types, pyi, flags=v)
+                                    self.type_manager, pyi, flags=v)
                             case _:
                                 raise Exception()
 
@@ -257,43 +257,13 @@ from typing import Any, Union, Tuple, TYpe, Iterable
                 name = typedef_or_struct.spelling
                 count = overload.get(name, 0) + 1
                 write_pyx_function(
-                    self.types, pyi, typedef_or_struct.cursor, pyi=True, overload=count, prefix=header.prefix)
+                    self.type_manager, pyi, typedef_or_struct.cursor, pyi=True, overload=count, prefix=header.prefix)
                 overload[name] = count
-
-    def to_c_function(self, f: FunctionDecl, namespace: str, func_name: str) -> str:
-        w = io.StringIO()
-        result = TypeWrap.from_function_result(f.cursor)
-        indent = '  '
-        w.write(
-            f'static PyObject *{func_name}(PyObject *self, PyObject *args){{\n')
-
-        # prams
-        types, format, extract, cpp_from_py = self.types.get_params(
-            indent, f.cursor)
-        w.write(extract)
-
-        extract_params = ''.join(', &' + t.cpp_extract_name(i)
-                                 for i, t in enumerate(types))
-        w.write(
-            f'{indent}if(!PyArg_ParseTuple(args, "{format}"{extract_params})) return NULL;\n')
-        w.write(cpp_from_py)
-
-        # call & result
-        call_params = ', '.join(t.cpp_call_name(i)
-                                for i, t in enumerate(types))
-        call = f'{namespace}{f.spelling}({call_params})'
-        w.write(self.types.from_cursor(
-            result.type, result.cursor).cpp_result(indent, call))
-
-        w.write(f'''}}
-
-''')
-        return w.getvalue()
 
     def write_ctypes_method(self, w: io.IOBase, cursor: cindex.Cursor, method: cindex.Cursor, *, pyi=False):
         params = TypeWrap.get_function_params(method)
         result = TypeWrap.from_function_result(method)
-        result_t = self.types.from_cursor(result.type, result.cursor)
+        result_t = self.type_manager.from_cursor(result.type, result.cursor)
 
         # signature
         w.write(

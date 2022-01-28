@@ -166,3 +166,33 @@ class FunctionDecl(NamedTuple):
                     # function pointer
                     return True
         return False
+
+    def to_c_function(self, namespace: str, func_name: str, type_manager: TypeManager) -> str:
+        w = io.StringIO()
+        result = TypeWrap.from_function_result(self.cursor)
+        indent = '  '
+        w.write(
+            f'static PyObject *{func_name}(PyObject *self, PyObject *args){{\n')
+
+        # prams
+        types, format, extract, cpp_from_py = type_manager.get_params(
+            indent, self.cursor)
+        w.write(extract)
+
+        extract_params = ''.join(', &' + t.cpp_extract_name(i)
+                                 for i, t in enumerate(types))
+        w.write(
+            f'{indent}if(!PyArg_ParseTuple(args, "{format}"{extract_params})) return NULL;\n')
+        w.write(cpp_from_py)
+
+        # call & result
+        call_params = ', '.join(t.cpp_call_name(i)
+                                for i, t in enumerate(types))
+        call = f'{namespace}{self.spelling}({call_params})'
+        w.write(type_manager.from_cursor(
+            result.type, result.cursor).cpp_result(indent, call))
+
+        w.write(f'''}}
+
+''')
+        return w.getvalue()
