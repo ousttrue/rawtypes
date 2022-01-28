@@ -25,7 +25,7 @@ class TestGenerator(unittest.TestCase):
             WrapFlags('CxCursor', True)
         )
 
-        s = f.to_c_function(generator.type_manager)
+        s = f.to_c_function(generator.env, generator.type_manager)
         print(s)
 
         # generator.generate(HERE.parent / 'tmp')

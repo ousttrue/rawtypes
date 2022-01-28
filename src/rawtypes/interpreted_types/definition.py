@@ -64,7 +64,7 @@ class StructType(BaseType):
 '''
 
     def py_value(self, value: str) -> str:
-        return f'/* TODO: return by value */c_void_p({value})'
+        return f'/* TODO: return by value. create ctypes and memcpy */c_void_p({value})'
 
 
 class EnumType(BaseType):

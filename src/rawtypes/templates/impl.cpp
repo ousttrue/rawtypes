@@ -134,9 +134,9 @@ static PyObject *c_void_p(const void *address) {
 }
 
 // clang-format off
-{% for header in headers %}
+{% for header in headers -%}
 {{ header }}
-{% endfor %} // clang-format on
+{% endfor -%} // clang-format on
 
 PyMODINIT_FUNC
 PyInit_impl(void) {

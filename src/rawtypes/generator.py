@@ -114,7 +114,9 @@ from typing import Any, Union, Tuple, TYpe, Iterable
                     overload += f'_{overload_count}'
                 namespace = get_namespace(f.cursors)
                 func_name = f'{f.path.stem}_{f.spelling}{overload}'
-                sio.write(f.to_c_function(namespace, func_name, self.type_manager))
+                sio.write(f.to_c_function(self.env, self.type_manager,
+                          namespace=namespace, func_name=func_name))
+                sio.write('\n')
                 method = PyMethodDef(
                     f"{f.spelling}{overload}", func_name, "METH_VARARGS", f"{namespace}{f.spelling}")
                 methods.append(method)
@@ -200,7 +202,8 @@ from typing import Any, Union, Tuple, TYpe, Iterable
             f'static PyObject *{func_name}(PyObject *self, PyObject *args){{\n')
 
         # prams
-        types, format, extract, cpp_from_py = self.type_manager.get_params(indent, m)
+        types, format, extract, cpp_from_py = self.type_manager.get_params(
+            indent, m)
 
         format = 'O' + format
 

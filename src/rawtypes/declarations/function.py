@@ -2,6 +2,7 @@ from typing import Iterable, List, Tuple, NamedTuple
 import pathlib
 import logging
 import io
+from jinja2 import Environment
 from rawtypes.clang import cindex
 from .typewrap import TypeWrap
 from ..interpreted_types import TypeManager
@@ -167,35 +168,30 @@ class FunctionDecl(NamedTuple):
                     return True
         return False
 
-    def to_c_function(self, type_manager: TypeManager, *, namespace: str = '', func_name: str = '') -> str:
+    def to_c_function(self, env: Environment, type_manager: TypeManager, *, namespace: str = '', func_name: str = '') -> str:
         if not func_name:
-            func_name = self.cursor.spelling
+            func_name = self.spelling
 
-        w = io.StringIO()
         result = TypeWrap.from_function_result(self.cursor)
         indent = '  '
-        w.write(
-            f'static PyObject *{func_name}(PyObject *self, PyObject *args){{\n')
-
         # prams
         types, format, extract, cpp_from_py = type_manager.get_params(
             indent, self.cursor)
-        w.write(extract)
-
         extract_params = ''.join(', &' + t.cpp_extract_name(i)
                                  for i, t in enumerate(types))
-        w.write(
-            f'{indent}if(!PyArg_ParseTuple(args, "{format}"{extract_params})) return NULL;\n')
-        w.write(cpp_from_py)
 
         # call & result
         call_params = ', '.join(t.cpp_call_name(i)
                                 for i, t in enumerate(types))
         call = f'{namespace}{self.spelling}({call_params})'
         result_type = type_manager.from_cursor(result.type, result.cursor)
-        w.write(result_type.cpp_result(indent, call))
 
-        w.write(f'''}}
-
-''')
-        return w.getvalue()
+        template = env.get_template("pycfunc.cpp")
+        return template.render(
+            func_name=func_name,
+            extract=extract,
+            format=format,
+            extract_params=extract_params,
+            cpp_from_py=cpp_from_py,
+            result=result_type.cpp_result(indent, call)
+        )
