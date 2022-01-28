@@ -4,7 +4,7 @@ import pathlib
 #
 from rawtypes.clang import cindex
 #
-from .typewrap import TypeWrap
+from ..typewrap import TypeWrap
 from ..interpreted_types import WrapFlags, TypeManager
 from . import function_cursor
 

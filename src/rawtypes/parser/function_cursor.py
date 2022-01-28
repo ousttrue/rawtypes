@@ -4,7 +4,7 @@ import logging
 import io
 from jinja2 import Environment
 from rawtypes.clang import cindex
-from .typewrap import TypeWrap
+from ..typewrap import TypeWrap
 from ..interpreted_types import TypeManager
 
 logger = logging.getLogger(__name__)

@@ -3,10 +3,11 @@ import io
 import pathlib
 import logging
 from rawtypes.clang import cindex
-from .declarations.typedef_cursor import TypedefCursor
-from .declarations.struct_cursor import StructCursor
-from .declarations.enum_cursor import EnumCursor
-from .declarations.function_cursor import FunctionCursor
+from rawtypes import clang_util
+from .typedef_cursor import TypedefCursor
+from .struct_cursor import StructCursor
+from .enum_cursor import EnumCursor
+from .function_cursor import FunctionCursor
 logger = logging.getLogger(__name__)
 
 
@@ -15,7 +16,6 @@ class Parser:
         sio = io.StringIO()
         for header in headers:
             sio.write(f'#include "{header.name}"\n')
-        from . import clang_util
 
         self.headers = headers
 
@@ -67,7 +67,7 @@ class Parser:
                 case cindex.CursorKind.FUNCTION_DECL:
                     if(cursor.spelling.startswith('operator ')):
                         pass
-                    else:                        
+                    else:
                         self.functions.append(FunctionCursor(cursor_path))
                 case cindex.CursorKind.ENUM_DECL:
                     self.enums.append(EnumCursor(cursor_path))
@@ -96,7 +96,6 @@ class Parser:
         return False
 
     def traverse(self):
-        from . import clang_util
         clang_util.traverse(self.tu, self.callback)
 
     def get_function(self, name) -> FunctionCursor:

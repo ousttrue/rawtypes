@@ -2,9 +2,9 @@ import unittest
 import ctypes
 import pathlib
 import rawtypes.generator
-from rawtypes.header import Header
+from rawtypes.parser.header import Header
 from rawtypes.interpreted_types import WrapFlags
-from rawtypes.declarations.typewrap import TypeWrap
+from rawtypes.typewrap import TypeWrap
 import logging
 logging.basicConfig(level=logging.DEBUG)
 HERE = pathlib.Path(__file__).absolute().parent

@@ -1,5 +1,4 @@
 import unittest
-import ctypes
 import rawtypes.clang_util
 
 SRC = '''
@@ -12,7 +11,7 @@ void add(int a, int b)
 '''
 
 
-class TestParse(unittest.TestCase):
+class TestClangUtil(unittest.TestCase):
 
     def test_forward(self):
         tu = rawtypes.clang_util.get_tu(

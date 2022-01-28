@@ -2,7 +2,7 @@ import unittest
 import ctypes
 import pathlib
 import rawtypes.generator
-from rawtypes.header import Header
+from rawtypes.parser.header import Header
 from rawtypes.interpreted_types import WrapFlags
 import logging
 logging.basicConfig(level=logging.DEBUG)

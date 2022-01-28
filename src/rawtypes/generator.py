@@ -1,12 +1,12 @@
 from typing import List, Iterable
 import pathlib
 from jinja2 import Environment, PackageLoader, select_autoescape
-from .header import Header
+from .parser.header import Header
 from .parser import Parser
 from .interpreted_types import *
-from .declarations.struct_cursor import StructCursor
-from .declarations.typedef_cursor import TypedefCursor
-from .declarations.function_cursor import FunctionCursor, write_pyx_function
+from .parser.struct_cursor import StructCursor
+from .parser.typedef_cursor import TypedefCursor
+from .parser.function_cursor import FunctionCursor, write_pyx_function
 
 
 CTYPES_BEGIN = '''from typing import Iterable, Type, Tuple

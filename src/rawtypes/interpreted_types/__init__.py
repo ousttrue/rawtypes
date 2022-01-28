@@ -10,7 +10,7 @@ from .pointer_types import PointerType, ReferenceType, ArrayType, RefenreceToStd
 from .wrap_types import PointerToStructType, ReferenceToStructType
 from .definition import StructType, TypedefType, EnumType
 from .string import StringType, CStringType
-from ..declarations.typewrap import TypeWrap
+from ..typewrap import TypeWrap
 
 
 class WrapFlags(NamedTuple):
