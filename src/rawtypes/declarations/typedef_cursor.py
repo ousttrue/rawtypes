@@ -16,7 +16,7 @@ def type_name(t: str, name: str) -> str:
         return f'{t} {name}'
 
 
-class TypedefDecl(NamedTuple):
+class TypedefCursor(NamedTuple):
     cursors: Tuple[cindex.Cursor, ...]
 
     @property

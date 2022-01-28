@@ -3,7 +3,7 @@ import io
 import pathlib
 import logging
 from rawtypes.clang import cindex
-from .declarations.typedef import TypedefDecl
+from .declarations.typedef_cursor import TypedefCursor
 from .declarations.struct_cursor import StructCursor
 from .declarations.enum import EnumDecl
 from .declarations.function_cursor import FunctionCursor
@@ -26,7 +26,7 @@ class Parser:
             'tmp.h', include_dirs=include_dirs, definitions=definitions, unsaved=[unsaved], flags=['-DNOMINMAX'])
         self.functions: List[FunctionCursor] = []
         self.enums: List[EnumDecl] = []
-        self.typedef_struct_list: List[Union[TypedefDecl, StructCursor]] = []
+        self.typedef_struct_list: List[Union[TypedefCursor, StructCursor]] = []
 
         self.used = []
         self.skip = []
@@ -72,7 +72,7 @@ class Parser:
                 case cindex.CursorKind.ENUM_DECL:
                     self.enums.append(EnumDecl(cursor_path))
                 case cindex.CursorKind.TYPEDEF_DECL:
-                    self.typedef_struct_list.append(TypedefDecl(cursor_path))
+                    self.typedef_struct_list.append(TypedefCursor(cursor_path))
                 case cindex.CursorKind.STRUCT_DECL:
                     self.typedef_struct_list.append(StructCursor(cursor_path))
                 case cindex.CursorKind.CLASS_TEMPLATE:

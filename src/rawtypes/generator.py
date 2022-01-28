@@ -5,7 +5,7 @@ from .header import Header
 from .parser import Parser
 from .interpreted_types import *
 from .declarations.struct_cursor import StructCursor
-from .declarations.typedef import TypedefDecl
+from .declarations.typedef_cursor import TypedefCursor
 from .declarations.function_cursor import FunctionCursor, write_pyx_function
 
 
@@ -248,7 +248,7 @@ from typing import Any, Union, Tuple, TYpe, Iterable
                 for typedef_or_struct in types:
                     if typedef_or_struct.cursor.spelling == v.name:
                         match typedef_or_struct:
-                            case TypedefDecl():
+                            case TypedefCursor():
                                 typedef_or_struct.write_pyi(
                                     pyi, flags=v)
                             case StructCursor():
