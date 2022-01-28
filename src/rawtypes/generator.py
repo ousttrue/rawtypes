@@ -4,7 +4,7 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 from .header import Header
 from .parser import Parser
 from .interpreted_types import *
-from .declarations.struct import StructDecl
+from .declarations.struct_cursor import StructCursor
 from .declarations.typedef import TypedefDecl
 from .declarations.function_cursor import FunctionCursor, write_pyx_function
 
@@ -71,7 +71,7 @@ class Generator:
                     for t in self.parser.typedef_struct_list:
                         if wrap_type.name == t.cursor.spelling:
                             match t:
-                                case StructDecl():
+                                case StructCursor():
                                     if t.path != header.path:
                                         continue
                                     for struct, method in self.write_struct(ew, t, wrap_type):
@@ -147,7 +147,7 @@ from typing import Any, Union, Tuple, TYpe, Iterable
             w.write(template.render(headers=headers, modules=modules))
         return cpp_path
 
-    def write_struct(self, w: io.IOBase, s: StructDecl, flags: WrapFlags) -> Iterable[Tuple[cindex.Cursor, cindex.Cursor]]:
+    def write_struct(self, w: io.IOBase, s: StructCursor, flags: WrapFlags) -> Iterable[Tuple[cindex.Cursor, cindex.Cursor]]:
         cursor = s.cursors[-1]
 
         definition = cursor.get_definition()
@@ -251,7 +251,7 @@ from typing import Any, Union, Tuple, TYpe, Iterable
                             case TypedefDecl():
                                 typedef_or_struct.write_pyi(
                                     pyi, flags=v)
-                            case StructDecl():
+                            case StructCursor():
                                 typedef_or_struct.write_pyi(
                                     self.type_manager, pyi, flags=v)
                             case _:

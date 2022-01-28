@@ -26,7 +26,7 @@ def is_forward_declaration(cursor: cindex.Cursor) -> bool:
     return cursor != definition
 
 
-class StructDecl(NamedTuple):
+class StructCursor(NamedTuple):
     cursors: Tuple[cindex.Cursor, ...]
 
     @property

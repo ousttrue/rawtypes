@@ -4,7 +4,7 @@ import pathlib
 import logging
 from rawtypes.clang import cindex
 from .declarations.typedef import TypedefDecl
-from .declarations.struct import StructDecl
+from .declarations.struct_cursor import StructCursor
 from .declarations.enum import EnumDecl
 from .declarations.function_cursor import FunctionCursor
 logger = logging.getLogger(__name__)
@@ -26,7 +26,7 @@ class Parser:
             'tmp.h', include_dirs=include_dirs, definitions=definitions, unsaved=[unsaved], flags=['-DNOMINMAX'])
         self.functions: List[FunctionCursor] = []
         self.enums: List[EnumDecl] = []
-        self.typedef_struct_list: List[Union[TypedefDecl, StructDecl]] = []
+        self.typedef_struct_list: List[Union[TypedefDecl, StructCursor]] = []
 
         self.used = []
         self.skip = []
@@ -74,11 +74,11 @@ class Parser:
                 case cindex.CursorKind.TYPEDEF_DECL:
                     self.typedef_struct_list.append(TypedefDecl(cursor_path))
                 case cindex.CursorKind.STRUCT_DECL:
-                    self.typedef_struct_list.append(StructDecl(cursor_path))
+                    self.typedef_struct_list.append(StructCursor(cursor_path))
                 case cindex.CursorKind.CLASS_TEMPLATE:
-                    self.typedef_struct_list.append(StructDecl(cursor_path))
+                    self.typedef_struct_list.append(StructCursor(cursor_path))
                 case cindex.CursorKind.CLASS_DECL:
-                    self.typedef_struct_list.append(StructDecl(cursor_path))
+                    self.typedef_struct_list.append(StructCursor(cursor_path))
                 case cindex.CursorKind.UNEXPOSED_DECL:
                     # extern C etc...
                     return True
