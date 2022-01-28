@@ -5,7 +5,7 @@ import logging
 from rawtypes.clang import cindex
 from .declarations.typedef_cursor import TypedefCursor
 from .declarations.struct_cursor import StructCursor
-from .declarations.enum import EnumDecl
+from .declarations.enum_cursor import EnumCursor
 from .declarations.function_cursor import FunctionCursor
 logger = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ class Parser:
         self.tu = clang_util.get_tu(
             'tmp.h', include_dirs=include_dirs, definitions=definitions, unsaved=[unsaved], flags=['-DNOMINMAX'])
         self.functions: List[FunctionCursor] = []
-        self.enums: List[EnumDecl] = []
+        self.enums: List[EnumCursor] = []
         self.typedef_struct_list: List[Union[TypedefCursor, StructCursor]] = []
 
         self.used = []
@@ -70,7 +70,7 @@ class Parser:
                     else:                        
                         self.functions.append(FunctionCursor(cursor_path))
                 case cindex.CursorKind.ENUM_DECL:
-                    self.enums.append(EnumDecl(cursor_path))
+                    self.enums.append(EnumCursor(cursor_path))
                 case cindex.CursorKind.TYPEDEF_DECL:
                     self.typedef_struct_list.append(TypedefCursor(cursor_path))
                 case cindex.CursorKind.STRUCT_DECL:

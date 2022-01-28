@@ -4,7 +4,7 @@ from rawtypes.clang import cindex
 import pathlib
 
 
-class EnumDecl(NamedTuple):
+class EnumCursor(NamedTuple):
     cursors: Tuple[cindex.Cursor, ...]
 
     @property
