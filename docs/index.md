@@ -6,11 +6,9 @@
     * class
     * instance
 
-現状、 `ImGui` のラッパー生成専用。
-徐々に、他のこともできるようにしていく。
-
 ```{toctree}
 :maxdepth: 1
+rawtypes/index
 setup/index
 cindex/index
 examples/index

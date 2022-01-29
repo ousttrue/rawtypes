@@ -55,7 +55,7 @@ class Generator:
             loader=PackageLoader("rawtypes.generator"),
         )
 
-    def generate(self, package_dir: pathlib.Path) -> pathlib.Path:
+    def generate(self, package_dir: pathlib.Path, cpp_path: pathlib.Path):
 
         modules = []
         headers = []
@@ -146,12 +146,10 @@ from typing import Any, Union, Tuple, TYpe, Iterable
                 module_name=header.path.stem, methods=methods))
             headers.append(sio.getvalue())
 
-        cpp_path = package_dir / 'rawtypes/implmodule.cpp'
         cpp_path.parent.mkdir(parents=True, exist_ok=True)
         with cpp_path.open('w') as w:
             template = self.env.get_template("impl.cpp")
             w.write(template.render(headers=headers, modules=modules))
-        return cpp_path
 
     def write_struct(self, w: io.IOBase, s: StructCursor, flags: WrapFlags) -> bool:
         cursor = s.cursors[-1]
