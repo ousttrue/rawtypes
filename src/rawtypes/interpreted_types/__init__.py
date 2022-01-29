@@ -1,17 +1,16 @@
-from typing import Optional, NamedTuple, List, Callable
-from typing import NamedTuple, Dict, Union, Tuple
+from typing import Optional, NamedTuple, List, Callable, NamedTuple
 import re
 import io
 #
 from rawtypes.clang import cindex
 from rawtypes.parser.function_cursor import FunctionCursor
+from rawtypes.parser.typewrap import TypeWrap
 from .basetype import BaseType
 from . import primitive_types
 from .pointer_types import PointerType, ReferenceType, ArrayType, RefenreceToStdArrayType
 from .wrap_types import PointerToStructType, ReferenceToStructType
 from .definition import StructType, TypedefType, EnumType
 from .string import StringType, CStringType
-
 
 class TypeWithCursor(NamedTuple):
     type: cindex.Type
@@ -203,13 +202,16 @@ class TypeManager:
     def from_cursor(self, cursor_type: cindex.Type, cursor: cindex.Cursor) -> BaseType:
         return self.get(TypeWithCursor(cursor_type, cursor))
 
+    def to_type(self, typewrap: TypeWrap) -> BaseType:
+        return self.from_cursor(typewrap.type, typewrap.cursor)
+
     def get_params(self, indent: str, f: FunctionCursor) -> Params:
         sio_extract = io.StringIO()
         sio_cpp_from_py = io.StringIO()
         types = []
         format = ''
         last_format = None
-        for i, param in enumerate(f.params):
+        for i, param in f.params:
             t = self.from_cursor(param.type, param.cursor)
             sio_extract.write(t.cpp_param_declare(indent, i, param.name))
             types.append(t)

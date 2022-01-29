@@ -1,4 +1,4 @@
-from typing import List, Iterable
+from typing import List, Iterable, Tuple
 import pathlib
 from jinja2 import Environment, PackageLoader, select_autoescape
 
@@ -63,7 +63,8 @@ class Generator:
             #
             # ctypes
             #
-            struct_and_methods = []
+            structs: List[Tuple[StructCursor, WrapFlags]] = []
+
             with (package_dir / f'{header.path.stem}.py').open('w') as ew:
                 ew.write(CTYPES_BEGIN)
                 ew.write(f'from .impl.{header.path.stem} import *\n')
@@ -73,12 +74,13 @@ class Generator:
                     for t in self.parser.typedef_struct_list:
                         if wrap_type.name == t.cursor.spelling:
                             match t:
-                                case StructCursor():
-                                    if t.path != header.path:
+                                case StructCursor() as s:
+                                    if s.path != header.path:
                                         continue
-                                    for struct, method in self.write_struct(ew, t, wrap_type):
-                                        struct_and_methods.append(
-                                            (struct, method))
+                                    if s.is_forward_decl:
+                                        continue
+                                    self.write_struct(ew, s, wrap_type)
+                                    structs.append((s, wrap_type))
 
                 # enum
                 ew.write('from enum import IntEnum\n\n')
@@ -131,11 +133,12 @@ from typing import Any, Union, Tuple, TYpe, Iterable
                     f"{f.spelling}{overload}", func_name, "METH_VARARGS", f"{namespace}{f.spelling}")
                 methods.append(method)
 
-            for struct, method in struct_and_methods:
-                self.write_c_method(sio, struct, method)
-                method = PyMethodDef(
-                    f"{struct.spelling}_{method.spelling}", f"{struct.spelling}_{method.spelling}", "METH_VARARGS", f"{struct.spelling}::{method.spelling}")
-                methods.append(method)
+            for struct, wrap_type in structs:
+                for method in struct.get_methods(wrap_type):
+                    self.write_c_method(sio, struct.cursor, method)
+                    method = PyMethodDef(
+                        f"{struct.spelling}_{method.spelling}", f"{struct.spelling}_{method.spelling}", "METH_VARARGS", f"{struct.spelling}::{method.spelling}")
+                    methods.append(method)
 
             template = self.env.get_template("module.cpp")
             modules.append(template.render(
@@ -149,13 +152,8 @@ from typing import Any, Union, Tuple, TYpe, Iterable
             w.write(template.render(headers=headers, modules=modules))
         return cpp_path
 
-    def write_struct(self, w: io.IOBase, s: StructCursor, flags: WrapFlags) -> Iterable[Tuple[cindex.Cursor, cindex.Cursor]]:
+    def write_struct(self, w: io.IOBase, s: StructCursor, flags: WrapFlags) -> bool:
         cursor = s.cursors[-1]
-
-        definition = cursor.get_definition()
-        if definition and definition != cursor:
-            # skip forward decl
-            return
 
         w.write(f'class {cursor.spelling}(ctypes.Structure):\n')
         fields = TypeWrap.get_struct_fields(cursor) if flags.fields else []
@@ -170,17 +168,6 @@ from typing import Any, Union, Tuple, TYpe, Iterable
                     field.cursor.type, field.cursor).ctypes_field(indent, name))
             w.write('    ]\n\n')
 
-#     if flags.default_constructor:
-#         constructor = TypeWrap.get_default_constructor(cursor)
-#         if constructor:
-#             w.write(f'''    def __init__(self, **kwargs):
-#     p = new impl.{cursor.spelling}()
-#     memcpy(<void *><uintptr_t>ctypes.addressof(self), p, sizeof(impl.{cursor.spelling}))
-#     del p
-#     super().__init__(**kwargs)
-
-# ''')
-
         for _, v in flags.custom_fields.items():
             w.write('    @property\n')
             for l in v.splitlines():
@@ -191,7 +178,6 @@ from typing import Any, Union, Tuple, TYpe, Iterable
         if methods:
             for method in methods:
                 self.write_ctypes_method(w, cursor, method)
-                yield cursor, method
 
         for code in flags.custom_methods:
             for l in code.splitlines():
@@ -201,12 +187,14 @@ from typing import Any, Union, Tuple, TYpe, Iterable
         if not fields:  # and not methods and not flags.custom_methods:
             w.write('    pass\n\n')
 
-    def write_c_method(self, w: io.IOBase, c: cindex.Cursor,  m: cindex.Cursor):
+        return True
+
+    def write_c_method(self, w: io.IOBase, c: cindex.Cursor,  m: FunctionCursor):
         # signature
         func_name = f'{c.spelling}_{m.spelling}'
 
         # namespace = get_namespace(f.cursors)
-        result = TypeWrap.from_function_result(m)
+        result = m.result
         indent = '  '
         w.write(
             f'static PyObject *{func_name}(PyObject *self, PyObject *args){{\n')

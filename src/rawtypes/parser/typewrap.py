@@ -67,10 +67,8 @@ class TypeWrap(NamedTuple):
         ) if child.kind == cindex.CursorKind.FIELD_DECL]
 
     @staticmethod
-    def get_struct_methods(cursor: cindex.Cursor, *, excludes=(), includes=False):
+    def get_struct_methods(cursor: cindex.Cursor, *, excludes=(), includes=False) -> List[cindex.Cursor]:
         def method_filter(method: cindex.Cursor) -> bool:
-            if method.spelling == 'GetStateStorage':
-                pass
             if method.kind != cindex.CursorKind.CXX_METHOD:
                 return False
             for param in method.get_children():

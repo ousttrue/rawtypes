@@ -1,11 +1,12 @@
-from typing import NamedTuple, Tuple, Dict, Union
+from typing import NamedTuple, Tuple, Dict, Union, List, Optional
 import io
 import pathlib
 #
 from rawtypes.clang import cindex
+from rawtypes.parser import function_cursor
+from rawtypes.parser.function_cursor import FunctionCursor
 #
 from .typewrap import TypeWrap
-from . import function_cursor
 
 
 class WrapFlags(NamedTuple):
@@ -19,7 +20,7 @@ class WrapFlags(NamedTuple):
 
 def is_forward_declaration(cursor: cindex.Cursor) -> bool:
     '''
-    https://joshpeterson.github.io/identifying-a-forward-declaration-with-libclang    
+    https://joshpeterson.github.io/identifying-a-forward-declaration-with-libclang
     '''
     definition = cursor.get_definition()
 
@@ -42,8 +43,32 @@ class StructCursor(NamedTuple):
         return self.cursors[-1]
 
     @property
+    def spelling(self) -> str:
+        return self.cursor.spelling
+
+    @property
     def path(self) -> pathlib.Path:
         return pathlib.Path(self.cursor.location.file.name)
+
+    @property
+    def is_forward_decl(self) -> bool:
+        definition = self.cursor.get_definition()
+        if definition and definition != self.cursor:
+            return True
+        return False
+
+    def get_methods(self, flags: Optional[WrapFlags] = None) -> List[FunctionCursor]:
+        methods = TypeWrap.get_struct_methods(
+            self.cursor, includes=flags.methods if isinstance(flags, WrapFlags) else True)
+        if not methods:
+            return []
+        return [FunctionCursor(self.cursors + (method,)) for method in methods]
+
+    def get_method(self, name: str) -> FunctionCursor:
+        for method in self.get_methods():
+            if method.spelling == name:
+                return method
+        raise KeyError(name)
 
     def write_pxd(self, pxd: io.IOBase, *, excludes=()):
         cursor = self.cursors[-1]

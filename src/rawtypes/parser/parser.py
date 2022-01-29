@@ -98,8 +98,19 @@ class Parser:
     def traverse(self):
         clang_util.traverse(self.tu, self.callback)
 
-    def get_function(self, name) -> FunctionCursor:
+    def get_function(self, name: str) -> FunctionCursor:
         for f in self.functions:
             if f.spelling == name:
                 return f
+        raise KeyError(name)
+
+    def get_struct(self, name: str) -> StructCursor:
+        found = None
+        for s in self.typedef_struct_list:
+            if s.cursor.spelling == name and isinstance(s, StructCursor):
+                if not s.is_forward_decl:
+                    return s
+                found = s
+        if found:
+            return found
         raise KeyError(name)
