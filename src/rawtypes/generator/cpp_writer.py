@@ -1,5 +1,7 @@
 from typing import List, NamedTuple
+import io
 from jinja2 import Environment
+from rawtypes.clang import cindex
 from rawtypes.interpreted_types import TypeManager
 from rawtypes.interpreted_types.basetype import BaseType
 from rawtypes.parser.function_cursor import FunctionCursor
@@ -83,3 +85,47 @@ def to_c_function(function_cursor: FunctionCursor, env: Environment, type_manage
         format=to_fromat(paramlist),
         call_and_return=result_type.cpp_result('', call)
     )
+
+
+def to_c_method(c: cindex.Cursor, m: FunctionCursor, env: Environment, type_manager: TypeManager) -> str:
+    # signature
+    func_name = f'{c.spelling}_{m.spelling}'
+    w = io.StringIO()
+
+    # namespace = get_namespace(f.cursors)
+    result = m.result
+    indent = '  '
+    w.write(
+        f'static PyObject *{func_name}(PyObject *self, PyObject *args){{\n')
+
+    # prams
+    types, format, extract, cpp_from_py = type_manager.get_params(
+        indent, m)
+
+    format = 'O' + format
+
+    w.write(f'''{indent}// {c.spelling}
+{indent}PyObject *py_this = NULL;
+''')
+    w.write(extract)
+
+    extract_params = ', &py_this' + ''.join(', &' + t.cpp_extract_name(i)
+                                            for i, t in enumerate(types))
+    w.write(
+        f'{indent}if(!PyArg_ParseTuple(args, "{format}"{extract_params})) return NULL;\n')
+
+    w.write(
+        f'{indent}{c.spelling} *ptr = ctypes_get_pointer<{c.spelling}*>(py_this);\n')
+    w.write(cpp_from_py)
+
+    # call & result
+    call_params = ', '.join(t.cpp_call_name(i)
+                            for i, t in enumerate(types))
+    call = f'ptr->{m.spelling}({call_params})'
+    w.write(type_manager.from_cursor(
+        result.type, result.cursor).cpp_result(indent, call))
+
+    w.write(f'''}}
+
+''')
+    return w.getvalue()

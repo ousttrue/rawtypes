@@ -2,7 +2,7 @@ from typing import List, Iterable, Tuple
 import pathlib
 from jinja2 import Environment, PackageLoader, select_autoescape
 
-from rawtypes.generator.cpp_writer import to_c_function
+from rawtypes.generator.cpp_writer import to_c_function, to_c_method
 from ..parser.header import Header
 from ..parser import Parser
 from ..interpreted_types import *
@@ -135,7 +135,8 @@ from typing import Any, Union, Tuple, TYpe, Iterable
 
             for struct, wrap_type in structs:
                 for method in struct.get_methods(wrap_type):
-                    self.write_c_method(sio, struct.cursor, method)
+                    sio.write(to_c_method(struct.cursor, method,
+                              self.env, self.type_manager))
                     method = PyMethodDef(
                         f"{struct.spelling}_{method.spelling}", f"{struct.spelling}_{method.spelling}", "METH_VARARGS", f"{struct.spelling}::{method.spelling}")
                     methods.append(method)
@@ -188,47 +189,6 @@ from typing import Any, Union, Tuple, TYpe, Iterable
             w.write('    pass\n\n')
 
         return True
-
-    def write_c_method(self, w: io.IOBase, c: cindex.Cursor,  m: FunctionCursor):
-        # signature
-        func_name = f'{c.spelling}_{m.spelling}'
-
-        # namespace = get_namespace(f.cursors)
-        result = m.result
-        indent = '  '
-        w.write(
-            f'static PyObject *{func_name}(PyObject *self, PyObject *args){{\n')
-
-        # prams
-        types, format, extract, cpp_from_py = self.type_manager.get_params(
-            indent, m)
-
-        format = 'O' + format
-
-        w.write(f'''{indent}// {c.spelling}
-{indent}PyObject *py_this = NULL;
-''')
-        w.write(extract)
-
-        extract_params = ', &py_this' + ''.join(', &' + t.cpp_extract_name(i)
-                                                for i, t in enumerate(types))
-        w.write(
-            f'{indent}if(!PyArg_ParseTuple(args, "{format}"{extract_params})) return NULL;\n')
-
-        w.write(
-            f'{indent}{c.spelling} *ptr = ctypes_get_pointer<{c.spelling}*>(py_this);\n')
-        w.write(cpp_from_py)
-
-        # call & result
-        call_params = ', '.join(t.cpp_call_name(i)
-                                for i, t in enumerate(types))
-        call = f'ptr->{m.spelling}({call_params})'
-        w.write(self.type_manager.from_cursor(
-            result.type, result.cursor).cpp_result(indent, call))
-
-        w.write(f'''}}
-
-''')
 
     def write_pyi(self, header: Header, pyi: io.IOBase):
         types = [x for x in self.parser.typedef_struct_list if pathlib.Path(
