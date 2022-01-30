@@ -1,6 +1,8 @@
+import shutil
 from typing import List, Iterable, Tuple
 import pathlib
 from jinja2 import Environment, PackageLoader, select_autoescape
+import pkg_resources
 
 from rawtypes.generator.cpp_writer import to_c_function, to_c_method
 from ..parser.header import Header
@@ -150,6 +152,11 @@ from typing import Any, Union, Tuple, TYpe, Iterable
         with cpp_path.open('w') as w:
             template = self.env.get_template("impl.cpp")
             w.write(template.render(headers=headers, modules=modules))
+
+        # copy rawtypes.h
+        RAWTYPES_H = pathlib.Path(pkg_resources.resource_filename(
+            'rawtypes.generator', 'templates/rawtypes.h'))
+        shutil.copy(RAWTYPES_H, cpp_path.parent / RAWTYPES_H.name)
 
     def write_struct(self, w: io.IOBase, s: StructCursor, flags: WrapFlags) -> bool:
         cursor = s.cursors[-1]
