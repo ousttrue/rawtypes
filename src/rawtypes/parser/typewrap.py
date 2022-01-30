@@ -112,7 +112,11 @@ class TypeWrap(NamedTuple):
 
     @property
     def name(self) -> str:
-        return symbol_filter(self.cursor.spelling)
+        name = self.cursor.spelling
+        if not name:
+            # anonymous
+            return f'_{self.cursor.hash}'
+        return symbol_filter(name)
 
     @property
     def is_void(self) -> bool:

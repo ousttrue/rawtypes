@@ -52,6 +52,13 @@ class StructCursor(NamedTuple):
         return self.cursor.spelling
 
     @property
+    def name(self) -> str:
+        name = self.cursor.spelling
+        if name:
+            return name
+        return f'_{self.cursor.hash}'
+
+    @property
     def path(self) -> pathlib.Path:
         return pathlib.Path(self.cursor.location.file.name)
 

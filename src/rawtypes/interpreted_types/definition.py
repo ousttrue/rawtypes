@@ -47,7 +47,11 @@ class StructType(BaseType):
 
     @property
     def ctypes_type(self) -> str:
-        return self.cursor.spelling
+        name = self.cursor.spelling
+        if name:
+            return name
+        # anonymous
+        return f'_{self.cursor.hash}'
 
     def result_typing(self, pyi: bool) -> str:
         return self.cursor.spelling

@@ -45,6 +45,13 @@ class TestEtc(unittest.TestCase):
 
         type_manager = TypeManager()
         flag = WrapFlags('NVGcolor', fields=True)
-        ct = to_ctypes(s, flag, type_manager)
-        print(ct)
-        self.assertEqual(s.sizeof, ctypes.sizeof(ct))
+
+        for src in to_ctypes(s, flag, type_manager):
+            # print(src)
+            l = {}
+            exec(src, globals(), l)
+            # print(l)
+            for k, v in l.items():
+                globals()[k] = v
+
+        self.assertEqual(s.sizeof, ctypes.sizeof(v))

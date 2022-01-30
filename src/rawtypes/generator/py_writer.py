@@ -1,4 +1,6 @@
 import io
+
+from soupsieve import Iterable
 from rawtypes.clang import cindex
 from rawtypes.interpreted_types import TypeManager
 from rawtypes.parser.struct_cursor import StructCursor, WrapFlags
@@ -30,7 +32,7 @@ def to_ctypes_method(cursor: cindex.Cursor, method: cindex.Cursor, type_manager:
     return w.getvalue()
 
 
-def to_ctypes(s: StructCursor, flags: WrapFlags, type_manager: TypeManager) -> str:
+def to_ctypes(s: StructCursor, flags: WrapFlags, type_manager: TypeManager) -> Iterable[str]:
     w = io.StringIO()
     cursor = s.cursor
     fields = s.fields if flags.fields else []
@@ -43,13 +45,13 @@ def to_ctypes(s: StructCursor, flags: WrapFlags, type_manager: TypeManager) -> s
                 match field.cursor.kind:
                     case cindex.CursorKind.UNION_DECL:
                         is_union = True
-                c = to_ctypes(StructCursor(s.cursors + (field.cursor,), field.type, is_union),
-                              WrapFlags(f'{s.spelling}_anonymouse_{field.index}', fields=True), type_manager)
-                w.write(c)
+                for src in to_ctypes(StructCursor(s.cursors + (field.cursor,), field.type, is_union),
+                                     WrapFlags(f'{s.spelling}_anonymouse_{field.index}', fields=True), type_manager):
+                    yield src
 
     # second: fields
     w.write(
-        f'class {cursor.spelling or flags.name}(ctypes.{"Union" if s.is_union else "Structure"}):\n')
+        f'class {s.name}(ctypes.{"Union" if s.is_union else "Structure"}):\n')
     if fields:
         w.write('    _fields_=[\n')
         indent = '        '
@@ -80,4 +82,4 @@ def to_ctypes(s: StructCursor, flags: WrapFlags, type_manager: TypeManager) -> s
     if not fields:  # and not methods and not flags.custom_methods:
         w.write('    pass\n\n')
 
-    return w.getvalue()
+    yield w.getvalue()
