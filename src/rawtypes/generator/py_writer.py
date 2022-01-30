@@ -56,6 +56,8 @@ def to_ctypes_iter(env: Environment, s: StructCursor, flags: WrapFlags, type_man
                 name = '_' + name
             fields[i] = type_manager.from_cursor(
                 field.cursor.type, field.cursor).ctypes_field(name) + ','
+            if field.is_anonymous_field:
+                anonymous.append(field.name)
 
     methods = TypeContext.get_struct_methods(s.cursor, includes=flags.methods)
     if methods:

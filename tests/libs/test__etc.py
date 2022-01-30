@@ -53,7 +53,7 @@ class TestEtc(unittest.TestCase):
         )
 
         for src in to_ctypes_iter(env, s, flag, type_manager):
-            # print(src)
+            print(src)
             l = {}
             exec(src, globals(), l)
             # print(l)
