@@ -24,7 +24,7 @@ class TestEtc(unittest.TestCase):
         self.assertIsNotNone(f)
 
         params = f.params
-        i, p0 = params[0]
+        p0 = params[0]
         t = generator.type_manager.from_cursor(p0.type, p0.cursor)
         self.assertTrue(t.base.is_const)
 

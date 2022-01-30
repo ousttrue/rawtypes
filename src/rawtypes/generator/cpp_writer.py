@@ -9,10 +9,13 @@ from rawtypes.parser.typewrap import TypeWrap
 
 
 class ParamInfo(NamedTuple):
-    index: int
     param: TypeWrap
     type: BaseType
     default_value: str
+
+    @property
+    def index(self) -> int:
+        return self.param.index
 
     @property
     def cpp_param_declare(self) -> str:
@@ -66,9 +69,9 @@ def to_c_function(function_cursor: FunctionCursor, env: Environment, type_manage
 
     # params
     params = function_cursor.params
-    types = [type_manager.to_type(param) for i, param in params]
-    paramlist = [ParamInfo(i, param, t, param.default_value(
-        use_filter=False)) for (i, param), t in zip(params, types)]
+    types = [type_manager.to_type(param) for param in params]
+    paramlist = [ParamInfo(param, t, param.default_value(
+        use_filter=False)) for param, t in zip(params, types)]
 
     # call & result
     result = function_cursor.result

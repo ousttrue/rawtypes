@@ -216,9 +216,9 @@ class TypeManager:
         types = []
         format = ''
         last_format = None
-        for i, param in f.params:
+        for param in f.params:
             t = self.from_cursor(param.type, param.cursor)
-            sio_extract.write(t.cpp_param_declare(indent, i, param.name))
+            sio_extract.write(t.cpp_param_declare(indent, param.index, param.name))
             types.append(t)
             d = param.default_value(use_filter=False)
             if not last_format and d:
@@ -228,5 +228,5 @@ class TypeManager:
             if d:
                 d = d.split('=', maxsplit=1)[1]
             sio_cpp_from_py.write(t.cpp_from_py(
-                indent, i, d))
+                indent, param.index, d))
         return Params(types, format, sio_extract.getvalue(), sio_cpp_from_py.getvalue())
