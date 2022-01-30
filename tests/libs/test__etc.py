@@ -1,10 +1,14 @@
-from . import VCPKG_INCLUDE
+import logging
+import ctypes
 import unittest
+from rawtypes.generator.py_writer import to_ctypes
+from rawtypes.interpreted_types import TypeManager
+from rawtypes.parser.struct_cursor import WrapFlags
 from rawtypes.generator.cpp_writer import to_c_function
 import rawtypes.generator.generator
 from rawtypes.parser.header import Header
-from rawtypes.parser import Parser
-import logging
+from rawtypes.parser import parse
+from . import VCPKG_INCLUDE
 logging.basicConfig(level=logging.DEBUG)
 
 
@@ -31,8 +35,16 @@ class TestEtc(unittest.TestCase):
 
     def test_nanovg(self):
         header = VCPKG_INCLUDE / 'nanovg.h'
-        self.assertTrue(header.exists())
-        parser = Parser([header])
+        parser = parse(header, include_dirs=[VCPKG_INCLUDE])
 
         s = parser.get_struct('NVGcolor')
         self.assertIsNotNone(s)
+
+        fields = s.fields
+        self.assertEqual(1, len(fields))
+
+        type_manager = TypeManager()
+        flag = WrapFlags('NVGcolor', fields=True)
+        ct = to_ctypes(s, flag, type_manager)
+        print(ct)
+        self.assertEqual(s.sizeof, ctypes.sizeof(ct))

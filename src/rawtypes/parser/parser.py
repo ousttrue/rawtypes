@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Union, Iterable
 import io
 import pathlib
 import logging
@@ -12,18 +12,18 @@ logger = logging.getLogger(__name__)
 
 
 class Parser:
-    def __init__(self, headers: List[pathlib.Path], *, include_dirs=(), definitions=()) -> None:
+    def __init__(self, headers: Iterable[pathlib.Path], *, include_dirs: Iterable[pathlib.Path] = (), definitions=()) -> None:
+        self.headers = list(headers)
+
         sio = io.StringIO()
-        for header in headers:
+        for header in self.headers:
             sio.write(f'#include "{header.name}"\n')
 
-        self.headers = headers
-
-        include_dirs = [str(header.parent)for header in headers] + \
+        _include_dirs = [str(header.parent)for header in self.headers] + \
             [str(dir) for dir in include_dirs]
         unsaved = clang_util.Unsaved('tmp.h', sio.getvalue())
         self.tu = clang_util.get_tu(
-            'tmp.h', include_dirs=include_dirs, definitions=definitions, unsaved=[unsaved], flags=['-DNOMINMAX'])
+            'tmp.h', include_dirs=_include_dirs, definitions=definitions, unsaved=[unsaved], flags=['-DNOMINMAX'])
         self.functions: List[FunctionCursor] = []
         self.enums: List[EnumCursor] = []
         self.typedef_struct_list: List[Union[TypedefCursor, StructCursor]] = []
@@ -74,11 +74,11 @@ class Parser:
                 case cindex.CursorKind.TYPEDEF_DECL:
                     self.typedef_struct_list.append(TypedefCursor(cursor_path))
                 case cindex.CursorKind.STRUCT_DECL:
-                    self.typedef_struct_list.append(StructCursor(cursor_path))
+                    self.typedef_struct_list.append(StructCursor(cursor_path, cursor.type, False))
                 case cindex.CursorKind.CLASS_TEMPLATE:
-                    self.typedef_struct_list.append(StructCursor(cursor_path))
+                    self.typedef_struct_list.append(StructCursor(cursor_path, cursor.type, False))
                 case cindex.CursorKind.CLASS_DECL:
-                    self.typedef_struct_list.append(StructCursor(cursor_path))
+                    self.typedef_struct_list.append(StructCursor(cursor_path, cursor.type, False))
                 case cindex.CursorKind.UNEXPOSED_DECL:
                     # extern C etc...
                     return True
@@ -107,10 +107,12 @@ class Parser:
     def get_struct(self, name: str) -> StructCursor:
         found = None
         for s in self.typedef_struct_list:
-            if s.cursor.spelling == name and isinstance(s, StructCursor):
-                if not s.is_forward_decl:
-                    return s
-                found = s
+            if isinstance(s, StructCursor):
+                if s.cursor.spelling == name or s.cursor.spelling == 'struct ' + name:
+                    if not s.is_forward_decl:
+                        return s
+                    found = s
+                    print(s)
         if found:
             return found
         raise KeyError(name)

@@ -148,8 +148,8 @@ class FunctionCursor(NamedTuple):
         return TypeWrap.from_function_result(self.cursor)
 
     @property
-    def params(self) -> List[Tuple[int, TypeWrap]]:
-        return [(i, param) for i, param in enumerate(TypeWrap.get_function_params(self.cursor))]
+    def params(self) -> List[TypeWrap]:
+        return [param for param in TypeWrap.get_function_params(self.cursor)]
 
     def is_exclude_function(self) -> bool:
         cursor = self.cursor

@@ -12,6 +12,7 @@ from .wrap_types import PointerToStructType, ReferenceToStructType
 from .definition import StructType, TypedefType, EnumType
 from .string import StringType, CStringType
 
+
 class TypeWithCursor(NamedTuple):
     type: cindex.Type
     cursor: cindex.Cursor
@@ -182,11 +183,15 @@ class TypeManager:
                 return self.get(current, is_const)
 
             case cindex.TypeKind.RECORD:
-                deref = c.ref_from_children()
-                assert deref
-                if deref:
-                    assert deref.referenced.kind == cindex.CursorKind.STRUCT_DECL
-                    return StructType(deref.referenced.spelling, deref.referenced, is_const=is_const, is_wrap_type=self.is_wrap_type(c.type.spelling))
+                if c.cursor.is_anonymous():
+                    # union
+                    return StructType(c.cursor.spelling, c.cursor, is_const=is_const)
+                else:
+                    deref = c.ref_from_children()
+                    assert deref
+                    if deref:
+                        assert deref.referenced.kind == cindex.CursorKind.STRUCT_DECL
+                        return StructType(deref.referenced.spelling, deref.referenced, is_const=is_const, is_wrap_type=self.is_wrap_type(c.type.spelling))
 
             case cindex.TypeKind.FUNCTIONPROTO:
                 return PointerType(primitive_types.VoidType(), is_const=is_const)

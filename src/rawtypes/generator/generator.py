@@ -158,42 +158,6 @@ from typing import Any, Union, Tuple, TYpe, Iterable
             'rawtypes.generator', 'templates/rawtypes.h'))
         shutil.copy(RAWTYPES_H, cpp_path.parent / RAWTYPES_H.name)
 
-    def write_struct(self, w: io.IOBase, s: StructCursor, flags: WrapFlags) -> bool:
-        cursor = s.cursors[-1]
-
-        w.write(f'class {cursor.spelling}(ctypes.Structure):\n')
-        fields = TypeWrap.get_struct_fields(cursor) if flags.fields else []
-        if fields:
-            w.write('    _fields_=[\n')
-            indent = '        '
-            for field in fields:
-                name = field.name
-                if flags.custom_fields.get(name):
-                    name = '_' + name
-                w.write(self.type_manager.from_cursor(
-                    field.cursor.type, field.cursor).ctypes_field(indent, name))
-            w.write('    ]\n\n')
-
-        for _, v in flags.custom_fields.items():
-            w.write('    @property\n')
-            for l in v.splitlines():
-                w.write(f'    {l}\n')
-            w.write('\n')
-
-        methods = TypeWrap.get_struct_methods(cursor, includes=flags.methods)
-        if methods:
-            for method in methods:
-                self.write_ctypes_method(w, cursor, method)
-
-        for code in flags.custom_methods:
-            for l in code.splitlines():
-                w.write(f'    {l}\n')
-            w.write('\n')
-
-        if not fields:  # and not methods and not flags.custom_methods:
-            w.write('    pass\n\n')
-
-        return True
 
     def write_pyi(self, header: Header, pyi: io.IOBase):
         types = [x for x in self.parser.typedef_struct_list if pathlib.Path(
@@ -226,27 +190,6 @@ from typing import Any, Union, Tuple, TYpe, Iterable
                     self.type_manager, pyi, typedef_or_struct.cursor, pyi=True, overload=count, prefix=header.prefix)
                 overload[name] = count
 
-    def write_ctypes_method(self, w: io.IOBase, cursor: cindex.Cursor, method: cindex.Cursor, *, pyi=False):
-        params = TypeWrap.get_function_params(method)
-        result = TypeWrap.from_function_result(method)
-        result_t = self.type_manager.from_cursor(result.type, result.cursor)
-
-        # signature
-        w.write(
-            f'    def {method.spelling}(self, *args)')
-        w.write(f'->{result_t.result_typing(pyi=pyi)}:')
-
-        if pyi:
-            w.write(' ...\n')
-            return
-
-        w.write('\n')
-
-        indent = '        '
-
-        w.write(f'{indent}from .impl import imgui\n')
-        w.write(
-            f'{indent}return imgui.{cursor.spelling}_{method.spelling}(self, *args)\n')
 
 
 def generate(headers: List[Header], package_dir: pathlib.Path) -> pathlib.Path:
