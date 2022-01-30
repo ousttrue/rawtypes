@@ -31,17 +31,27 @@ class TypedefType(BaseType):
         else:
             return f'{indent}{self.name} p{i} = ctypes_get_pointer<{self.name}>(t{i});\n'
 
+    def py_value(self, value: str) -> str:
+        return self.base.py_value(value)
+
 
 class StructType(BaseType):
     cursor: cindex.Cursor
 
-    def __init__(self, name: str, cursor: cindex.Cursor, is_const=False):
+    def __init__(self, name: str, cursor: cindex.Cursor, is_const=False, is_wrap_type=False):
+        if name.startswith('struct '):
+            name = name[7:]
         super().__init__(name, is_const=is_const)
         self.cursor = cursor
+        self.is_wrap_type = is_wrap_type
 
     @property
     def ctypes_type(self) -> str:
-        return self.cursor.spelling
+        name = self.cursor.spelling
+        if name:
+            return name
+        # anonymous
+        return f'_{self.cursor.hash}'
 
     def result_typing(self, pyi: bool) -> str:
         return self.cursor.spelling
@@ -59,6 +69,20 @@ class StructType(BaseType):
 {indent}cdef void* value = <void*>{call}
 {indent}return ctypes.c_void_p(value)
 '''
+
+    def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
+        if default_value:
+            raise NotImplementedError()
+        else:
+            return f'{indent}{self.name} *p{i} = ctypes_get_pointer<{self.name}*>(t{i});\n'
+
+    def cpp_call_name(self, i: int):
+        return f'*p{i}'
+
+    def py_value(self, value: str) -> str:
+        if not self.is_wrap_type:
+            raise NotImplemented("return by value. but no python type")
+        return f'ctypes_copy({value}, "{self.name}", "nanovg")'
 
 
 class EnumType(BaseType):

@@ -19,58 +19,17 @@ def symbol_filter(src: str) -> str:
             return src
 
 
-def template_filter(src: str) -> str:
-    '''
-    replace Some<T> to Some[T]
-    '''
-    # def rep_typearg(m):
-    #     ret = f'[{m.group(0)[1:-1]}]'
-    #     return ret
-    # dst = TEMPLATE_PATTERN.sub(rep_typearg, src)
-
-    # return dst
-    return src.replace('<', '[').replace('>', ']')
-
-
-class TypeWrap(NamedTuple):
-    '''
-    function result_type
-    function param type
-    struct field type
-    '''
+class TypeContext:
     type: cindex.Type
     cursor: cindex.Cursor
-    namespace: str = 'tinygizmo::'
 
-    def remove_namespce(self, src: str) -> str:
-        return src.replace(self.namespace, '')
-
-    @staticmethod
-    def from_function_result(cursor: cindex.Cursor):
-        return TypeWrap(cursor.result_type, cursor)
+    def __init__(self, type: cindex.Type, cursor: cindex.Cursor) -> None:
+        self.type = type
+        self.cursor = cursor
 
     @staticmethod
-    def from_function_param(cursor: cindex.Cursor):
-        return TypeWrap(cursor.type, cursor)
-
-    @staticmethod
-    def get_function_params(cursor: cindex.Cursor):
-        return [TypeWrap.from_function_param(child) for child in cursor.get_children() if child.kind == cindex.CursorKind.PARM_DECL]
-
-    @staticmethod
-    def from_struct_field(cursor: cindex.Cursor):
-        return TypeWrap(cursor.type, cursor)
-
-    @staticmethod
-    def get_struct_fields(cursor: cindex.Cursor):
-        return [TypeWrap.from_struct_field(child) for child in cursor.get_children(
-        ) if child.kind == cindex.CursorKind.FIELD_DECL]
-
-    @staticmethod
-    def get_struct_methods(cursor: cindex.Cursor, *, excludes=(), includes=False):
+    def get_struct_methods(cursor: cindex.Cursor, *, excludes=(), includes=False) -> List[cindex.Cursor]:
         def method_filter(method: cindex.Cursor) -> bool:
-            if method.spelling == 'GetStateStorage':
-                pass
             if method.kind != cindex.CursorKind.CXX_METHOD:
                 return False
             for param in method.get_children():
@@ -98,14 +57,18 @@ class TypeWrap(NamedTuple):
 
     @staticmethod
     def get_default_constructor(cursor: cindex.Cursor) -> Optional[cindex.Cursor]:
-        for constructor in TypeWrap.get_constructors(cursor):
-            params = TypeWrap.get_function_params(constructor)
+        for constructor in TypeContext.get_constructors(cursor):
+            params = TypeContext.get_function_params(constructor)
             if len(params) == 0:
                 return constructor
 
     @property
     def name(self) -> str:
-        return symbol_filter(self.cursor.spelling)
+        name = self.cursor.spelling
+        if not name:
+            # anonymous
+            return f'_{self.cursor.hash}'
+        return symbol_filter(name)
 
     @property
     def is_void(self) -> bool:
@@ -122,43 +85,8 @@ class TypeWrap(NamedTuple):
         return False
 
     @property
-    def c_type(self) -> str:
-        '''
-        pxd
-        '''
-        if self.type.kind == cindex.TypeKind.ENUM:
-            return 'int'
-
-        filtered = template_filter(self.type.spelling).replace('[]', '*')
-        filtered = filtered.replace('std::string', 'string')
-        filtered = filtered.replace('tinygizmo::VertexBuffer', 'VertexBuffer')
-        filtered = filtered.replace('uint32_t', 'unsigned int')
-
-        def filter(m):
-            return f'{m.group(1)}{m.group(2)}'
-        STD_ARRAY_PATTERN = re.compile(r'std::array\[(\w+), (\d+)\]')
-        filtered = STD_ARRAY_PATTERN.sub(filter, filtered)
-
-        if 'simple::' in filtered:
-            filtered = re.sub(r'simple::Span\[[^\]]+\]', filtered, 'Span')
-
-        if filtered.startswith('std::tuple['):
-            return filtered.replace('std::tuple', 'pair')
-
-        return filtered
-
-    @property
-    def c_type_with_name(self) -> str:
-        '''
-        pxd
-        '''
-        c_type = self.c_type
-        name = self.name
-        splitted = c_type.split('(*)', maxsplit=1)
-        if len(splitted) == 2:
-            return f"{splitted[0]}(*{name}){splitted[1]}"
-        else:
-            return f"{self.remove_namespce(c_type)} {name}"
+    def is_anonymous_field(self) -> bool:
+        return self.cursor.is_anonymous()
 
     def default_value(self, use_filter: bool) -> str:
         tokens = []
@@ -208,3 +136,55 @@ class TypeWrap(NamedTuple):
             value = ' '.join(t for t in tokens[equal+1:])
 
         return '= ' + value
+
+
+class ParamContext(TypeContext):
+    index: int
+
+    def __init__(self, index: int, cursor: cindex.Cursor) -> None:
+        super().__init__(cursor.type, cursor)
+        self.index = index
+
+    @staticmethod
+    def get_function_params(cursor: cindex.Cursor) -> List['ParamContext']:
+        cursors = [child for child in cursor.get_children(
+        ) if child.kind == cindex.CursorKind.PARM_DECL]
+        return [ParamContext(i, child) for i, child in enumerate(cursors)]
+
+
+class FieldContext(TypeContext):
+    index: int
+
+    def __init__(self, index: int, cursor: cindex.Cursor) -> None:
+        super().__init__(cursor.type, cursor)
+        self.index = index
+
+    @staticmethod
+    def get_struct_fields(cursor: cindex.Cursor) -> List['FieldContext']:
+        cursors = []
+        for child in cursor.get_children():
+            if not isinstance(child, cindex.Cursor):
+                raise RuntimeError()
+            match child.kind:
+                case cindex.CursorKind.FIELD_DECL:
+                    cursors.append(child)
+                case cindex.CursorKind.UNION_DECL:
+                    if child.type.kind == cindex.TypeKind.RECORD:
+                        cursors.append(child)
+                    else:
+                        # innner type decl ?
+                        pass
+                case cindex.CursorKind.STRUCT_DECL:
+                    if child.type.kind == cindex.TypeKind.RECORD:
+                        cursors.append(child)
+                    else:
+                        # inner type decl ?
+                        pass
+                case _:
+                    pass
+        return [FieldContext(i, child) for i, child in enumerate(cursors)]
+
+
+class ResultContext(TypeContext):
+    def __init__(self, cursor: cindex.Cursor) -> None:
+        super().__init__(cursor.result_type, cursor)

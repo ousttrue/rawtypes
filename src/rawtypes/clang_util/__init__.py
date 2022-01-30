@@ -1,6 +1,9 @@
 from typing import NamedTuple, List, Optional, Callable
-import os, platform
+import os
+import platform
 from ..clang import cindex
+import logging
+logger = logging.getLogger(__name__)
 
 
 class Unsaved(NamedTuple):
@@ -11,6 +14,7 @@ class Unsaved(NamedTuple):
 def get_tu(entrypoint: str,
            *,
            include_dirs: List[str] = None,
+           definitions: List[str] = None,
            flags: List[str] = None,
            unsaved: Optional[List[Unsaved]] = None) -> cindex.TranslationUnit:
     arguments = [
@@ -25,6 +29,8 @@ def get_tu(entrypoint: str,
     ]
     if include_dirs:
         arguments.extend(f'-I{i}' for i in include_dirs)
+    if definitions:
+        arguments.extend(f'-D{d}' for d in definitions)
     if flags:
         arguments.extend(flags)
 
@@ -42,7 +48,7 @@ def get_tu(entrypoint: str,
         cindex.Config.library_file = 'libclang-13.so'
 
     index = cindex.Index.create()
-
+    logger.debug(arguments)
     tu = index.parse(entrypoint, arguments, unsaved,
                      cindex.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD |
                      cindex.TranslationUnit.PARSE_SKIP_FUNCTION_BODIES)

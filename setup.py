@@ -1,15 +1,18 @@
 import setuptools
 import pathlib
-import os, platform
+import os
+import platform
 HERE = pathlib.Path(__file__).absolute().parent
 CLANG_SRC = HERE / 'src/rawtypes/clang/__init__.py'
 CLANG_PYTHON_BASE_URL = 'https://raw.githubusercontent.com/llvm/llvm-project/llvmorg-13.0.0/clang/bindings/python/clang/'
 
 
 if 'LLVM_PATH' in os.environ:
-    CLANG_HEADER = pathlib.Path(os.environ['LLVM_PATH']) / 'include/clang-c/Index.h'
+    CLANG_HEADER = pathlib.Path(
+        os.environ['LLVM_PATH']) / 'include/clang-c/Index.h'
 elif os.name == 'nt':
-    CLANG_HEADER = pathlib.Path('C:/Program Files/LLVM/include/clang-c/Index.h')
+    CLANG_HEADER = pathlib.Path(
+        'C:/Program Files/LLVM/include/clang-c/Index.h')
 elif platform.system() == 'Linux':
     # ubuntu: libclang-13-dev
     CLANG_HEADER = pathlib.Path('/usr/lib/llvm-13/include/clang-c/Index.h')
@@ -61,6 +64,7 @@ setuptools.setup(name='rawtypes',
                  setup_requires=['setuptools_scm'],
                  package_dir={'': 'src'},
                  packages=setuptools.find_packages("src"),
+                 package_data={'rawtypes.generator': ['templates/*']},
                  long_description=(HERE / 'README.md').read_text(),
                  long_description_content_type='text/markdown'
                  )

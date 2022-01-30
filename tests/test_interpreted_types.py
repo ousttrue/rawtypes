@@ -2,6 +2,9 @@ from typing import Callable, Tuple
 import unittest
 from rawtypes import interpreted_types
 from rawtypes.clang import cindex
+from rawtypes.generator.generator import Generator
+
+generator = Generator()
 
 
 def parse(src: str) -> cindex.TranslationUnit:
@@ -26,14 +29,14 @@ def parse_get_func(src: str) -> Tuple[cindex.TranslationUnit, cindex.Cursor]:
 
 def parse_get_result_type(src: str) -> interpreted_types.BaseType:
     tu, c = parse_get_func(src)
-    return interpreted_types.from_cursor(c.result_type, c)
+    return generator.type_manager.from_cursor(c.result_type, c)
 
 
 def parse_get_param_type(i: int, src: str) -> interpreted_types.BaseType:
     tu, c = parse_get_func(src)
-    from rawtypes.declarations.typewrap import TypeWrap
-    p = TypeWrap.get_function_params(c)[i].cursor
-    return interpreted_types.from_cursor(p.type, p)
+    from rawtypes.parser.type_context import ParamContext
+    p = ParamContext.get_function_params(c)[i].cursor
+    return generator.type_manager.from_cursor(p.type, p)
 
 
 class TestInterpretedTypes(unittest.TestCase):
@@ -125,8 +128,8 @@ class TestInterpretedTypes(unittest.TestCase):
         void func(const SOME *p0);
         ''')
         self.assertIsInstance(const_p, interpreted_types.PointerType)
-        self.assertIsInstance(const_p.base, interpreted_types.TypedefType)
-        self.assertIsInstance(const_p.base.base, interpreted_types.StructType)
+        self.assertIsInstance(const_p.base, interpreted_types.StructType)
+        self.assertIsNone(const_p.base.base)
 
 # typedef
 

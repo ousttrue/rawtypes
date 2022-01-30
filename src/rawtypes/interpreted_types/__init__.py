@@ -1,16 +1,16 @@
-from typing import Optional, NamedTuple
+from typing import Optional, NamedTuple, List, Callable, NamedTuple
 import re
+import io
 #
 from rawtypes.clang import cindex
+from rawtypes.parser.function_cursor import FunctionCursor
+from rawtypes.parser.type_context import TypeContext
 from .basetype import BaseType
 from . import primitive_types
 from .pointer_types import PointerType, ReferenceType, ArrayType, RefenreceToStdArrayType
-from .wrap_types import WRAP_TYPES, ImVector, ImVec2WrapType, ImVec4WrapType, VertexBufferType, PointerToStructType, ReferenceToStructType
+from .wrap_types import PointerToStructType, ReferenceToStructType
 from .definition import StructType, TypedefType, EnumType
 from .string import StringType, CStringType
-
-
-IMVECTOR = ImVector()
 
 
 class TypeWithCursor(NamedTuple):
@@ -37,10 +37,12 @@ class TypeWithCursor(NamedTuple):
             return
 
         ref = self.ref_from_children()
-        assert ref.referenced.kind == cindex.CursorKind.TYPEDEF_DECL
-        underlying_type = ref.referenced.underlying_typedef_type
+        assert(ref)
+        if ref:
+            assert ref.referenced.kind == cindex.CursorKind.TYPEDEF_DECL
+            underlying_type = ref.referenced.underlying_typedef_type
 
-        return TypeWithCursor(underlying_type, ref.referenced)
+            return TypeWithCursor(underlying_type, ref.referenced)
 
 
 def is_primitive(base: BaseType) -> bool:
@@ -71,113 +73,160 @@ def is_void_p(base: BaseType) -> bool:
     return True
 
 
+class Params(NamedTuple):
+    types: List[BaseType]
+    format: str
+    extract: str
+    from_py: str
+
+
 STD_ARRAY = re.compile(r'(const )?std::array<(\w+), (\d+)> &')
 
 
-def get(c: TypeWithCursor) -> BaseType:
-    if c.spelling.startswith('ImVector<'):
-        return IMVECTOR
-
-    m = STD_ARRAY.match(c.spelling)
-    if m:
-        is_const = True if m.group(1) else False
-        base = primitive_types.get(m.group(2), False)
-        return RefenreceToStdArrayType(base, int(m.group(3)), is_const=is_const)
-
-    match c.type.spelling:
-        case 'std::string' | 'const std::string &':
-            return StringType()
-        case 'const char *':
-            return CStringType()
-        case 'size_t':
-            return primitive_types.SizeType()
-        case 'ImVec2' | 'const ImVec2 &':
-            return ImVec2WrapType()
-        case 'ImVec4':
-            return ImVec4WrapType()
-        case 'tinygizmo::VertexBuffer':
-            return VertexBufferType()
-
-    match c.type.kind:
-        case cindex.TypeKind.VOID:
-            return primitive_types.VoidType(c.type.is_const_qualified())
-
-        case cindex.TypeKind.BOOL:
-            return primitive_types.BoolType(c.type.is_const_qualified())
-
-        case cindex.TypeKind.CHAR_S:
-            return primitive_types.Int8Type(c.type.is_const_qualified())
-        case cindex.TypeKind.SHORT:
-            return primitive_types.Int16Type(c.type.is_const_qualified())
-        case cindex.TypeKind.INT:
-            return primitive_types.Int32Type(c.type.is_const_qualified())
-        case cindex.TypeKind.LONGLONG:
-            return primitive_types.Int64Type(c.type.is_const_qualified())
-
-        case cindex.TypeKind.UCHAR:
-            return primitive_types.UInt8Type(c.type.is_const_qualified())
-        case cindex.TypeKind.USHORT:
-            return primitive_types.UInt16Type(c.type.is_const_qualified())
-        case cindex.TypeKind.UINT:
-            return primitive_types.UInt32Type(c.type.is_const_qualified())
-        case cindex.TypeKind.ULONGLONG:
-            return primitive_types.UInt64Type(c.type.is_const_qualified())
-
-        case cindex.TypeKind.FLOAT:
-            return primitive_types.FloatType(c.type.is_const_qualified())
-        case cindex.TypeKind.DOUBLE:
-            return primitive_types.DoubleType(c.type.is_const_qualified())
-
-        case cindex.TypeKind.POINTER:
-            pointee = c.type.get_pointee()
-            base = get(TypeWithCursor(pointee, c.cursor))
-            if isinstance(base, StructType) and any(t for t in WRAP_TYPES if t.name == base.name):
-                return PointerToStructType(base, is_const=c.type.is_const_qualified())
-
-            return PointerType(base, is_const=c.type.is_const_qualified())
-
-        case cindex.TypeKind.LVALUEREFERENCE:
-            pointee = c.type.get_pointee()
-            base = get(TypeWithCursor(pointee, c.cursor))
-            if isinstance(base, StructType) and any(t for t in WRAP_TYPES if t.name == base.name):
-                return ReferenceToStructType(base, is_const=c.type.is_const_qualified())
-
-            return ReferenceType(base, is_const=c.type.is_const_qualified())
-
-        case cindex.TypeKind.CONSTANTARRAY:
-            element = c.type.get_array_element_type()
-            base = get(TypeWithCursor(element, c.cursor))
-            return ArrayType(base, c.type.get_array_size(), is_const=c.type.is_const_qualified())
-
-        case cindex.TypeKind.TYPEDEF:
-            current = c
-            while True:
-                underlying = current.underlying
-                if not underlying:
-                    break
-                current = underlying
-
-            base = get(current)
-            if is_primitive(base):
-                return base
-            elif is_void_p(base):
-                return base
-            else:
-                return TypedefType(c.spelling, base, is_const=c.type.is_const_qualified())
-
-        case cindex.TypeKind.RECORD:
-            deref = c.ref_from_children()
-            assert deref.referenced.kind == cindex.CursorKind.STRUCT_DECL
-            return StructType(deref.referenced.spelling, deref.referenced, is_const=c.type.is_const_qualified())
-
-        case cindex.TypeKind.FUNCTIONPROTO:
-            return PointerType(primitive_types.VoidType(), is_const=c.type.is_const_qualified())
-
-        case cindex.TypeKind.ENUM:
-            return EnumType(c.type.spelling)
-
-    raise RuntimeError(f"unknown type: {c.type.kind}")
+class TypeProcessor(NamedTuple):
+    process: Callable[[TypeWithCursor], Optional[BaseType]]
 
 
-def from_cursor(cursor_type: cindex.Type, cursor: cindex.Cursor) -> BaseType:
-    return get(TypeWithCursor(cursor_type, cursor))
+class TypeManager:
+    def __init__(self) -> None:
+        self.WRAP_TYPES: List[WrapFlags] = []
+        self.processors: List[TypeProcessor] = []
+
+    def is_wrap_type(self, name: str) -> bool:
+        if name.startswith('struct '):
+            name = name[7:]
+        for w in self.WRAP_TYPES:
+            if w.name == name:
+                return True
+        return False
+
+    def get(self, c: TypeWithCursor, is_const=False) -> BaseType:
+        is_const = is_const or c.type.is_const_qualified()
+        for t in self.processors:
+            value = t.process(c)
+            if value:
+                return value
+
+        m = STD_ARRAY.match(c.spelling)
+        if m:
+            is_const = True if m.group(1) else False
+            base = primitive_types.get(m.group(2), False)
+            return RefenreceToStdArrayType(base, int(m.group(3)), is_const=is_const)
+
+        match c.spelling:
+            case 'std::string' | 'const std::string &':
+                return StringType()
+            case 'const char *':
+                return CStringType()
+            case 'size_t':
+                return primitive_types.SizeType()
+
+        match c.type.kind:
+            case cindex.TypeKind.VOID:
+                return primitive_types.VoidType(is_const)
+
+            case cindex.TypeKind.BOOL:
+                return primitive_types.BoolType(is_const)
+
+            case cindex.TypeKind.CHAR_S | cindex.TypeKind.SCHAR:
+                return primitive_types.Int8Type(is_const)
+            case cindex.TypeKind.SHORT:
+                return primitive_types.Int16Type(is_const)
+            case cindex.TypeKind.INT:
+                return primitive_types.Int32Type(is_const)
+            case cindex.TypeKind.LONGLONG:
+                return primitive_types.Int64Type(is_const)
+
+            case cindex.TypeKind.UCHAR:
+                return primitive_types.UInt8Type(is_const)
+            case cindex.TypeKind.USHORT:
+                return primitive_types.UInt16Type(is_const)
+            case cindex.TypeKind.UINT:
+                return primitive_types.UInt32Type(is_const)
+            case cindex.TypeKind.ULONGLONG:
+                return primitive_types.UInt64Type(is_const)
+
+            case cindex.TypeKind.FLOAT:
+                return primitive_types.FloatType(is_const)
+            case cindex.TypeKind.DOUBLE:
+                return primitive_types.DoubleType(is_const)
+
+            case cindex.TypeKind.POINTER:
+                pointee = c.type.get_pointee()
+                base = self.get(TypeWithCursor(pointee, c.cursor))
+                if isinstance(base, StructType) and any(t for t in self.WRAP_TYPES if t.name == base.name):
+                    return PointerToStructType(base, is_const=is_const, is_wrap_type=self.is_wrap_type(base.name))
+
+                return PointerType(base, is_const=is_const)
+
+            case cindex.TypeKind.LVALUEREFERENCE:
+                pointee = c.type.get_pointee()
+                base = self.get(TypeWithCursor(pointee, c.cursor))
+                if isinstance(base, StructType) and any(t for t in self.WRAP_TYPES if t.name == base.name):
+                    return ReferenceToStructType(base, is_const=is_const, is_wrap_type=self.is_wrap_type(base.name))
+
+                return ReferenceType(base, is_const=is_const)
+
+            case cindex.TypeKind.CONSTANTARRAY:
+                element = c.type.get_array_element_type()
+                base = self.get(TypeWithCursor(element, c.cursor))
+                return ArrayType(base, c.type.get_array_size(), is_const=is_const)
+
+            case cindex.TypeKind.TYPEDEF:
+                current = c
+                while True:
+                    underlying = current.underlying
+                    if not underlying:
+                        break
+                    current = underlying
+
+                return self.get(current, is_const)
+
+            case cindex.TypeKind.RECORD:
+                if c.cursor.is_anonymous():
+                    # union
+                    return StructType(c.cursor.spelling, c.cursor, is_const=is_const)
+                else:
+                    deref = c.ref_from_children()
+                    assert deref
+                    if deref:
+                        assert deref.referenced.kind == cindex.CursorKind.STRUCT_DECL
+                        return StructType(deref.referenced.spelling, deref.referenced, is_const=is_const, is_wrap_type=self.is_wrap_type(c.type.spelling))
+
+            case cindex.TypeKind.FUNCTIONPROTO:
+                return PointerType(primitive_types.VoidType(), is_const=is_const)
+
+            case cindex.TypeKind.ENUM:
+                return EnumType(c.type.spelling)
+
+            case cindex.TypeKind.ELABORATED:
+                return StructType(c.type.spelling, c.cursor, is_const=is_const, is_wrap_type=self.is_wrap_type(c.type.spelling))
+
+        raise RuntimeError(f"unknown type: {c.type.kind}")
+
+    def from_cursor(self, cursor_type: cindex.Type, cursor: cindex.Cursor) -> BaseType:
+        return self.get(TypeWithCursor(cursor_type, cursor))
+
+    def to_type(self, typewrap: TypeContext) -> BaseType:
+        return self.from_cursor(typewrap.type, typewrap.cursor)
+
+    def get_params(self, indent: str, f: FunctionCursor) -> Params:
+        sio_extract = io.StringIO()
+        sio_cpp_from_py = io.StringIO()
+        types = []
+        format = ''
+        last_format = None
+        for param in f.params:
+            t = self.from_cursor(param.type, param.cursor)
+            sio_extract.write(t.cpp_param_declare(indent, param.index, param.name))
+            types.append(t)
+            d = param.default_value(use_filter=False)
+            if not last_format and d:
+                format += '|'
+            last_format = d
+            format += t.format
+            if d:
+                d = d.split('=', maxsplit=1)[1]
+            sio_cpp_from_py.write(t.cpp_from_py(
+                indent, param.index, d))
+        return Params(types, format, sio_extract.getvalue(), sio_cpp_from_py.getvalue())

@@ -2,11 +2,19 @@ from typing import Optional
 import dataclasses
 
 
-@dataclasses.dataclass
 class BaseType:
-    name: str
-    base: Optional['BaseType'] = None
-    is_const: bool = False
+    __match_args__ = ("name", "is_const", "base")
+
+    def __init__(self, name: str, *, is_const: bool = False, base: Optional['BaseType'] = None) -> None:
+        self.name = name
+        self.is_const = is_const
+        self.base = base
+
+    def __eq__(self, __o: object) -> bool:
+        match __o:
+            case BaseType(name, is_const, base):
+                return name == self.name and is_const == self.is_const and base == self.base
+        return False
 
     def __str__(self) -> str:
         return f'{self.__class__.__name__}: {self.name}'
@@ -28,8 +36,8 @@ class BaseType:
     def pyi_field(self, indent: str, name: str) -> str:
         return f'{indent}{name}: {self.ctypes_type} # {self}\n'
 
-    def ctypes_field(self, indent: str, name: str) -> str:
-        return f'{indent}("{name}", {self.ctypes_type}), # {self}\n'
+    def ctypes_field(self, name: str) -> str:
+        return f'("{name}", {self.ctypes_type}), # {self}'
 
     def param(self, name: str, default_value: str, pyi: bool) -> str:
         '''
