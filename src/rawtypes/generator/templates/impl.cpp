@@ -47,7 +47,5 @@ PyInit_impl(void) {
     return NULL;
   }
 
-  s_initialize();
-
   return __root__;
 }

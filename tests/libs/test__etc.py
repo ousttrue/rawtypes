@@ -1,19 +1,16 @@
+from . import VCPKG_INCLUDE
 import unittest
-import ctypes
-import pathlib
 from rawtypes.generator.cpp_writer import to_c_function
 import rawtypes.generator.generator
 from rawtypes.parser.header import Header
-from rawtypes.parser.typewrap import TypeWrap
+from rawtypes.parser import Parser
 import logging
 logging.basicConfig(level=logging.DEBUG)
-HERE = pathlib.Path(__file__).absolute().parent
 
 
 class TestEtc(unittest.TestCase):
     def test_clang_getNullCursor(self):
-        header = pathlib.Path(
-            'C:/vcpkg/installed/x64-windows/include/GL/glew.h')
+        header = VCPKG_INCLUDE / 'GL/glew.h'
 
         generator = rawtypes.generator.generator.Generator(
             Header(header, include_dirs=[header.parent.parent])
@@ -31,3 +28,11 @@ class TestEtc(unittest.TestCase):
 
         s = to_c_function(f, generator.env, generator.type_manager)
         print(s)
+
+    def test_nanovg(self):
+        header = VCPKG_INCLUDE / 'nanovg.h'
+        self.assertTrue(header.exists())
+        parser = Parser([header])
+
+        s = parser.get_struct('NVGcolor')
+        self.assertIsNotNone(s)
