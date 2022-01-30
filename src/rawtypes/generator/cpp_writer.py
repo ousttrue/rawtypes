@@ -63,7 +63,7 @@ def to_fromat(params: List[ParamInfo]) -> str:
     return ''.join(formats)
 
 
-def to_c_function(function_cursor: FunctionCursor, env: Environment, type_manager: TypeManager, *, namespace: str = '', func_name: str = '') -> str:
+def to_c_function(env: Environment, function_cursor: FunctionCursor, type_manager: TypeManager, *, namespace: str = '', func_name: str = '') -> str:
     if not func_name:
         func_name = function_cursor.spelling
 
@@ -90,7 +90,7 @@ def to_c_function(function_cursor: FunctionCursor, env: Environment, type_manage
     )
 
 
-def to_c_method(c: cindex.Cursor, m: FunctionCursor, env: Environment, type_manager: TypeManager) -> str:
+def to_c_method(env: Environment, c: cindex.Cursor, m: FunctionCursor, type_manager: TypeManager) -> str:
     # signature
     func_name = f'{c.spelling}_{m.spelling}'
     w = io.StringIO()

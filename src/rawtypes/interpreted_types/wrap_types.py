@@ -14,8 +14,8 @@ class PointerToStructType(PointerType):
             raise RuntimeError()
         return f'{self.base.name}'
 
-    def ctypes_field(self, indent: str, name: str) -> str:
-        return f'{indent}("{name}", ctypes.c_void_p), # {self}\n'
+    def ctypes_field(self, name: str) -> str:
+        return f'("{name}", ctypes.c_void_p), # {self}'
 
     def param(self, name: str, default_value: str, pyi: bool) -> str:
         return f'{name}: {self.ctypes_type}{default_value}'
@@ -55,8 +55,8 @@ class ReferenceToStructType(ReferenceType):
             raise RuntimeError()
         return f'{self.base.name}'
 
-    def ctypes_field(self, indent: str, name: str) -> str:
-        return f'{indent}("{name}", ctypes.c_void_p), # {self}\n'
+    def ctypes_field(self, name: str) -> str:
+        return f'("{name}", ctypes.c_void_p), # {self}'
 
     def param(self, name: str, default_value: str, pyi: bool) -> str:
         return f'{name}: {self.ctypes_type}{default_value}'

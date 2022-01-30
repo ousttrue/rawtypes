@@ -32,8 +32,8 @@ class PointerType(BaseType):
             raise RuntimeError()
         return f'ctypes.Array'
 
-    def ctypes_field(self, indent: str, name: str) -> str:
-        return f'{indent}("{name}", ctypes.c_void_p), # {self}\n'
+    def ctypes_field(self, name: str) -> str:
+        return f'("{name}", ctypes.c_void_p), # {self}'
 
     def param(self, name: str, default_value: str, pyi: bool) -> str:
         return f'{name}: Union[ctypes.c_void_p, ctypes.Array, ctypes.Structure]{default_value}'
@@ -78,8 +78,8 @@ class ReferenceType(PointerType):
     def ctypes_type(self) -> str:
         return 'ctypes.Array'
 
-    def ctypes_field(self, indent: str, name: str) -> str:
-        return f'{indent}("{name}", ctypes.c_void_p), # {self}\n'
+    def ctypes_field(self, name: str) -> str:
+        return f'("{name}", ctypes.c_void_p), # {self}'
 
     def param(self, name: str, default_value: str, pyi: bool) -> str:
         return f'{name}: {self.ctypes_type}{default_value}'
@@ -124,8 +124,8 @@ class ArrayType(PointerType):
             raise RuntimeError()
         return f'{self.base.ctypes_type} * {self.size}'
 
-    def ctypes_field(self, indent: str, name: str) -> str:
-        return f'{indent}("{name}", {self.ctypes_type}), # {self}\n'
+    def ctypes_field(self, name: str) -> str:
+        return f'("{name}", {self.ctypes_type}), # {self}'
 
     def param(self, name: str, default_value: str, pyi: bool) -> str:
         return f'{name}: ctypes.Array{default_value}'

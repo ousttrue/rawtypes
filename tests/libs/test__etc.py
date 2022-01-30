@@ -1,6 +1,8 @@
 import logging
 import ctypes
 import unittest
+
+from jinja2 import Environment, PackageLoader
 from rawtypes.generator.py_writer import to_ctypes_iter
 from rawtypes.interpreted_types import TypeManager
 from rawtypes.parser.struct_cursor import WrapFlags
@@ -30,7 +32,7 @@ class TestEtc(unittest.TestCase):
 
         pp = generator.type_manager.get_params('', f)
 
-        s = to_c_function(f, generator.env, generator.type_manager)
+        s = to_c_function(generator.env, f, generator.type_manager)
         print(s)
 
     def test_nanovg(self):
@@ -46,7 +48,11 @@ class TestEtc(unittest.TestCase):
         type_manager = TypeManager()
         flag = WrapFlags('NVGcolor', fields=True)
 
-        for src in to_ctypes_iter(s, flag, type_manager):
+        env = Environment(
+            loader=PackageLoader("rawtypes.generator"),
+        )
+
+        for src in to_ctypes_iter(env, s, flag, type_manager):
             # print(src)
             l = {}
             exec(src, globals(), l)

@@ -36,8 +36,8 @@ class BaseType:
     def pyi_field(self, indent: str, name: str) -> str:
         return f'{indent}{name}: {self.ctypes_type} # {self}\n'
 
-    def ctypes_field(self, indent: str, name: str) -> str:
-        return f'{indent}("{name}", {self.ctypes_type}), # {self}\n'
+    def ctypes_field(self, name: str) -> str:
+        return f'("{name}", {self.ctypes_type}), # {self}'
 
     def param(self, name: str, default_value: str, pyi: bool) -> str:
         '''

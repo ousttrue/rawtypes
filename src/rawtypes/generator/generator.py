@@ -82,7 +82,7 @@ class Generator:
                                         continue
                                     if s.is_forward_decl:
                                         continue
-                                    for py in to_ctypes_iter(s, wrap_type, self.type_manager    ):
+                                    for py in to_ctypes_iter(self.env, s, wrap_type, self.type_manager):
                                         ew.write(py)
                                     structs.append((s, wrap_type))
 
@@ -130,7 +130,7 @@ from typing import Any, Union, Tuple, TYpe, Iterable
                     overload += f'_{overload_count}'
                 namespace = get_namespace(f.cursors)
                 func_name = f'{f.path.stem}_{f.spelling}{overload}'
-                sio.write(to_c_function(f, self.env, self.type_manager,
+                sio.write(to_c_function(self.env, f, self.type_manager,
                           namespace=namespace, func_name=func_name))
                 sio.write('\n')
                 method = PyMethodDef(
@@ -139,8 +139,8 @@ from typing import Any, Union, Tuple, TYpe, Iterable
 
             for struct, wrap_type in structs:
                 for method in struct.get_methods(wrap_type):
-                    sio.write(to_c_method(struct.cursor, method,
-                              self.env, self.type_manager))
+                    sio.write(to_c_method(self.env, struct.cursor,
+                              method, self.type_manager))
                     method = PyMethodDef(
                         f"{struct.spelling}_{method.spelling}", f"{struct.spelling}_{method.spelling}", "METH_VARARGS", f"{struct.spelling}::{method.spelling}")
                     methods.append(method)

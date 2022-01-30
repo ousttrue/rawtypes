@@ -1,4 +1,5 @@
 import io
+from jinja2 import Environment
 
 from soupsieve import Iterable
 from rawtypes.clang import cindex
@@ -14,17 +15,14 @@ def to_ctypes_method(cursor: cindex.Cursor, method: cindex.Cursor, type_manager:
     result_t = type_manager.from_cursor(result.type, result.cursor)
 
     # signature
-    w.write(
-        f'    def {method.spelling}(self, *args)')
+    w.write(f'def {method.spelling}(self, *args)')
     w.write(f'->{result_t.result_typing(pyi=pyi)}:')
 
     if pyi:
         w.write(' ...\n')
     else:
         w.write('\n')
-
-        indent = '        '
-
+        indent = '    '
         w.write(f'{indent}from .impl import imgui\n')
         w.write(
             f'{indent}return imgui.{cursor.spelling}_{method.spelling}(self, *args)\n')
@@ -32,9 +30,7 @@ def to_ctypes_method(cursor: cindex.Cursor, method: cindex.Cursor, type_manager:
     return w.getvalue()
 
 
-def to_ctypes_iter(s: StructCursor, flags: WrapFlags, type_manager: TypeManager) -> Iterable[str]:
-    w = io.StringIO()
-    cursor = s.cursor
+def to_ctypes_iter(env: Environment, s: StructCursor, flags: WrapFlags, type_manager: TypeManager) -> Iterable[str]:
     fields = s.fields if flags.fields else []
 
     # first: anonymous fields
@@ -45,41 +41,35 @@ def to_ctypes_iter(s: StructCursor, flags: WrapFlags, type_manager: TypeManager)
                 match field.cursor.kind:
                     case cindex.CursorKind.UNION_DECL:
                         is_union = True
-                for src in to_ctypes_iter(StructCursor(s.cursors + (field.cursor,), field.type, is_union),
-                                     WrapFlags(f'{s.spelling}_anonymouse_{field.index}', fields=True), type_manager):
+                for src in to_ctypes_iter(env, StructCursor(s.cursors + (field.cursor,), field.type, is_union),
+                                          WrapFlags(f'{s.spelling}_anonymouse_{field.index}', fields=True), type_manager):
                     yield src
 
     # second: fields
-    w.write(
-        f'class {s.name}(ctypes.{"Union" if s.is_union else "Structure"}):\n')
+    template = env.get_template('ctypes_structure.py')
+
+    anonymous = []
     if fields:
-        w.write('    _fields_=[\n')
-        indent = '        '
-        for field in fields:
+        for i, field in enumerate(fields):
             name = field.name
             if flags.custom_fields.get(name):
                 name = '_' + name
-            w.write(type_manager.from_cursor(
-                field.cursor.type, field.cursor).ctypes_field(indent, name))
-        w.write('    ]\n\n')
+            fields[i] = type_manager.from_cursor(
+                field.cursor.type, field.cursor).ctypes_field(name) + ','
 
-    for _, v in flags.custom_fields.items():
-        w.write('    @property\n')
-        for l in v.splitlines():
-            w.write(f'    {l}\n')
-        w.write('\n')
-
-    methods = TypeContext.get_struct_methods(cursor, includes=flags.methods)
+    methods = TypeContext.get_struct_methods(s.cursor, includes=flags.methods)
     if methods:
-        for method in methods:
-            w.write(to_ctypes_method(cursor, method, type_manager))
+        for i, method in enumerate(methods):
+            methods[i] = to_ctypes_method(s.cursor, method, type_manager)
 
     for code in flags.custom_methods:
-        for l in code.splitlines():
-            w.write(f'    {l}\n')
-        w.write('\n')
+        methods.append(code)
 
-    if not fields:  # and not methods and not flags.custom_methods:
-        w.write('    pass\n\n')
-
-    yield w.getvalue()
+    yield template.render(
+        name=s.name,
+        base_type="Union" if s.is_union else "Structure",
+        anonymous=anonymous,
+        fields=fields,
+        custom_fields=[v for _, v in flags.custom_fields.items()],
+        methods=methods
+    )
