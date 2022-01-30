@@ -8,6 +8,7 @@
 
 ```{toctree}
 :maxdepth: 1
+rawtypes/index
 setup/index
 cindex/index
 examples/index
