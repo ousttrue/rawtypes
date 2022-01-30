@@ -5,11 +5,11 @@ from rawtypes.clang import cindex
 from rawtypes.interpreted_types import TypeManager
 from rawtypes.interpreted_types.basetype import BaseType
 from rawtypes.parser.function_cursor import FunctionCursor
-from rawtypes.parser.typewrap import TypeWrap
+from rawtypes.parser.type_context import TypeContext
 
 
 class ParamInfo(NamedTuple):
-    param: TypeWrap
+    param: TypeContext
     type: BaseType
     default_value: str
 

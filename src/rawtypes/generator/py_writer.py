@@ -4,13 +4,13 @@ from soupsieve import Iterable
 from rawtypes.clang import cindex
 from rawtypes.interpreted_types import TypeManager
 from rawtypes.parser.struct_cursor import StructCursor, WrapFlags
-from rawtypes.parser.typewrap import TypeWrap
+from rawtypes.parser.type_context import TypeContext
 
 
 def to_ctypes_method(cursor: cindex.Cursor, method: cindex.Cursor, type_manager: TypeManager, *, pyi=False) -> str:
     w = io.StringIO()
-    params = TypeWrap.get_function_params(method)
-    result = TypeWrap.from_function_result(method)
+    params = TypeContext.get_function_params(method)
+    result = TypeContext.from_function_result(method)
     result_t = type_manager.from_cursor(result.type, result.cursor)
 
     # signature
@@ -69,7 +69,7 @@ def to_ctypes_iter(s: StructCursor, flags: WrapFlags, type_manager: TypeManager)
             w.write(f'    {l}\n')
         w.write('\n')
 
-    methods = TypeWrap.get_struct_methods(cursor, includes=flags.methods)
+    methods = TypeContext.get_struct_methods(cursor, includes=flags.methods)
     if methods:
         for method in methods:
             w.write(to_ctypes_method(cursor, method, type_manager))

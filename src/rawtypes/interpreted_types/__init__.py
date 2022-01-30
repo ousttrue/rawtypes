@@ -4,7 +4,7 @@ import io
 #
 from rawtypes.clang import cindex
 from rawtypes.parser.function_cursor import FunctionCursor
-from rawtypes.parser.typewrap import TypeWrap
+from rawtypes.parser.type_context import TypeContext
 from .basetype import BaseType
 from . import primitive_types
 from .pointer_types import PointerType, ReferenceType, ArrayType, RefenreceToStdArrayType
@@ -207,7 +207,7 @@ class TypeManager:
     def from_cursor(self, cursor_type: cindex.Type, cursor: cindex.Cursor) -> BaseType:
         return self.get(TypeWithCursor(cursor_type, cursor))
 
-    def to_type(self, typewrap: TypeWrap) -> BaseType:
+    def to_type(self, typewrap: TypeContext) -> BaseType:
         return self.from_cursor(typewrap.type, typewrap.cursor)
 
     def get_params(self, indent: str, f: FunctionCursor) -> Params:

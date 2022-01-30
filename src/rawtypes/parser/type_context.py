@@ -19,7 +19,7 @@ def symbol_filter(src: str) -> str:
             return src
 
 
-class TypeWrap(NamedTuple):
+class TypeContext(NamedTuple):
     '''
     function result_type(index = -1)
     function param type
@@ -34,24 +34,24 @@ class TypeWrap(NamedTuple):
 
     @staticmethod
     def from_function_result(cursor: cindex.Cursor):
-        return TypeWrap(-1, cursor.result_type, cursor)
+        return TypeContext(-1, cursor.result_type, cursor)
 
     @staticmethod
     def from_function_param(index: int, cursor: cindex.Cursor):
-        return TypeWrap(index, cursor.type, cursor)
+        return TypeContext(index, cursor.type, cursor)
 
     @staticmethod
     def get_function_params(cursor: cindex.Cursor):
         cursors = [child for child in cursor.get_children(
         ) if child.kind == cindex.CursorKind.PARM_DECL]
-        return [TypeWrap.from_function_param(i, child) for i, child in enumerate(cursors)]
+        return [TypeContext.from_function_param(i, child) for i, child in enumerate(cursors)]
 
     @staticmethod
     def from_struct_field(index: int, cursor: cindex.Cursor):
-        return TypeWrap(index, cursor.type, cursor)
+        return TypeContext(index, cursor.type, cursor)
 
     @staticmethod
-    def get_struct_fields(cursor: cindex.Cursor) -> List['TypeWrap']:
+    def get_struct_fields(cursor: cindex.Cursor) -> List['TypeContext']:
         cursors = []
         for child in cursor.get_children():
             if not isinstance(child, cindex.Cursor):
@@ -73,7 +73,7 @@ class TypeWrap(NamedTuple):
                         pass
                 case _:
                     pass
-        return [TypeWrap.from_struct_field(i, child) for i, child in enumerate(cursors)]
+        return [TypeContext.from_struct_field(i, child) for i, child in enumerate(cursors)]
 
     @staticmethod
     def get_struct_methods(cursor: cindex.Cursor, *, excludes=(), includes=False) -> List[cindex.Cursor]:
@@ -105,8 +105,8 @@ class TypeWrap(NamedTuple):
 
     @staticmethod
     def get_default_constructor(cursor: cindex.Cursor) -> Optional[cindex.Cursor]:
-        for constructor in TypeWrap.get_constructors(cursor):
-            params = TypeWrap.get_function_params(constructor)
+        for constructor in TypeContext.get_constructors(cursor):
+            params = TypeContext.get_function_params(constructor)
             if len(params) == 0:
                 return constructor
 

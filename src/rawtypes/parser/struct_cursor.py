@@ -6,7 +6,7 @@ from rawtypes.clang import cindex
 from rawtypes.parser import function_cursor
 from rawtypes.parser.function_cursor import FunctionCursor
 #
-from .typewrap import TypeWrap
+from .type_context import TypeContext
 
 
 class WrapFlags(NamedTuple):
@@ -70,15 +70,15 @@ class StructCursor(NamedTuple):
         return False
 
     @property
-    def fields(self) -> List[TypeWrap]:
-        return TypeWrap.get_struct_fields(self.cursor)
+    def fields(self) -> List[TypeContext]:
+        return TypeContext.get_struct_fields(self.cursor)
 
     @property
     def sizeof(self) -> int:
         return self.record.get_size()
 
     def get_methods(self, flags: Optional[WrapFlags] = None) -> List[FunctionCursor]:
-        methods = TypeWrap.get_struct_methods(
+        methods = TypeContext.get_struct_methods(
             self.cursor, includes=flags.methods if isinstance(flags, WrapFlags) else True)
         if not methods:
             return []
@@ -99,7 +99,7 @@ class StructCursor(NamedTuple):
             return
 
         pyi.write(f'class {cursor.spelling}(ctypes.Structure):\n')
-        fields = TypeWrap.get_struct_fields(cursor) if flags.fields else []
+        fields = TypeContext.get_struct_fields(cursor) if flags.fields else []
         if fields:
             for field in fields:
                 name = field.name
@@ -114,7 +114,7 @@ class StructCursor(NamedTuple):
             l = next(iter(v.splitlines()))
             pyi.write(f'    {l} ...\n')
 
-        methods = TypeWrap.get_struct_methods(cursor, includes=flags.methods)
+        methods = TypeContext.get_struct_methods(cursor, includes=flags.methods)
         if methods:
             for method in methods:
                 function_cursor.write_pyx_method(
