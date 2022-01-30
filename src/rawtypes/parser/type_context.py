@@ -19,61 +19,13 @@ def symbol_filter(src: str) -> str:
             return src
 
 
-class TypeContext(NamedTuple):
-    '''
-    function result_type(index = -1)
-    function param type
-    struct field type
-    '''
-    index: int
+class TypeContext:
     type: cindex.Type
     cursor: cindex.Cursor
 
-    # def remove_namespce(self, src: str) -> str:
-    #     return src.replace(self.namespace, '')
-
-    @staticmethod
-    def from_function_result(cursor: cindex.Cursor):
-        return TypeContext(-1, cursor.result_type, cursor)
-
-    @staticmethod
-    def from_function_param(index: int, cursor: cindex.Cursor):
-        return TypeContext(index, cursor.type, cursor)
-
-    @staticmethod
-    def get_function_params(cursor: cindex.Cursor):
-        cursors = [child for child in cursor.get_children(
-        ) if child.kind == cindex.CursorKind.PARM_DECL]
-        return [TypeContext.from_function_param(i, child) for i, child in enumerate(cursors)]
-
-    @staticmethod
-    def from_struct_field(index: int, cursor: cindex.Cursor):
-        return TypeContext(index, cursor.type, cursor)
-
-    @staticmethod
-    def get_struct_fields(cursor: cindex.Cursor) -> List['TypeContext']:
-        cursors = []
-        for child in cursor.get_children():
-            if not isinstance(child, cindex.Cursor):
-                raise RuntimeError()
-            match child.kind:
-                case cindex.CursorKind.FIELD_DECL:
-                    cursors.append(child)
-                case cindex.CursorKind.UNION_DECL:
-                    if child.type.kind == cindex.TypeKind.RECORD:
-                        cursors.append(child)
-                    else:
-                        # innner type decl ?
-                        pass
-                case cindex.CursorKind.STRUCT_DECL:
-                    if child.type.kind == cindex.TypeKind.RECORD:
-                        cursors.append(child)
-                    else:
-                        # inner type decl ?
-                        pass
-                case _:
-                    pass
-        return [TypeContext.from_struct_field(i, child) for i, child in enumerate(cursors)]
+    def __init__(self, type: cindex.Type, cursor: cindex.Cursor) -> None:
+        self.type = type
+        self.cursor = cursor
 
     @staticmethod
     def get_struct_methods(cursor: cindex.Cursor, *, excludes=(), includes=False) -> List[cindex.Cursor]:
@@ -184,3 +136,55 @@ class TypeContext(NamedTuple):
             value = ' '.join(t for t in tokens[equal+1:])
 
         return '= ' + value
+
+
+class ParamContext(TypeContext):
+    index: int
+
+    def __init__(self, index: int, cursor: cindex.Cursor) -> None:
+        super().__init__(cursor.type, cursor)
+        self.index = index
+
+    @staticmethod
+    def get_function_params(cursor: cindex.Cursor) -> List['ParamContext']:
+        cursors = [child for child in cursor.get_children(
+        ) if child.kind == cindex.CursorKind.PARM_DECL]
+        return [ParamContext(i, child) for i, child in enumerate(cursors)]
+
+
+class FieldContext(TypeContext):
+    index: int
+
+    def __init__(self, index: int, cursor: cindex.Cursor) -> None:
+        super().__init__(cursor.type, cursor)
+        self.index = index
+
+    @staticmethod
+    def get_struct_fields(cursor: cindex.Cursor) -> List['FieldContext']:
+        cursors = []
+        for child in cursor.get_children():
+            if not isinstance(child, cindex.Cursor):
+                raise RuntimeError()
+            match child.kind:
+                case cindex.CursorKind.FIELD_DECL:
+                    cursors.append(child)
+                case cindex.CursorKind.UNION_DECL:
+                    if child.type.kind == cindex.TypeKind.RECORD:
+                        cursors.append(child)
+                    else:
+                        # innner type decl ?
+                        pass
+                case cindex.CursorKind.STRUCT_DECL:
+                    if child.type.kind == cindex.TypeKind.RECORD:
+                        cursors.append(child)
+                    else:
+                        # inner type decl ?
+                        pass
+                case _:
+                    pass
+        return [FieldContext(i, child) for i, child in enumerate(cursors)]
+
+
+class ResultContext(TypeContext):
+    def __init__(self, cursor: cindex.Cursor) -> None:
+        super().__init__(cursor.result_type, cursor)

@@ -4,13 +4,13 @@ from soupsieve import Iterable
 from rawtypes.clang import cindex
 from rawtypes.interpreted_types import TypeManager
 from rawtypes.parser.struct_cursor import StructCursor, WrapFlags
-from rawtypes.parser.type_context import TypeContext
+from rawtypes.parser.type_context import ParamContext, ResultContext, TypeContext
 
 
 def to_ctypes_method(cursor: cindex.Cursor, method: cindex.Cursor, type_manager: TypeManager, *, pyi=False) -> str:
     w = io.StringIO()
-    params = TypeContext.get_function_params(method)
-    result = TypeContext.from_function_result(method)
+    params = ParamContext.get_function_params(method)
+    result = ResultContext(method)
     result_t = type_manager.from_cursor(result.type, result.cursor)
 
     # signature

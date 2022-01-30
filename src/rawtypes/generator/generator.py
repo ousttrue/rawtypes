@@ -82,7 +82,7 @@ class Generator:
                                         continue
                                     if s.is_forward_decl:
                                         continue
-                                    for py in to_ctypes_iter(s, wrap_type, self.type_manager):
+                                    for py in to_ctypes_iter(s, wrap_type, self.type_manager    ):
                                         ew.write(py)
                                     structs.append((s, wrap_type))
 

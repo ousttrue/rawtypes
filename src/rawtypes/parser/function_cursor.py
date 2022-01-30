@@ -2,9 +2,8 @@ from typing import Iterable, List, Tuple, NamedTuple
 import pathlib
 import logging
 import io
-from jinja2 import Environment
 from rawtypes.clang import cindex
-from .type_context import TypeContext
+from .type_context import ParamContext, ResultContext
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +48,7 @@ PYX
 '''
 
 
-def extract_parameters(type_map, pyx: io.IOBase, params: List[TypeContext], indent: str) -> List[str]:
+def extract_parameters(type_map, pyx: io.IOBase, params: List[ParamContext], indent: str) -> List[str]:
     param_names = []
     for i, param in enumerate(params):
         t = type_map.from_cursor(param.cursor.type, param.cursor)
@@ -59,9 +58,9 @@ def extract_parameters(type_map, pyx: io.IOBase, params: List[TypeContext], inde
 
 
 def write_pyx_function(type_map, pyx: io.IOBase, function: cindex.Cursor, *, pyi=False, overload=1, prefix=''):
-    result = TypeContext.from_function_result(function)
+    result = ResultContext(function)
     result_t = type_map.from_cursor(result.type, result.cursor)
-    params = TypeContext.get_function_params(function)
+    params = ParamContext.get_function_params(function)
 
     overload = '' if overload == 1 else f'_{overload}'
 
@@ -92,8 +91,8 @@ def write_pyx_function(type_map, pyx: io.IOBase, function: cindex.Cursor, *, pyi
 
 
 def write_pyx_method(type_map, pyx: io.IOBase, cursor: cindex.Cursor, method: cindex.Cursor, *, pyi=False):
-    params = TypeContext.get_function_params(method)
-    result = TypeContext.from_function_result(method)
+    params = ParamContext.get_function_params(method)
+    result = ResultContext(method)
     result_t = type_map.from_cursor(result.type, result.cursor)
 
     # signature
@@ -144,12 +143,12 @@ class FunctionCursor(NamedTuple):
         return self.cursor.spelling
 
     @property
-    def result(self) -> TypeContext:
-        return TypeContext.from_function_result(self.cursor)
+    def result(self) -> ResultContext:
+        return ResultContext(self.cursor)
 
     @property
-    def params(self) -> List[TypeContext]:
-        return [param for param in TypeContext.get_function_params(self.cursor)]
+    def params(self) -> List[ParamContext]:
+        return [param for param in ParamContext.get_function_params(self.cursor)]
 
     def is_exclude_function(self) -> bool:
         cursor = self.cursor
