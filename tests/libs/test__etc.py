@@ -1,7 +1,7 @@
 import logging
 import ctypes
 import unittest
-from rawtypes.generator.py_writer import to_ctypes
+from rawtypes.generator.py_writer import to_ctypes_iter
 from rawtypes.interpreted_types import TypeManager
 from rawtypes.parser.struct_cursor import WrapFlags
 from rawtypes.generator.cpp_writer import to_c_function
@@ -46,7 +46,7 @@ class TestEtc(unittest.TestCase):
         type_manager = TypeManager()
         flag = WrapFlags('NVGcolor', fields=True)
 
-        for src in to_ctypes(s, flag, type_manager):
+        for src in to_ctypes_iter(s, flag, type_manager):
             # print(src)
             l = {}
             exec(src, globals(), l)

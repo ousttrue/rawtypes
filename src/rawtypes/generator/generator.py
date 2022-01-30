@@ -5,6 +5,7 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 import pkg_resources
 
 from rawtypes.generator.cpp_writer import to_c_function, to_c_method
+from rawtypes.generator.py_writer import to_ctypes_iter
 from ..parser.header import Header
 from ..parser import Parser
 from ..interpreted_types import *
@@ -81,7 +82,8 @@ class Generator:
                                         continue
                                     if s.is_forward_decl:
                                         continue
-                                    self.write_struct(ew, s, wrap_type)
+                                    for py in to_ctypes_iter(s, wrap_type, self.type_manager):
+                                        ew.write(py)
                                     structs.append((s, wrap_type))
 
                 # enum
@@ -158,7 +160,6 @@ from typing import Any, Union, Tuple, TYpe, Iterable
             'rawtypes.generator', 'templates/rawtypes.h'))
         shutil.copy(RAWTYPES_H, cpp_path.parent / RAWTYPES_H.name)
 
-
     def write_pyi(self, header: Header, pyi: io.IOBase):
         types = [x for x in self.parser.typedef_struct_list if pathlib.Path(
             x.cursor.location.file.name) == header.path]
@@ -189,7 +190,6 @@ from typing import Any, Union, Tuple, TYpe, Iterable
                 write_pyx_function(
                     self.type_manager, pyi, typedef_or_struct.cursor, pyi=True, overload=count, prefix=header.prefix)
                 overload[name] = count
-
 
 
 def generate(headers: List[Header], package_dir: pathlib.Path) -> pathlib.Path:

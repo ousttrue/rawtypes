@@ -32,7 +32,7 @@ def to_ctypes_method(cursor: cindex.Cursor, method: cindex.Cursor, type_manager:
     return w.getvalue()
 
 
-def to_ctypes(s: StructCursor, flags: WrapFlags, type_manager: TypeManager) -> Iterable[str]:
+def to_ctypes_iter(s: StructCursor, flags: WrapFlags, type_manager: TypeManager) -> Iterable[str]:
     w = io.StringIO()
     cursor = s.cursor
     fields = s.fields if flags.fields else []
@@ -45,7 +45,7 @@ def to_ctypes(s: StructCursor, flags: WrapFlags, type_manager: TypeManager) -> I
                 match field.cursor.kind:
                     case cindex.CursorKind.UNION_DECL:
                         is_union = True
-                for src in to_ctypes(StructCursor(s.cursors + (field.cursor,), field.type, is_union),
+                for src in to_ctypes_iter(StructCursor(s.cursors + (field.cursor,), field.type, is_union),
                                      WrapFlags(f'{s.spelling}_anonymouse_{field.index}', fields=True), type_manager):
                     yield src
 
