@@ -5,8 +5,9 @@ import unittest
 from jinja2 import Environment, PackageLoader
 from rawtypes.generator.py_writer import to_ctypes_iter
 from rawtypes.interpreted_types import TypeManager
+from rawtypes.interpreted_types.string import CharPointerType
 from rawtypes.parser.struct_cursor import WrapFlags
-from rawtypes.generator.cpp_writer import to_c_function
+from rawtypes.generator.cpp_writer import FunctionCustomization, to_c_function
 import rawtypes.generator.generator
 from rawtypes.parser.header import Header
 from rawtypes.parser import parse
@@ -56,5 +57,8 @@ class TestNanoVG(unittest.TestCase):
         )
 
         type_manager = TypeManager()
-        s = to_c_function(env, f, type_manager)
+        s = to_c_function(env, f, type_manager, custom=FunctionCustomization('', {
+            'string': CharPointerType(),
+            'end': CharPointerType(),
+        }))
         print(s)

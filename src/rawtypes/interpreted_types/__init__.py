@@ -11,7 +11,7 @@ from .primitive_types import VoidType
 from .pointer_types import PointerType, ReferenceType, ArrayType, RefenreceToStdArrayType
 from .wrap_types import PointerToStructType, ReferenceToStructType
 from .definition import StructType, TypedefType, EnumType
-from .string import StringType, CStringType
+from .string import StringType, CStringType, CharPointerType
 
 
 class TypeWithCursor(NamedTuple):
