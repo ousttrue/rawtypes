@@ -34,30 +34,3 @@ class TestEtc(unittest.TestCase):
 
         s = to_c_function(generator.env, f, generator.type_manager)
         print(s)
-
-    def test_nanovg(self):
-        header = VCPKG_INCLUDE / 'nanovg.h'
-        parser = parse(header, include_dirs=[VCPKG_INCLUDE])
-
-        s = parser.get_struct('NVGcolor')
-        self.assertIsNotNone(s)
-
-        fields = s.fields
-        self.assertEqual(1, len(fields))
-
-        type_manager = TypeManager()
-        flag = WrapFlags('NVGcolor', fields=True)
-
-        env = Environment(
-            loader=PackageLoader("rawtypes.generator"),
-        )
-
-        for src in to_ctypes_iter(env, s, flag, type_manager):
-            print(src)
-            l = {}
-            exec(src, globals(), l)
-            # print(l)
-            for k, v in l.items():
-                globals()[k] = v
-
-        self.assertEqual(s.sizeof, ctypes.sizeof(v))
