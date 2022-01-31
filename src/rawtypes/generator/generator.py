@@ -105,6 +105,13 @@ from typing import Any, Union, Tuple, TYpe, Iterable
                 pyi.write(header.begin)
                 self.write_pyi(header, pyi)
 
+                # enum
+                pyi.write('from enum import IntEnum\n\n')
+                for e in self.parser.enums:
+                    if e.path != header.path:
+                        continue
+                    e.write_to(pyi)
+
             #
             # cpp
             #
