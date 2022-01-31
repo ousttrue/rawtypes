@@ -4,9 +4,10 @@ import io
 #
 from rawtypes.clang import cindex
 from rawtypes.parser.function_cursor import FunctionCursor
+from rawtypes.parser.struct_cursor import WrapFlags
 from rawtypes.parser.type_context import TypeContext
 from .basetype import BaseType
-from . import primitive_types
+from .primitive_types import VoidType
 from .pointer_types import PointerType, ReferenceType, ArrayType, RefenreceToStdArrayType
 from .wrap_types import PointerToStructType, ReferenceToStructType
 from .definition import StructType, TypedefType, EnumType
@@ -218,7 +219,8 @@ class TypeManager:
         last_format = None
         for param in f.params:
             t = self.from_cursor(param.type, param.cursor)
-            sio_extract.write(t.cpp_param_declare(indent, param.index, param.name))
+            sio_extract.write(t.cpp_param_declare(
+                indent, param.index, param.name))
             types.append(t)
             d = param.default_value(use_filter=False)
             if not last_format and d:

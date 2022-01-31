@@ -1,11 +1,11 @@
-from typing import List, NamedTuple
+from typing import List, NamedTuple, Optional, Dict
 import io
 from jinja2 import Environment
 from rawtypes.clang import cindex
 from rawtypes.interpreted_types import TypeManager
 from rawtypes.interpreted_types.basetype import BaseType
 from rawtypes.parser.function_cursor import FunctionCursor
-from rawtypes.parser.type_context import TypeContext
+from rawtypes.parser.type_context import ParamContext, TypeContext
 
 
 class ParamInfo(NamedTuple):
@@ -63,13 +63,23 @@ def to_fromat(params: List[ParamInfo]) -> str:
     return ''.join(formats)
 
 
-def to_c_function(env: Environment, function_cursor: FunctionCursor, type_manager: TypeManager, *, namespace: str = '', func_name: str = '') -> str:
+class FunctionCustomization(NamedTuple):
+    name: str
+    param_override: Dict[str, BaseType]
+
+
+def to_c_function(env: Environment, function_cursor: FunctionCursor, type_manager: TypeManager, *, namespace: str = '', func_name: str = '', custom: Optional[FunctionCustomization] = None) -> str:
     if not func_name:
         func_name = function_cursor.spelling
 
     # params
     params = function_cursor.params
-    types = [type_manager.to_type(param) for param in params]
+
+    def param_type(param: ParamContext):
+        if custom and param.name in custom.param_override:
+            return custom.param_override[param.name]
+        return type_manager.to_type(param)
+    types = [param_type(param) for param in params]
     paramlist = [ParamInfo(param, t, param.default_value(
         use_filter=False)) for param, t in zip(params, types)]
 
