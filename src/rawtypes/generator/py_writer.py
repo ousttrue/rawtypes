@@ -1,7 +1,6 @@
+from typing import Iterable
 import io
 from jinja2 import Environment
-
-from soupsieve import Iterable
 from rawtypes.clang import cindex
 from rawtypes.interpreted_types import TypeManager
 from rawtypes.parser.struct_cursor import StructCursor, WrapFlags

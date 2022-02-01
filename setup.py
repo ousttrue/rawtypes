@@ -65,6 +65,7 @@ setuptools.setup(name='rawtypes',
                  package_dir={'': 'src'},
                  packages=setuptools.find_packages("src"),
                  package_data={'rawtypes.generator': ['templates/*']},
+                 install_requires=["Jinja2"],
                  # meta-data
                  long_description=(HERE / 'README.md').read_text(),
                  long_description_content_type='text/markdown',
