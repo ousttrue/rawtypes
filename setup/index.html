@@ -277,8 +277,23 @@
 </ul>
 </div>
 </section>
+<section id="meta-data">
+<h2>meta-data<a class="headerlink" href="#meta-data" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/distutils/setupscript.html#meta-data">https://docs.python.org/3/distutils/setupscript.html#meta-data</a></p></li>
+<li><p><a class="reference external" href="https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/#setup-args">https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/#setup-args</a></p></li>
+</ul>
+<section id="name-author-author-email-url">
+<h3>name, author, author_email, url<a class="headerlink" href="#name-author-author-email-url" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>適当に。</p>
+</section>
+<section id="project-urls">
+<h3>project_urls<a class="headerlink" href="#project-urls" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><a class="reference external" href="https://github.com/pallets/flask/blob/main/setup.cfg">https://github.com/pallets/flask/blob/main/setup.cfg</a></p>
+</section>
 <section id="version">
-<h2>version<a class="headerlink" href="#version" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<h3>version<a class="headerlink" href="#version" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><a class="reference external" href="https://github.com/pypa/setuptools_scm/">https://github.com/pypa/setuptools_scm/</a></p>
 <p>git のタグからバージョンを付ける。</p>
 <div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="n">setup</span><span class="p">(</span>
     <span class="n">use_scm_version</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -287,8 +302,8 @@
 </pre></div>
 </div>
 </section>
-<section id="readme-md">
-<h2>README.md<a class="headerlink" href="#readme-md" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<section id="long-description-readme-md">
+<h3>long_description(README.md)<a class="headerlink" href="#long-description-readme-md" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">setuptools</span> <span class="kn">import</span> <span class="n">setup</span>
 
 <span class="c1"># read the contents of your README file</span>
@@ -305,11 +320,10 @@
 </pre></div>
 </div>
 </section>
-<section id="license">
-<h2>license 情報<a class="headerlink" href="#license" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<section id="classifiers">
+<h3>classifiers<a class="headerlink" href="#classifiers" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><a class="reference external" href="https://pypi.org/classifiers/">https://pypi.org/classifiers/</a></p>
 </section>
-<section id="meta">
-<h2>meta 情報<a class="headerlink" href="#meta" title="このヘッドラインへのパーマリンク">¶</a></h2>
 </section>
 </section>
 
@@ -366,10 +380,14 @@
             <ul>
 <li><a class="reference internal" href="#">setup.py</a><ul>
 <li><a class="reference internal" href="#setuptools-distutils">setuptools と distutils</a></li>
+<li><a class="reference internal" href="#meta-data">meta-data</a><ul>
+<li><a class="reference internal" href="#name-author-author-email-url">name, author, author_email, url</a></li>
+<li><a class="reference internal" href="#project-urls">project_urls</a></li>
 <li><a class="reference internal" href="#version">version</a></li>
-<li><a class="reference internal" href="#readme-md">README.md</a></li>
-<li><a class="reference internal" href="#license">license 情報</a></li>
-<li><a class="reference internal" href="#meta">meta 情報</a></li>
+<li><a class="reference internal" href="#long-description-readme-md">long_description(README.md)</a></li>
+<li><a class="reference internal" href="#classifiers">classifiers</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
