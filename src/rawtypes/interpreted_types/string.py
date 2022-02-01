@@ -74,3 +74,24 @@ class CStringType(BaseType):
 
     def py_value(self, value: str) -> str:
         return f'PyUnicode_FromString({value})'
+
+
+class CharPointerType(BaseType):
+    def __init__(self):
+        super().__init__('const char *')
+
+    @property
+    def ctypes_type(self) -> str:
+        return 'ctypes.c_void_p'
+
+    def param(self, name: str, default_value: str, pyi: bool) -> str:
+        return f'{name}: Union[bytes, str]{default_value}'
+
+    def result_typing(self, pyi: bool) -> str:
+        raise NotImplementedError()
+
+    def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
+        return f'{indent}char *p{i} = ctypes_get_pointer<char *>(t{i});\n'
+
+    def py_value(self, value: str) -> str:
+        raise NotImplementedError()

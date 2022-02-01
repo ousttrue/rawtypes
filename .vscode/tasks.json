@@ -6,7 +6,7 @@
         {
             "label": "sphinx-autobuild",
             "type": "shell",
-            "command": "sphinx-autobuild docs _build --open-browser --port=0",
+            "command": "C:/Python310/Scripts/sphinx-autobuild docs _build --open-browser --port=0",
             "problemMatcher": [],
             "isBackground": true
         }

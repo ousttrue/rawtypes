@@ -1,5 +1,5 @@
+from typing import List, Tuple
 import shutil
-from typing import List, Iterable, Tuple
 import pathlib
 from jinja2 import Environment, PackageLoader, select_autoescape
 import pkg_resources
@@ -58,7 +58,7 @@ class Generator:
             loader=PackageLoader("rawtypes.generator"),
         )
 
-    def generate(self, package_dir: pathlib.Path, cpp_path: pathlib.Path):
+    def generate(self, package_dir: pathlib.Path, cpp_path: pathlib.Path, function_custom=[]):
 
         modules = []
         headers = []
@@ -105,6 +105,13 @@ from typing import Any, Union, Tuple, TYpe, Iterable
                 pyi.write(header.begin)
                 self.write_pyi(header, pyi)
 
+                # enum
+                pyi.write('from enum import IntEnum\n\n')
+                for e in self.parser.enums:
+                    if e.path != header.path:
+                        continue
+                    e.write_to(pyi)
+
             #
             # cpp
             #
@@ -123,6 +130,12 @@ from typing import Any, Union, Tuple, TYpe, Iterable
                 if not header.if_include(f.spelling):
                     continue
 
+                customize = None
+                for custom in function_custom:
+                    if custom.name == f.spelling:
+                        customize = custom
+                        break
+
                 overload_count = overload_map.get(f.spelling, 0) + 1
                 overload_map[f.spelling] = overload_count
                 overload = ''
@@ -131,7 +144,7 @@ from typing import Any, Union, Tuple, TYpe, Iterable
                 namespace = get_namespace(f.cursors)
                 func_name = f'{f.path.stem}_{f.spelling}{overload}'
                 sio.write(to_c_function(self.env, f, self.type_manager,
-                          namespace=namespace, func_name=func_name))
+                          namespace=namespace, func_name=func_name, custom=customize))
                 sio.write('\n')
                 method = PyMethodDef(
                     f"{f.spelling}{overload}", func_name, "METH_VARARGS", f"{namespace}{f.spelling}")

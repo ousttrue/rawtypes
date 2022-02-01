@@ -38,7 +38,22 @@ command/index
 pypi
 ```
 
-## version
+## meta-data
+
+* <https://docs.python.org/3/distutils/setupscript.html#meta-data>
+* <https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/#setup-args>
+
+### name, author, author_email, url
+
+適当に。
+
+### project_urls
+
+<https://github.com/pallets/flask/blob/main/setup.cfg>
+
+### version
+
+<https://github.com/pypa/setuptools_scm/>
 
 git のタグからバージョンを付ける。
 
@@ -49,7 +64,7 @@ setup(
 )
 ```
 
-## README.md
+### long_description(README.md)
 
 ```py
 from setuptools import setup
@@ -67,6 +82,6 @@ setup(
 )
 ```
 
-## license 情報
+### classifiers
 
-## meta 情報
+<https://pypi.org/classifiers/>

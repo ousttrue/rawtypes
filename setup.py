@@ -65,6 +65,19 @@ setuptools.setup(name='rawtypes',
                  package_dir={'': 'src'},
                  packages=setuptools.find_packages("src"),
                  package_data={'rawtypes.generator': ['templates/*']},
+                 # meta-data
                  long_description=(HERE / 'README.md').read_text(),
-                 long_description_content_type='text/markdown'
+                 long_description_content_type='text/markdown',
+                 author='ousttrue',
+                 project_urls={
+                     'Documentation': 'https://ousttrue.github.io/rawtypes/',
+                     'Source': 'https://github.com/ousttrue/rawtypes',
+                 },
+                 classifiers=[
+                     'Development Status :: 3 - Alpha',
+                     'Intended Audience :: Developers',
+                     'Topic :: Software Development :: Build Tools',
+                     'License :: OSI Approved :: MIT License',
+                     'Programming Language :: Python :: 3.10',
+                 ]
                  )
