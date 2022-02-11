@@ -10,6 +10,7 @@ from .type_context import FieldContext
 
 
 class WrapFlags(NamedTuple):
+    submodule: str
     name: str
     fields: bool = False
     custom_fields: Dict[str, str] = {}
@@ -90,7 +91,7 @@ class StructCursor(NamedTuple):
                 return method
         raise KeyError(name)
 
-    def write_pyi(self, type_map, pyi: io.IOBase, *, flags: WrapFlags = WrapFlags('')):
+    def write_pyi(self, type_map, pyi: io.IOBase, *, flags: WrapFlags = WrapFlags('', '')):
         cursor = self.cursors[-1]
 
         definition = cursor.get_definition()

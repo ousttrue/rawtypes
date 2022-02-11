@@ -93,13 +93,13 @@ class TypeManager:
         self.WRAP_TYPES: List[WrapFlags] = []
         self.processors: List[TypeProcessor] = []
 
-    def is_wrap_type(self, name: str) -> bool:
+    def get_wrap_type(self, name: str) -> Optional[WrapFlags]:
         if name.startswith('struct '):
+            # for C struct without typedef
             name = name[7:]
         for w in self.WRAP_TYPES:
             if w.name == name:
-                return True
-        return False
+                return w
 
     def get(self, c: TypeWithCursor, is_const=False) -> BaseType:
         is_const = is_const or c.type.is_const_qualified()
@@ -156,7 +156,7 @@ class TypeManager:
                 pointee = c.type.get_pointee()
                 base = self.get(TypeWithCursor(pointee, c.cursor))
                 if isinstance(base, StructType) and any(t for t in self.WRAP_TYPES if t.name == base.name):
-                    return PointerToStructType(base, is_const=is_const, is_wrap_type=self.is_wrap_type(base.name))
+                    return PointerToStructType(base, is_const=is_const, wrap_type=self.get_wrap_type(base.name), )
 
                 return PointerType(base, is_const=is_const)
 
@@ -164,7 +164,7 @@ class TypeManager:
                 pointee = c.type.get_pointee()
                 base = self.get(TypeWithCursor(pointee, c.cursor))
                 if isinstance(base, StructType) and any(t for t in self.WRAP_TYPES if t.name == base.name):
-                    return ReferenceToStructType(base, is_const=is_const, is_wrap_type=self.is_wrap_type(base.name))
+                    return ReferenceToStructType(base, is_const=is_const, wrap_type=self.get_wrap_type(base.name))
 
                 return ReferenceType(base, is_const=is_const)
 
@@ -192,7 +192,7 @@ class TypeManager:
                     assert deref
                     if deref:
                         assert deref.referenced.kind == cindex.CursorKind.STRUCT_DECL
-                        return StructType(deref.referenced.spelling, deref.referenced, is_const=is_const, is_wrap_type=self.is_wrap_type(c.type.spelling))
+                        return StructType(deref.referenced.spelling, deref.referenced, is_const=is_const, wrap_type=self.get_wrap_type(c.type.spelling))
 
             case cindex.TypeKind.FUNCTIONPROTO:
                 return PointerType(primitive_types.VoidType(), is_const=is_const)
@@ -201,7 +201,7 @@ class TypeManager:
                 return EnumType(c.type.spelling)
 
             case cindex.TypeKind.ELABORATED:
-                return StructType(c.type.spelling, c.cursor, is_const=is_const, is_wrap_type=self.is_wrap_type(c.type.spelling))
+                return StructType(c.type.spelling, c.cursor, is_const=is_const, wrap_type=self.get_wrap_type(c.type.spelling))
 
         raise RuntimeError(f"unknown type: {c.type.kind}")
 

@@ -1,5 +1,7 @@
+from typing import Optional
 from rawtypes.clang import cindex
 from .basetype import BaseType
+from ..parser.struct_cursor import WrapFlags
 
 
 class TypedefType(BaseType):
@@ -38,12 +40,12 @@ class TypedefType(BaseType):
 class StructType(BaseType):
     cursor: cindex.Cursor
 
-    def __init__(self, name: str, cursor: cindex.Cursor, is_const=False, is_wrap_type=False):
+    def __init__(self, name: str, cursor: cindex.Cursor, is_const=False, wrap_type=Optional[WrapFlags]):
         if name.startswith('struct '):
             name = name[7:]
         super().__init__(name, is_const=is_const)
         self.cursor = cursor
-        self.is_wrap_type = is_wrap_type
+        self.wrap_type = wrap_type
 
     @property
     def ctypes_type(self) -> str:
@@ -80,7 +82,7 @@ class StructType(BaseType):
         return f'*p{i}'
 
     def py_value(self, value: str) -> str:
-        if not self.is_wrap_type:
+        if not self.wrap_type:
             raise NotImplemented("return by value. but no python type")
         return f'ctypes_copy({value}, "{self.name}", "nanovg")'
 

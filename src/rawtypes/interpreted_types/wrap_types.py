@@ -1,12 +1,14 @@
+from typing import Optional
 import io
 from .basetype import BaseType
 from .pointer_types import PointerType, ReferenceType
+from ..parser.struct_cursor import WrapFlags
 
 
 class PointerToStructType(PointerType):
-    def __init__(self, base: BaseType, is_const: bool, is_wrap_type: bool):
+    def __init__(self, base: BaseType, is_const: bool, wrap_type: Optional[WrapFlags]):
         super().__init__(base, is_const)
-        self.is_wrap_type = is_wrap_type
+        self.wrap_type = wrap_type
 
     @property
     def ctypes_type(self) -> str:
@@ -38,16 +40,16 @@ class PointerToStructType(PointerType):
         return f'{self.ctypes_type}'
 
     def py_value(self, value: str) -> str:
-        if self.is_wrap_type:
-            return f'ctypes_cast(c_void_p({value}), "{self.base.name}", "imgui")'
+        if self.wrap_type:
+            return f'ctypes_cast(c_void_p({value}), "{self.base.name}", "{self.wrap_type.submodule}")'
         else:
             return f'c_void_p({value})'
 
 
 class ReferenceToStructType(ReferenceType):
-    def __init__(self, base: BaseType, is_const: bool, is_wrap_type: bool):
+    def __init__(self, base: BaseType, is_const: bool, wrap_type: Optional[WrapFlags]):
         super().__init__(base, is_const)
-        self.is_wrap_type = is_wrap_type
+        self.wrap_type = wrap_type
 
     @property
     def ctypes_type(self) -> str:
@@ -93,8 +95,8 @@ class ReferenceToStructType(ReferenceType):
         sio.write(f'{indent}// {self}\n')
         sio.write(f'{indent}auto value = &{call};\n')
         sio.write(f'{indent}auto py_value = c_void_p(value);\n')
-        if self.is_wrap_type:
+        if self.wrap_type:
             sio.write(
-                f'{indent}py_value = ctypes_cast(py_value, "{self.base.name}", "imgui");\n')
+                f'{indent}py_value = ctypes_cast(py_value, "{self.base.name}", "{self.wrap_type.submodule}");\n')
         sio.write(f'{indent}return py_value;\n')
         return sio.getvalue()

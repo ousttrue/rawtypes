@@ -41,7 +41,7 @@ def to_ctypes_iter(env: Environment, s: StructCursor, flags: WrapFlags, type_man
                     case cindex.CursorKind.UNION_DECL:
                         is_union = True
                 for src in to_ctypes_iter(env, StructCursor(s.cursors + (field.cursor,), field.type, is_union),
-                                          WrapFlags(f'{s.spelling}_anonymouse_{field.index}', fields=True), type_manager):
+                                          WrapFlags('', f'{s.spelling}_anonymouse_{field.index}', fields=True), type_manager):
                     yield src
 
     # second: fields
