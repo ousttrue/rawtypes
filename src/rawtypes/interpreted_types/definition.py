@@ -49,7 +49,7 @@ class StructType(BaseType):
 
     @property
     def ctypes_type(self) -> str:
-        name = self.cursor.spelling
+        name = self.name
         if name:
             return name
         # anonymous
@@ -97,6 +97,10 @@ class EnumType(BaseType):
     def cdef_param(self, indent: str, i: int, name: str) -> str:
         enum_name = self.name.split('::')[-1]
         return f'{indent}cdef impl.{enum_name} p{i} = <impl.{enum_name}>{name}\n'
+
+    @property
+    def ctypes_type(self) -> str:
+        return 'ctypes.c_int'
 
     @property
     def result_typing(self) -> str:
