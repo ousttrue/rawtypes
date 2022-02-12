@@ -163,6 +163,11 @@ from typing import Any, Union, Tuple, TYpe, Iterable
                 module_name=header.path.stem, methods=methods))
             headers.append(sio.getvalue())
 
+        # __init__.py
+        with (package_dir / '__init__.py').open('w') as w:
+            # empty ok
+            pass
+
         cpp_path.parent.mkdir(parents=True, exist_ok=True)
         with cpp_path.open('w') as w:
             template = self.env.get_template("impl.cpp")
