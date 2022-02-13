@@ -84,6 +84,10 @@ class UInt8Type(PrimitiveType):
     def ctypes_type(self) -> str:
         return 'ctypes.c_uint8'
 
+    @property
+    def pyi_type(self) -> str:
+        return 'int'
+
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
         if default_value:
             return f'{indent}unsigned char p{i} = t{i} ? PyLong_AsUnsignedLong(t{i}) : {default_value};\n'
@@ -102,6 +106,10 @@ class UInt16Type(PrimitiveType):
     def ctypes_type(self) -> str:
         return 'ctypes.c_uint16'
 
+    @property
+    def pyi_type(self) -> str:
+        return 'int'
+
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
         if default_value:
             return f'{indent}unsigned short p{i} = t{i} ? PyLong_AsUnsignedLong(t{i}) : {default_value};\n'
@@ -116,6 +124,10 @@ class UInt32Type(PrimitiveType):
     @property
     def ctypes_type(self) -> str:
         return 'ctypes.c_uint32'
+
+    @property
+    def pyi_type(self) -> str:
+        return 'int'
 
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
         if default_value:
@@ -135,6 +147,10 @@ class UInt64Type(PrimitiveType):
     def ctypes_type(self) -> str:
         return 'ctypes.c_uint64'
 
+    @property
+    def pyi_type(self) -> str:
+        return 'int'
+
 
 class SizeType(PrimitiveType):
     def __init__(self, is_const=False):
@@ -143,6 +159,10 @@ class SizeType(PrimitiveType):
     @property
     def ctypes_type(self) -> str:
         return 'ctypes.c_uint64'
+
+    @property
+    def pyi_type(self) -> str:
+        return 'int'
 
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
         if default_value:
@@ -158,6 +178,10 @@ class Int8Type(PrimitiveType):
     @property
     def ctypes_type(self) -> str:
         return 'ctypes.c_int8'
+
+    @property
+    def pyi_type(self) -> str:
+        return 'int'
 
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
         if default_value:
@@ -177,6 +201,10 @@ class Int16Type(PrimitiveType):
     def ctypes_type(self) -> str:
         return 'ctypes.c_int16'
 
+    @property
+    def pyi_type(self) -> str:
+        return 'int'
+
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
         if default_value:
             return f'{indent}short p{i} = t{i} ? PyLong_AsLong(t{i}) : {default_value};\n'
@@ -191,6 +219,10 @@ class Int32Type(PrimitiveType):
     @property
     def ctypes_type(self) -> str:
         return 'ctypes.c_int32'
+
+    @property
+    def pyi_type(self) -> str:
+        return 'int'
 
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
         if default_value:
@@ -209,6 +241,10 @@ class Int64Type(PrimitiveType):
     @property
     def ctypes_type(self) -> str:
         return 'ctypes.c_int64'
+
+    @property
+    def pyi_type(self) -> str:
+        return 'int'
 
 
 class FloatType(PrimitiveType):

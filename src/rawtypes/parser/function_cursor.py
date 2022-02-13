@@ -97,7 +97,7 @@ def write_pyx_method(type_map, pyx: io.IOBase, cursor: cindex.Cursor, method: ci
 
     # signature
     pyx.write(
-        f'    def {method.spelling}{self_cj(type_map.from_cursor(param.cursor.type, param.cursor).param(param.name, param.default_value, pyi=pyi) for param in params)}')
+        f'    def {method.spelling}{self_cj(type_map.from_cursor(param.cursor.type, param.cursor).param(param.name, param.default_value(use_filter=True), pyi=pyi) for param in params)}')
     pyx.write(f'->{result_t.result_typing(pyi=pyi)}:')
 
     if pyi:

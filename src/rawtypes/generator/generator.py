@@ -98,8 +98,7 @@ class Generator:
             #
             with (package_dir / f'{header.path.stem}.pyi').open('w') as pyi:
                 pyi.write('''import ctypes
-from . imgui_enum import *
-from typing import Any, Union, Tuple, TYpe, Iterable
+from typing import Any, Union, Tuple, Type, Iterable
 ''')
 
                 pyi.write(header.begin)

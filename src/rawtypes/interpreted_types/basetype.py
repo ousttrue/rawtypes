@@ -33,8 +33,12 @@ class BaseType:
         '''
         raise NotImplementedError()
 
+    @property
+    def pyi_type(self) -> str:
+        return self.ctypes_type
+
     def pyi_field(self, indent: str, name: str) -> str:
-        return f'{indent}{name}: {self.ctypes_type} # {self}\n'
+        return f'{indent}{name}: {self.pyi_type} # {self}'
 
     def ctypes_field(self, name: str) -> str:
         return f'("{name}", {self.ctypes_type}), # {self}'

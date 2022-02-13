@@ -108,6 +108,7 @@ class StructCursor(NamedTuple):
                     name = '_' + name
                 pyi.write(type_map.from_cursor(field.type, field.cursor).pyi_field(
                     '    ', field.name))
+                pyi.write('\n')
             pyi.write('\n')
 
         for k, v in flags.custom_fields.items():
