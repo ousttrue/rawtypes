@@ -255,6 +255,10 @@ class FloatType(PrimitiveType):
     def ctypes_type(self) -> str:
         return 'ctypes.c_float'
 
+    @property
+    def pyi_type(self) -> str:
+        return 'float'
+
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
         if default_value:
             return f'{indent}float p{i} = t{i} ? PyFloat_AsDouble(t{i}) : {default_value};\n'
@@ -272,6 +276,10 @@ class DoubleType(PrimitiveType):
     @property
     def ctypes_type(self) -> str:
         return 'ctypes.c_double'
+
+    @property
+    def pyi_type(self) -> str:
+        return 'float'
 
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
         if default_value:
