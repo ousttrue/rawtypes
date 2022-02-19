@@ -52,13 +52,6 @@ class BaseType:
         return f'("{name}", {self.ctypes_type}), # {self}'
 
     @property
-    def ctypes_result(self) -> str:
-        '''
-        ctypes.Structure の method の返り値の型
-        '''
-        return self.ctypes_type
-
-    @property
     def pyi_type(self) -> str:
         '''
         language-server でエラー表示になるのを回避する
@@ -78,13 +71,6 @@ class BaseType:
         function param
         '''
         raise NotImplementedError()
-
-    @property
-    def pyi_result(self) -> str:
-        '''
-        return
-        '''
-        return self.ctypes_result
 
     def cdef_param(self, indent: str, i: int, name: str) -> str:
         '''

@@ -15,10 +15,7 @@ def to_ctypes_method(cursor: cindex.Cursor, method: cindex.Cursor, type_manager:
 
     # signature
     w.write(f'def {method.spelling}(self, *args)')
-    if pyi:
-        w.write(f'->{result_t.pyi_result}:')
-    else:
-        w.write(f'->{result_t.ctypes_result}:')
+    w.write(f'->{result_t.ctypes_type}:')
 
     if pyi:
         w.write(' ...\n')
@@ -106,7 +103,7 @@ def write_pyi_function(type_map: TypeManager, pyx: io.IOBase, function: cindex.C
     pyx.write(
         f"def {prefix}{function.spelling}{overload}{cj(type_map.from_cursor(param.type, param.cursor).param(param.name, param.default_value(True), pyi=pyi) for param in params)}")
     # return type
-    pyx.write(f'->{result_t.pyi_result}:')
+    pyx.write(f'->{result_t.ctypes_type}:')
 
     if pyi:
         pyx.write(' ...\n')
@@ -149,7 +146,7 @@ def write_pyi_method(type_map: TypeManager, pyx: io.IOBase, cursor: cindex.Curso
     # signature
     pyx.write(
         f'    def {method.spelling}{self_cj(type_map.from_cursor(param.cursor.type, param.cursor).param(param.name, param.default_value(use_filter=True), pyi=pyi) for param in params)}')
-    pyx.write(f'->{result_t.pyi_result}:')
+    pyx.write(f'->{result_t.ctypes_type}:')
 
     if pyi:
         pyx.write(' ...\n')
