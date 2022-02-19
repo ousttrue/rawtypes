@@ -1,19 +1,5 @@
 from .basetype import BaseType
 
-TYPING_MAP = {
-    'ctypes.c_bool': 'bool',
-    'ctypes.c_uint8': 'int',
-    'ctypes.c_uint16': 'int',
-    'ctypes.c_uint32': 'int',
-    'ctypes.c_uint64': 'int',
-    'ctypes.c_int8': 'int',
-    'ctypes.c_int16': 'int',
-    'ctypes.c_int32': 'int',
-    'ctypes.c_int64': 'int',
-    'ctypes.c_float': 'float',
-    'ctypes.c_double': 'float',
-}
-
 
 class VoidType(BaseType):
     def __init__(self, is_const=False):
@@ -21,9 +7,6 @@ class VoidType(BaseType):
 
     @property
     def ctypes_type(self) -> str:
-        return 'None'
-
-    def result_typing(self, pyi: bool) -> str:
         return 'None'
 
     def cpp_result(self, indent: str, call: str) -> str:
@@ -34,28 +17,8 @@ class VoidType(BaseType):
 
 
 class PrimitiveType(BaseType):
-    def result_typing(self, pyi: bool) -> str:
-        if pyi:
-            return TYPING_MAP[self.ctypes_type]
-        else:
-            return self.ctypes_type
-
-    def param(self, name: str, default_value: str, pyi: bool) -> str:
-        if pyi:
-            return f'{name}: {TYPING_MAP[self.ctypes_type]}{default_value}'
-        else:
-            return f'{self.name} {name}{default_value}'
-
-    def cdef_param(self, indent: str, i: int, name: str) -> str:
-        return f'''{indent}# {self}
-{indent}cdef {self.name} p{i} = {name}
-'''
-
-    def cdef_result(self, indent: str, call: str) -> str:
-        return f'''{indent}# {self}
-{indent}cdef {self.name} value = {call}
-{indent}return value
-'''
+    def py_param(self, name: str, default_value: str, pyi: bool) -> str:
+        return f'{name}: {self.pyi_type}{default_value}'
 
 
 class BoolType(PrimitiveType):
@@ -72,7 +35,7 @@ class BoolType(PrimitiveType):
         else:
             return f'{indent}bool p{i} = t{i} == Py_True;\n'
 
-    def py_value(self, value: str):
+    def cpp_to_py(self, value: str):
         return f'({value} ? (Py_INCREF(Py_True), Py_True) : (Py_INCREF(Py_False), Py_False))'
 
 
@@ -94,7 +57,7 @@ class UInt8Type(PrimitiveType):
         else:
             return f'{indent}unsigned char p{i} = PyLong_AsUnsignedLong(t{i});\n'
 
-    def py_value(self, value: str):
+    def cpp_to_py(self, value: str):
         return f'PyLong_FromUnsignedLong({value})'
 
 
@@ -135,7 +98,7 @@ class UInt32Type(PrimitiveType):
         else:
             return f'{indent}unsigned int p{i} = PyLong_AsUnsignedLong(t{i});\n'
 
-    def py_value(self, value: str):
+    def cpp_to_py(self, value: str):
         return f'PyLong_FromUnsignedLong({value})'
 
 
@@ -189,7 +152,7 @@ class Int8Type(PrimitiveType):
         else:
             return f'{indent}char p{i} = PyLong_AsLong(t{i});\n'
 
-    def py_value(self, value: str):
+    def cpp_to_py(self, value: str):
         return f'PyLong_FromChar({value})'
 
 
@@ -230,7 +193,7 @@ class Int32Type(PrimitiveType):
         else:
             return f'{indent}int p{i} = PyLong_AsLong(t{i});\n'
 
-    def py_value(self, value: str) -> str:
+    def cpp_to_py(self, value: str) -> str:
         return f'PyLong_FromLong({value})'
 
 
@@ -265,7 +228,7 @@ class FloatType(PrimitiveType):
         else:
             return f'{indent}float p{i} = PyFloat_AsDouble(t{i});\n'
 
-    def py_value(self, value: str) -> str:
+    def cpp_to_py(self, value: str) -> str:
         return f'PyFloat_FromDouble({value})'
 
 
@@ -287,7 +250,7 @@ class DoubleType(PrimitiveType):
         else:
             return f'{indent}float p{i} = PyFloat_AsDouble(t{i});\n'
 
-    def py_value(self, value: str) -> str:
+    def cpp_to_py(self, value: str) -> str:
         return f'PyFloat_FromDouble({value})'
 
 

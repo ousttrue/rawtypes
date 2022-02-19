@@ -9,7 +9,7 @@ from rawtypes.parser.type_context import ParamContext, TypeContext
 
 
 class ParamInfo(NamedTuple):
-    param: TypeContext
+    param: ParamContext
     type: BaseType
     default_value: str
 
@@ -23,7 +23,7 @@ class ParamInfo(NamedTuple):
         declara t0.
         PyObject *t0 = NULL;
         '''
-        return self.type.cpp_param_declare('', self.index, self.param.name)
+        return f'PyObject *t{self.index} = NULL; // {self.type}\n'
 
     @property
     def cpp_extract_name(self) -> str:
@@ -31,7 +31,7 @@ class ParamInfo(NamedTuple):
         load t0.
         &t0
         '''
-        return ", &" + self.type.cpp_extract_name(self.index)
+        return f", &t{self.index}"
 
     @property
     def cpp_from_py(self) -> str:
@@ -122,8 +122,8 @@ def to_c_method(env: Environment, c: cindex.Cursor, m: FunctionCursor, type_mana
 ''')
     w.write(extract)
 
-    extract_params = ', &py_this' + ''.join(', &' + t.cpp_extract_name(i)
-                                            for i, t in enumerate(types))
+    extract_params = ', &py_this' + ''.join(
+        f', &t{i}' for i, t in enumerate(types))
     w.write(
         f'{indent}if(!PyArg_ParseTuple(args, "{format}"{extract_params})) return NULL;\n')
 

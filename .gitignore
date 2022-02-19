@@ -9,3 +9,4 @@ __pycache__/
 _version.py
 .eggs
 /tmp/
+/docs/apidoc/

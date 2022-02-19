@@ -1,5 +1,4 @@
 import unittest
-import ctypes
 import pathlib
 import logging
 from rawtypes.generator.cpp_writer import to_c_function
@@ -18,7 +17,7 @@ class TestGenerator(unittest.TestCase):
         self.generator = rawtypes.generator.generator.Generator(
             Header(CINDEX_HEADER, include_dirs=[CINDEX_HEADER.parent.parent]))
         self.generator.type_manager.WRAP_TYPES.append(
-            WrapFlags('CXCursor', True)
+            WrapFlags('clang', 'CXCursor', True)
         )
 
     def test_clang_getNullCursor(self):
@@ -29,7 +28,7 @@ class TestGenerator(unittest.TestCase):
         f = self.generator.parser.get_function('clang_getNullCursor')
         self.assertIsNotNone(f)
 
-        s = to_c_function(f, self.generator.env, self.generator.type_manager)
+        s = to_c_function(self.generator.env, f, self.generator.type_manager)
         print(s)
 
     def test_clang_equalLocations(self):
@@ -40,7 +39,7 @@ class TestGenerator(unittest.TestCase):
         f = self.generator.parser.get_function('clang_equalLocations')
         self.assertIsNotNone(f)
 
-        s = to_c_function(f, self.generator.env, self.generator.type_manager)
+        s = to_c_function(self.generator.env, f, self.generator.type_manager)
         print(s)
 
         params = f.params

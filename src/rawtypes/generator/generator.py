@@ -5,13 +5,13 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 import pkg_resources
 
 from rawtypes.generator.cpp_writer import to_c_function, to_c_method
-from rawtypes.generator.py_writer import to_ctypes_iter
+from rawtypes.generator.py_writer import to_ctypes_iter, write_pyi_function, write_pyi_struct
 from ..parser.header import Header
 from ..parser import Parser
 from ..interpreted_types import *
 from ..parser.struct_cursor import StructCursor, WrapFlags
 from ..parser.typedef_cursor import TypedefCursor
-from ..parser.function_cursor import FunctionCursor, write_pyx_function
+from ..parser.function_cursor import FunctionCursor
 
 
 CTYPES_BEGIN = '''from typing import Iterable, Type, Tuple
@@ -186,11 +186,10 @@ from typing import Any, Union, Tuple, Type, Iterable
                     if typedef_or_struct.cursor.spelling == v.name:
                         match typedef_or_struct:
                             case TypedefCursor():
-                                typedef_or_struct.write_pyi(
-                                    pyi, flags=v)
+                                pass
                             case StructCursor():
-                                typedef_or_struct.write_pyi(
-                                    self.type_manager, pyi, flags=v)
+                                write_pyi_struct(
+                                    typedef_or_struct, self.type_manager, pyi, flags=v)
                             case _:
                                 raise Exception()
 
@@ -204,8 +203,8 @@ from typing import Any, Union, Tuple, Type, Iterable
 
                 name = typedef_or_struct.spelling
                 count = overload.get(name, 0) + 1
-                write_pyx_function(
-                    self.type_manager, pyi, typedef_or_struct.cursor, pyi=True, overload=count, prefix=header.prefix)
+                write_pyi_function(
+                    self.type_manager, pyi, typedef_or_struct.cursor, overload=count, prefix=header.prefix)
                 overload[name] = count
 
 

@@ -219,14 +219,13 @@ class TypeManager:
         last_format = None
         for param in f.params:
             t = self.from_cursor(param.type, param.cursor)
-            sio_extract.write(t.cpp_param_declare(
-                indent, param.index, param.name))
+            sio_extract.write(f'PyObject *t{param.index} = NULL;\n')
             types.append(t)
             d = param.default_value(use_filter=False)
             if not last_format and d:
                 format += '|'
             last_format = d
-            format += t.format
+            format += t.PyArg_ParseTuple_format
             if d:
                 d = d.split('=', maxsplit=1)[1]
             sio_cpp_from_py.write(t.cpp_from_py(

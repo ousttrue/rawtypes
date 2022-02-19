@@ -14,6 +14,8 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - run: pip install -r requirements.txt
+      - run: pip install -e .
+      - run: sphinx-autodoc -o docs/autodoc src/rawtypes --separate
       - run: sphinx-build docs _build
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3

@@ -127,9 +127,13 @@ class TestInterpretedTypes(unittest.TestCase):
         typedef Some SOME;
         void func(const SOME *p0);
         ''')
-        self.assertIsInstance(const_p, interpreted_types.PointerType)
-        self.assertIsInstance(const_p.base, interpreted_types.StructType)
-        self.assertIsNone(const_p.base.base)
+
+        match const_p:
+            case interpreted_types.PointerType():
+                self.assertIsInstance(
+                    const_p.base, interpreted_types.StructType)
+            case _:
+                raise RuntimeError()
 
 # typedef
 
