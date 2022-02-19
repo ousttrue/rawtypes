@@ -72,19 +72,14 @@ class BaseType:
         '''
         return 'const ' if self.is_const else ''
 
-    def cpp_extract_name(self, i: int):
-        return f't{i}'
-
-    def cpp_param_declare(self, indent: str, i: int, name) -> str:
-        return f'''{indent}// {self}
-{indent}PyObject *{self.cpp_extract_name(i)} = NULL;
-'''
-
     @property
     def PyArg_ParseTuple_format(self) -> str:
         return 'O'
 
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
+        '''
+        PyObject* から c/c++ の値を取り出す
+        '''
         raise NotImplementedError()
 
     def cpp_call_name(self, i: int):
@@ -92,14 +87,14 @@ class BaseType:
 
     def cpp_to_py(self, value: str):
         '''
-        c/c++ の値から PyObject を作る。
+        c/c++ の値から PyObject* を作る
         '''
         raise NotImplementedError()
 
     def cpp_result(self, indent: str, call: str) -> str:
         '''
         c/c++ の関数を呼び出す。
-        結果から PyObject を作って返す。
+        結果から PyObject* を作って返す。
         '''
         return f'''{indent}auto value = {call};
 {indent}PyObject* py_value = {self.cpp_to_py("value")};
