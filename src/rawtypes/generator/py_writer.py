@@ -92,7 +92,7 @@ def write_pyi_function(type_map: TypeManager, pyx: io.IOBase, function: cindex.C
 
     # signature
     pyx.write(
-        f"def {prefix}{function.spelling}{overload}{cj(type_map.from_cursor(param.type, param.cursor).param(param.name, param.default_value(True), pyi=True) for param in params)}")
+        f"def {prefix}{function.spelling}{overload}{cj(type_map.from_cursor(param.type, param.cursor).py_param(param.name, param.default_value(True), pyi=True) for param in params)}")
     # return type
     pyx.write(f'->{result_t.ctypes_type}:')
 
@@ -120,7 +120,7 @@ def write_pyi_method(type_map: TypeManager, pyx: io.IOBase, cursor: cindex.Curso
 
     # signature
     pyx.write(
-        f'    def {method.spelling}{self_cj(type_map.from_cursor(param.cursor.type, param.cursor).param(param.name, param.default_value(use_filter=True), pyi=True) for param in params)}')
+        f'    def {method.spelling}{self_cj(type_map.from_cursor(param.cursor.type, param.cursor).py_param(param.name, param.default_value(use_filter=True), pyi=True) for param in params)}')
     pyx.write(f'->{result_t.ctypes_type}:')
 
     pyx.write(' ...\n')

@@ -14,7 +14,7 @@ class TypedefType(BaseType):
         # TODO:
         return 'ctypes.c_void_p'  # function pointer
 
-    def param(self, name: str, default_value: str, pyi: bool) -> str:
+    def py_param(self, name: str, default_value: str, pyi: bool) -> str:
         return name + default_value
 
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
@@ -45,7 +45,7 @@ class StructType(BaseType):
         # anonymous
         return f'_{self.cursor.hash}'
 
-    def param(self, name: str, default_value: str, pyi: bool) -> str:
+    def py_param(self, name: str, default_value: str, pyi: bool) -> str:
         return name + default_value
 
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
@@ -67,7 +67,7 @@ class EnumType(BaseType):
     def __init__(self, name: str):
         super().__init__(name)
 
-    def param(self, name: str, default_value: str, pyi: bool) -> str:
+    def py_param(self, name: str, default_value: str, pyi: bool) -> str:
         return f'{name}: int{default_value}'
 
     @property

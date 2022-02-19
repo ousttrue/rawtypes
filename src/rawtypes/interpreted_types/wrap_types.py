@@ -19,7 +19,7 @@ class PointerToStructType(PointerType):
     def ctypes_field(self, name: str) -> str:
         return f'("{name}", ctypes.c_void_p), # {self}'
 
-    def param(self, name: str, default_value: str, pyi: bool) -> str:
+    def py_param(self, name: str, default_value: str, pyi: bool) -> str:
         return f'{name}: {self.ctypes_type}{default_value}'
 
     def py_value(self, value: str) -> str:
@@ -43,7 +43,7 @@ class ReferenceToStructType(ReferenceType):
     def ctypes_field(self, name: str) -> str:
         return f'("{name}", ctypes.c_void_p), # {self}'
 
-    def param(self, name: str, default_value: str, pyi: bool) -> str:
+    def py_param(self, name: str, default_value: str, pyi: bool) -> str:
         return f'{name}: {self.ctypes_type}{default_value}'
 
     def call_param(self, i: int) -> str:

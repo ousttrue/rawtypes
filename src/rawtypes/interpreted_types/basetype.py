@@ -66,6 +66,9 @@ class BaseType:
         '''
         return f'{indent}{name}: {self.pyi_type} # {self}'
 
+    def py_param(self, name: str, default_value: str, pyi: bool) -> str:
+        raise NotImplementedError()
+
     def call_param(self, i: int) -> str:
         return f'p{i}'
 

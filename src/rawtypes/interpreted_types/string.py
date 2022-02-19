@@ -13,7 +13,7 @@ class StringType(BaseType):
     def ctypes_type(self) -> str:
         return 'string'
 
-    def param(self, name: str, default_value: str, pyi: bool) -> str:
+    def py_param(self, name: str, default_value: str, pyi: bool) -> str:
         return f'{name}: str{default_value}'
 
     def py_value(self, value: str):
@@ -28,7 +28,7 @@ class CStringType(BaseType):
     def ctypes_type(self) -> str:
         return 'ctypes.c_void_p'
 
-    def param(self, name: str, default_value: str, pyi: bool) -> str:
+    def py_param(self, name: str, default_value: str, pyi: bool) -> str:
         return f'{name}: Union[bytes, str]{default_value}'
 
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
@@ -48,7 +48,7 @@ class CharPointerType(BaseType):
     def ctypes_type(self) -> str:
         return 'ctypes.c_void_p'
 
-    def param(self, name: str, default_value: str, pyi: bool) -> str:
+    def py_param(self, name: str, default_value: str, pyi: bool) -> str:
         return f'{name}: Union[bytes, str]{default_value}'
 
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
