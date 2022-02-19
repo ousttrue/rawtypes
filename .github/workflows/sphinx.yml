@@ -12,10 +12,13 @@ jobs:
     env:
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true
     steps:
-      - run: sudo apt-get install -y libclang
       - uses: actions/checkout@v1
+      - name: Install LLVM and Clang
+        uses: KyleMayes/install-llvm-action@v1
+        with:
+          version: "13.0"
+      - run: python setup.py
       - run: pip install -r requirements.txt
-      - run: pip install -e .
       - run: sphinx-autodoc -o docs/autodoc src/rawtypes --separate
       - run: sphinx-build docs _build
       - name: Deploy

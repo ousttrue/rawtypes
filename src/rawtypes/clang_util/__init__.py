@@ -43,9 +43,10 @@ def get_tu(entrypoint: str,
         cindex.Config.library_path = 'C:\\Program Files\\LLVM\\bin'
     elif platform.system() == 'Linux':
         # ubuntu
-        # apt install libclang1-13
+        # apt install libclang1-13        
         cindex.Config.library_path = '/usr/lib/x86_64-linux-gnu'
         cindex.Config.library_file = 'libclang-13.so'
+        
 
     index = cindex.Index.create()
     logger.debug(arguments)
