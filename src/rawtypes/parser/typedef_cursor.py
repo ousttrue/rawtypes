@@ -1,5 +1,4 @@
 from typing import NamedTuple, Tuple
-import io
 import re
 from rawtypes.clang import cindex
 
@@ -33,14 +32,3 @@ class TypedefCursor(NamedTuple):
     @property
     def underlying_type(self) -> cindex.Type:
         return self.cursor.underlying_typedef_type
-
-    def write_pxd(self, pxd: io.IOBase, *, excludes=()):
-        cursor = self.cursors[-1]
-        pxd.write(
-            f'    ctypedef {type_name(self.underlying_type.spelling, cursor.spelling)}\n')
-
-    def write_pyx_ctypes(self, pyx: io.IOBase, *, flags=None):
-        pass
-
-    def write_pyi(self, pyi: io.IOBase, *, flags=None):
-        pass

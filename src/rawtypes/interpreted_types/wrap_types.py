@@ -36,9 +36,6 @@ class PointerToStructType(PointerType):
 {indent}    return ctypes.cast(<uintptr_t>value, ctypes.POINTER({self.ctypes_type}))[0]
 '''
 
-    def result_typing(self, pyi: bool) -> str:
-        return f'{self.ctypes_type}'
-
     def py_value(self, value: str) -> str:
         if self.wrap_type:
             return f'ctypes_cast(c_void_p({value}), "{self.base.name}", "{self.wrap_type.submodule}")'
@@ -78,9 +75,6 @@ class ReferenceToStructType(ReferenceType):
 {indent}cdef {self.const_prefix}impl.{self.ctypes_type} *value = &{call}
 {indent}return ctypes.cast(ctypes.c_void_p(<uintptr_t>value), ctypes.POINTER({self.ctypes_type}))[0]
 '''
-
-    def result_typing(self, pyi: bool) -> str:
-        return f'{self.ctypes_type}'
 
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
         if default_value:

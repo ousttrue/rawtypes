@@ -1,10 +1,10 @@
-from typing import Iterable
+from typing import Iterable, List
 import io
 from jinja2 import Environment
 from rawtypes.clang import cindex
 from rawtypes.interpreted_types import TypeManager
 from rawtypes.parser.struct_cursor import StructCursor, WrapFlags
-from rawtypes.parser.type_context import ParamContext, ResultContext, TypeContext
+from rawtypes.parser.type_context import FieldContext, ParamContext, ResultContext, TypeContext
 
 
 def to_ctypes_method(cursor: cindex.Cursor, method: cindex.Cursor, type_manager: TypeManager, *, pyi=False) -> str:
@@ -15,7 +15,10 @@ def to_ctypes_method(cursor: cindex.Cursor, method: cindex.Cursor, type_manager:
 
     # signature
     w.write(f'def {method.spelling}(self, *args)')
-    w.write(f'->{result_t.result_typing(pyi=pyi)}:')
+    if pyi:
+        w.write(f'->{result_t.pyi_result}:')
+    else:
+        w.write(f'->{result_t.ctypes_result}:')
 
     if pyi:
         w.write(' ...\n')
@@ -74,3 +77,139 @@ def to_ctypes_iter(env: Environment, s: StructCursor, flags: WrapFlags, type_man
         custom_fields=[v for _, v in flags.custom_fields.items()],
         methods=methods
     )
+
+
+def extract_parameters(type_map: TypeManager, pyx: io.IOBase, params: List[ParamContext], indent: str) -> List[str]:
+    param_names = []
+    for i, param in enumerate(params):
+        t = type_map.from_cursor(param.cursor.type, param.cursor)
+        pyx.write(f'{t.cdef_param(indent, i, param.name)}')
+        param_names.append(t.call_param(i))
+    return param_names
+
+
+def cj(src: Iterable[str]) -> str:
+    '''
+    comma join
+    '''
+    return '(' + ', '.join(src) + ')'
+
+
+def write_pyi_function(type_map: TypeManager, pyx: io.IOBase, function: cindex.Cursor, *, pyi=False, overload=1, prefix=''):
+    result = ResultContext(function)
+    result_t = type_map.from_cursor(result.type, result.cursor)
+    params = ParamContext.get_function_params(function)
+
+    overload = '' if overload == 1 else f'_{overload}'
+
+    # signature
+    pyx.write(
+        f"def {prefix}{function.spelling}{overload}{cj(type_map.from_cursor(param.type, param.cursor).param(param.name, param.default_value(True), pyi=pyi) for param in params)}")
+    # return type
+    pyx.write(f'->{result_t.pyi_result}:')
+
+    if pyi:
+        pyx.write(' ...\n')
+        return
+
+    pyx.write('\n')
+
+    indent = '    '
+
+    # cdef parameters
+    param_names = extract_parameters(type_map, pyx, params, indent)
+
+    # body
+    call = f'impl.{function.spelling}{cj(param_names)}'
+    if result.is_void:
+        pyx.write(f'{indent}{call}\n')
+    else:
+        pyx.write(result_t.cdef_result(indent, call))
+    pyx.write('\n')
+
+
+def self_cj(src: Iterable[str]) -> str:
+    '''
+    comma join
+    '''
+    sio = io.StringIO()
+    sio.write('(self')
+    for x in src:
+        sio.write(', ')
+        sio.write(x)
+    sio.write(')')
+    return sio.getvalue()
+
+
+def write_pyi_method(type_map: TypeManager, pyx: io.IOBase, cursor: cindex.Cursor, method: cindex.Cursor, *, pyi=False):
+    params = ParamContext.get_function_params(method)
+    result = ResultContext(method)
+    result_t = type_map.from_cursor(result.type, result.cursor)
+
+    # signature
+    pyx.write(
+        f'    def {method.spelling}{self_cj(type_map.from_cursor(param.cursor.type, param.cursor).param(param.name, param.default_value(use_filter=True), pyi=pyi) for param in params)}')
+    pyx.write(f'->{result_t.pyi_result}:')
+
+    if pyi:
+        pyx.write(' ...\n')
+        return
+
+    pyx.write('\n')
+
+    indent = '        '
+
+    # self to ptr
+    pyx.write(
+        f'{indent}cdef impl.{cursor.spelling} *ptr = <impl.{cursor.spelling}*><uintptr_t>ctypes.addressof(self)\n')
+
+    # cdef parameters
+    param_names = extract_parameters(type_map, pyx, params, indent)
+
+    # body
+    call = f'ptr.{method.spelling}{cj(param_names)}'
+    if result.is_void:
+        pyx.write(f'{indent}{call}\n')
+    else:
+        pyx.write(result_t.cdef_result(indent, call))
+    pyx.write('\n')
+
+
+def write_pyi_struct(self: StructCursor, type_map, pyi: io.IOBase, *, flags: WrapFlags = WrapFlags('', '')):
+    cursor = self.cursors[-1]
+
+    definition = cursor.get_definition()
+    if definition and definition != cursor:
+        # skip forward decl
+        return
+
+    pyi.write(f'class {cursor.spelling}(ctypes.Structure):\n')
+    fields = FieldContext.get_struct_fields(cursor) if flags.fields else []
+    if fields:
+        for field in fields:
+            name = field.name
+            if flags.custom_fields.get(name):
+                name = '_' + name
+            pyi.write(type_map.from_cursor(field.type, field.cursor).pyi_field(
+                '    ', field.name))
+            pyi.write('\n')
+        pyi.write('\n')
+
+    for k, v in flags.custom_fields.items():
+        pyi.write('    @property\n')
+        l = next(iter(v.splitlines()))
+        pyi.write(f'    {l} ...\n')
+
+    methods = FieldContext.get_struct_methods(
+        cursor, includes=flags.methods)
+    if methods:
+        for method in methods:
+            write_pyi_method(
+                type_map, pyi, cursor, method, pyi=True)
+
+    for custom in flags.custom_methods:
+        l = next(iter(custom.splitlines()))
+        pyi.write(f'    {l} ...\n')
+
+    if not fields and not methods:
+        pyi.write('    pass\n\n')

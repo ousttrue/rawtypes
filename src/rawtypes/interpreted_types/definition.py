@@ -9,9 +9,6 @@ class TypedefType(BaseType):
         super().__init__(name, is_const)
         self.base = base
 
-    def result_typing(self, pyi: bool) -> str:
-        return self.name
-
     @property
     def ctypes_type(self) -> str:
         # TODO:
@@ -59,9 +56,6 @@ class StructType(BaseType):
         # anonymous
         return f'_{self.cursor.hash}'
 
-    def result_typing(self, pyi: bool) -> str:
-        return self.cursor.spelling
-
     def param(self, name: str, default_value: str, pyi: bool) -> str:
         return name + default_value
 
@@ -107,7 +101,7 @@ class EnumType(BaseType):
         return 'ctypes.c_int'
 
     @property
-    def result_typing(self) -> str:
+    def pyi_type(self) -> str:
         return 'int'
 
     def cdef_result(self, indent: str, call: str) -> str:

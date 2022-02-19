@@ -26,9 +26,6 @@ class StringType(BaseType):
 {indent}    p{i} = pp{i}
 '''
 
-    def result_typing(self, pyi: bool) -> str:
-        return 'string'
-
     def cdef_result(self, indent: str, call: str) -> str:
         return f'''{indent}# {self}
 {indent}return {call}
@@ -59,9 +56,6 @@ class CStringType(BaseType):
 {indent}    p{i} = <const char *>pp{i}
 '''
 
-    def result_typing(self, pyi: bool) -> str:
-        return 'bytes'
-
     def cdef_result(self, indent: str, call: str) -> str:
         return f'''{indent}# {self}
 {indent}return {call}
@@ -86,9 +80,6 @@ class CharPointerType(BaseType):
 
     def param(self, name: str, default_value: str, pyi: bool) -> str:
         return f'{name}: Union[bytes, str]{default_value}'
-
-    def result_typing(self, pyi: bool) -> str:
-        raise NotImplementedError()
 
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
         return f'{indent}char *p{i} = ctypes_get_pointer<char *>(t{i});\n'

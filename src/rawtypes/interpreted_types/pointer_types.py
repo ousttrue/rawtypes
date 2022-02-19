@@ -22,15 +22,12 @@ def add_impl(base: Optional[BaseType]) -> str:
 class PointerType(BaseType):
     def __init__(self, base: BaseType, is_const=False, name_override=None):
         super().__init__(name_override if name_override else base.name + '*', is_const)
+        if not base:
+            raise RuntimeError()
         self.base = base
-
-    def result_typing(self, pyi: bool) -> str:
-        return 'ctypes.c_void_p'
 
     @property
     def ctypes_type(self) -> str:
-        if not self.base:
-            raise RuntimeError()
         return f'ctypes.Array'
 
     def ctypes_field(self, name: str) -> str:
@@ -70,9 +67,6 @@ class ReferenceType(PointerType):
 
     def __init__(self, base: BaseType, is_const=False):
         super().__init__(base, is_const, name_override=base.name + '&')
-
-    def result_typing(self, pyi: bool) -> str:
-        return 'ctypes.c_void_p'
 
     @property
     def ctypes_type(self) -> str:
@@ -135,9 +129,6 @@ class ArrayType(PointerType):
 {indent}cdef {base_name} *p{i} = <{base_name}*><void*><uintptr_t>ctypes.addressof({name})
 '''
 
-    def result_typing(self, pyi: bool) -> str:
-        return 'ctypes.c_void_p'
-
 
 class RefenreceToStdArrayType(PointerType):
     size: int
@@ -166,6 +157,3 @@ class RefenreceToStdArrayType(PointerType):
 
     def call_param(self, i: int) -> str:
         return f'p{i}[0]'
-
-    def result_typing(self, pyi: bool) -> str:
-        return 'ctypes.c_void_p'
