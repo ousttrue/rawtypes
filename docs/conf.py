@@ -28,8 +28,13 @@ author = 'ousttrue'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "myst_parser"
+    "myst_parser",
+    'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',
 ]
+autodoc_default_options = {
+    'imported-members': True,
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -59,5 +64,6 @@ html_theme = 'furo'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
+
 def setup(app):
-  app.add_css_file('custom.css')
+    app.add_css_file('custom.css')

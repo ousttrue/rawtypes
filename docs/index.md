@@ -14,6 +14,11 @@ cindex/index
 examples/index
 ```
 
+```{toctree}
+:caption: apidoc
+apidoc/modules
+```
+
 ## 関連
 
 * [ClangのPython bindingを使ったC++の関数定義部の特定](https://qiita.com/subaru44k/items/4e69ec987547011d7e63)
@@ -25,4 +30,5 @@ examples/index
 ## Indices and tables
 
 -   {ref}`genindex`
+-   {ref}`modindex`
 -   {ref}`search`
