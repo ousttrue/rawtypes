@@ -80,7 +80,7 @@ def extract_parameters(type_map: TypeManager, pyx: io.IOBase, params: List[Param
     param_names = []
     for i, param in enumerate(params):
         t = type_map.from_cursor(param.cursor.type, param.cursor)
-        pyx.write(f'{t.cdef_param(indent, i, param.name)}')
+        pyx.write(f'{t.py_param(indent, i, param.name)}')
         param_names.append(t.call_param(i))
     return param_names
 

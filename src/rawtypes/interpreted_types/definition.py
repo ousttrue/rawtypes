@@ -17,7 +17,7 @@ class TypedefType(BaseType):
     def param(self, name: str, default_value: str, pyi: bool) -> str:
         return name + default_value
 
-    def cdef_param(self, indent: str, i: int, name: str) -> str:
+    def py_param(self, indent: str, i: int, name: str) -> str:
 
         return f'''{indent}# {self}
 {indent}cdef impl.{self.name} p{i} = <impl.{self.name}><uintptr_t>{name}
@@ -59,7 +59,7 @@ class StructType(BaseType):
     def param(self, name: str, default_value: str, pyi: bool) -> str:
         return name + default_value
 
-    def cdef_param(self, indent: str, i: int, name: str) -> str:
+    def py_param(self, indent: str, i: int, name: str) -> str:
         return f'''{indent}# {self}
 {indent}cdef p{i} = {name}
 '''
@@ -92,7 +92,7 @@ class EnumType(BaseType):
     def param(self, name: str, default_value: str, pyi: bool) -> str:
         return f'{name}: int{default_value}'
 
-    def cdef_param(self, indent: str, i: int, name: str) -> str:
+    def py_param(self, indent: str, i: int, name: str) -> str:
         enum_name = self.name.split('::')[-1]
         return f'{indent}cdef impl.{enum_name} p{i} = <impl.{enum_name}>{name}\n'
 

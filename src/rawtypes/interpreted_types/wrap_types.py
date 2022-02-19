@@ -22,7 +22,7 @@ class PointerToStructType(PointerType):
     def param(self, name: str, default_value: str, pyi: bool) -> str:
         return f'{name}: {self.ctypes_type}{default_value}'
 
-    def cdef_param(self, indent: str, i: int, name: str) -> str:
+    def py_param(self, indent: str, i: int, name: str) -> str:
         return f'''{indent}# {self}
 {indent}cdef impl.{self.ctypes_type} *p{i} = NULL
 {indent}if {name}:
@@ -60,7 +60,7 @@ class ReferenceToStructType(ReferenceType):
     def param(self, name: str, default_value: str, pyi: bool) -> str:
         return f'{name}: {self.ctypes_type}{default_value}'
 
-    def cdef_param(self, indent: str, i: int, name: str) -> str:
+    def py_param(self, indent: str, i: int, name: str) -> str:
         return f'''{indent}# {self}
 {indent}cdef {self.const_prefix}impl.{self.ctypes_type} *p{i} = NULL
 {indent}if isinstance({name}, ctypes.Structure):

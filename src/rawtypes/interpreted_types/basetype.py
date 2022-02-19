@@ -66,13 +66,7 @@ class BaseType:
         '''
         return f'{indent}{name}: {self.pyi_type} # {self}'
 
-    def pyi_param(self, name: str, default_value: str, pyi: bool) -> str:
-        '''
-        function param
-        '''
-        raise NotImplementedError()
-
-    def cdef_param(self, indent: str, i: int, name: str) -> str:
+    def py_param(self, indent: str, i: int, name: str) -> str:
         '''
         extract params
         '''

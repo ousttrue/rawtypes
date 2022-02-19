@@ -36,7 +36,7 @@ class PointerType(BaseType):
     def param(self, name: str, default_value: str, pyi: bool) -> str:
         return f'{name}: Union[ctypes.c_void_p, ctypes.Array, ctypes.Structure]{default_value}'
 
-    def cdef_param(self, indent: str, i: int, name: str) -> str:
+    def py_param(self, indent: str, i: int, name: str) -> str:
         base_name = add_impl(self.base)
         return f'''{indent}# {self}
 {indent}cdef {base_name} *p{i};
@@ -78,7 +78,7 @@ class ReferenceType(PointerType):
     def param(self, name: str, default_value: str, pyi: bool) -> str:
         return f'{name}: {self.ctypes_type}{default_value}'
 
-    def cdef_param(self, indent: str, i: int, name: str) -> str:
+    def py_param(self, indent: str, i: int, name: str) -> str:
         base_name = add_impl(self.base)
         return f'''{indent}# {self}
 {indent}cdef {base_name} *p{i} = <{base_name} *><void*><uintptr_t>(ctypes.addressof({name}))
@@ -123,7 +123,7 @@ class ArrayType(PointerType):
     def param(self, name: str, default_value: str, pyi: bool) -> str:
         return f'{name}: ctypes.Array{default_value}'
 
-    def cdef_param(self, indent: str, i: int, name: str) -> str:
+    def py_param(self, indent: str, i: int, name: str) -> str:
         base_name = add_impl(self.base)
         return f'''{indent}# {self}
 {indent}cdef {base_name} *p{i} = <{base_name}*><void*><uintptr_t>ctypes.addressof({name})
@@ -147,7 +147,7 @@ class RefenreceToStdArrayType(PointerType):
     def param(self, name: str, default_value: str, pyi: bool) -> str:
         return f'{name}: ctypes.Array{default_value}'
 
-    def cdef_param(self, indent: str, i: int, name: str) -> str:
+    def py_param(self, indent: str, i: int, name: str) -> str:
         type_name = f'{self.const_prefix}{self.base.name}{self.size}'
         return f'''{indent}# {self}
 {indent}cdef {type_name} *p{i} = NULL
