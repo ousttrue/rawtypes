@@ -1,0 +1,7 @@
+rawtypes.interpreted\_types.primitive\_types module
+===================================================
+
+.. automodule:: rawtypes.interpreted_types.primitive_types
+   :members:
+   :undoc-members:
+   :show-inheritance:

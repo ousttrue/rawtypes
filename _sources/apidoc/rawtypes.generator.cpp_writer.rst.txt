@@ -1,0 +1,7 @@
+rawtypes.generator.cpp\_writer module
+=====================================
+
+.. automodule:: rawtypes.generator.cpp_writer
+   :members:
+   :undoc-members:
+   :show-inheritance:

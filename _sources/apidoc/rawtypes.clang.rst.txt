@@ -1,0 +1,19 @@
+rawtypes.clang package
+======================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   rawtypes.clang.cindex
+   rawtypes.clang.enumerations
+
+Module contents
+---------------
+
+.. automodule:: rawtypes.clang
+   :members:
+   :undoc-members:
+   :show-inheritance:

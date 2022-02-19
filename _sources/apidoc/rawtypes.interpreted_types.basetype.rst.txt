@@ -1,0 +1,7 @@
+rawtypes.interpreted\_types.basetype module
+===========================================
+
+.. automodule:: rawtypes.interpreted_types.basetype
+   :members:
+   :undoc-members:
+   :show-inheritance:

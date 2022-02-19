@@ -1,0 +1,24 @@
+rawtypes.parser package
+=======================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   rawtypes.parser.enum_cursor
+   rawtypes.parser.function_cursor
+   rawtypes.parser.header
+   rawtypes.parser.parser
+   rawtypes.parser.struct_cursor
+   rawtypes.parser.type_context
+   rawtypes.parser.typedef_cursor
+
+Module contents
+---------------
+
+.. automodule:: rawtypes.parser
+   :members:
+   :undoc-members:
+   :show-inheritance:

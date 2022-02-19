@@ -1,0 +1,30 @@
+rawtypes package
+================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   rawtypes.clang
+   rawtypes.clang_util
+   rawtypes.generator
+   rawtypes.interpreted_types
+   rawtypes.parser
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   rawtypes.vcenv
+
+Module contents
+---------------
+
+.. automodule:: rawtypes
+   :members:
+   :undoc-members:
+   :show-inheritance:

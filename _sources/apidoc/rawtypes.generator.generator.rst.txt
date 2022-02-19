@@ -1,0 +1,7 @@
+rawtypes.generator.generator module
+===================================
+
+.. automodule:: rawtypes.generator.generator
+   :members:
+   :undoc-members:
+   :show-inheritance:

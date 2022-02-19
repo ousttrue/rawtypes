@@ -1,0 +1,7 @@
+rawtypes.parser.typedef\_cursor module
+======================================
+
+.. automodule:: rawtypes.parser.typedef_cursor
+   :members:
+   :undoc-members:
+   :show-inheritance:

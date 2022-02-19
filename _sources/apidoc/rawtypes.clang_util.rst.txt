@@ -1,0 +1,18 @@
+rawtypes.clang\_util package
+============================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   rawtypes.clang_util.generate_cindex_stub
+
+Module contents
+---------------
+
+.. automodule:: rawtypes.clang_util
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+rawtypes.clang\_util.generate\_cindex\_stub module
+==================================================
+
+.. automodule:: rawtypes.clang_util.generate_cindex_stub
+   :members:
+   :undoc-members:
+   :show-inheritance:

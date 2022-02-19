@@ -1,0 +1,7 @@
+rawtypes.parser.struct\_cursor module
+=====================================
+
+.. automodule:: rawtypes.parser.struct_cursor
+   :members:
+   :undoc-members:
+   :show-inheritance:

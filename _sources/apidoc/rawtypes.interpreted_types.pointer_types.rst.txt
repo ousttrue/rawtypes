@@ -1,0 +1,7 @@
+rawtypes.interpreted\_types.pointer\_types module
+=================================================
+
+.. automodule:: rawtypes.interpreted_types.pointer_types
+   :members:
+   :undoc-members:
+   :show-inheritance:

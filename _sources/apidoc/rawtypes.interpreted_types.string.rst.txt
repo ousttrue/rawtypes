@@ -1,0 +1,7 @@
+rawtypes.interpreted\_types.string module
+=========================================
+
+.. automodule:: rawtypes.interpreted_types.string
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+rawtypes.parser.enum\_cursor module
+===================================
+
+.. automodule:: rawtypes.parser.enum_cursor
+   :members:
+   :undoc-members:
+   :show-inheritance:

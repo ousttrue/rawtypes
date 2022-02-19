@@ -1,0 +1,7 @@
+rawtypes.generator.py\_writer module
+====================================
+
+.. automodule:: rawtypes.generator.py_writer
+   :members:
+   :undoc-members:
+   :show-inheritance:

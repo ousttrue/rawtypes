@@ -1,0 +1,7 @@
+rawtypes.clang.cindex module
+============================
+
+.. automodule:: rawtypes.clang.cindex
+   :members:
+   :undoc-members:
+   :show-inheritance:

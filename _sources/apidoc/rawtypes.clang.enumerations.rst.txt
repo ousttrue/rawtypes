@@ -1,0 +1,7 @@
+rawtypes.clang.enumerations module
+==================================
+
+.. automodule:: rawtypes.clang.enumerations
+   :members:
+   :undoc-members:
+   :show-inheritance:

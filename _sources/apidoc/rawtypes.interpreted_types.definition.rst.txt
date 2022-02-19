@@ -1,0 +1,7 @@
+rawtypes.interpreted\_types.definition module
+=============================================
+
+.. automodule:: rawtypes.interpreted_types.definition
+   :members:
+   :undoc-members:
+   :show-inheritance:

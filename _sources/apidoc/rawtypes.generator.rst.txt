@@ -1,0 +1,20 @@
+rawtypes.generator package
+==========================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   rawtypes.generator.cpp_writer
+   rawtypes.generator.generator
+   rawtypes.generator.py_writer
+
+Module contents
+---------------
+
+.. automodule:: rawtypes.generator
+   :members:
+   :undoc-members:
+   :show-inheritance:

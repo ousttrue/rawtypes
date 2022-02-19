@@ -1,0 +1,7 @@
+rawtypes.parser.type\_context module
+====================================
+
+.. automodule:: rawtypes.parser.type_context
+   :members:
+   :undoc-members:
+   :show-inheritance:
