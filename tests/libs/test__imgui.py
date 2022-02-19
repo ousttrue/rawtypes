@@ -30,4 +30,4 @@ class TestImGuiParse(unittest.TestCase):
             loader=PackageLoader("rawtypes.generator"),
         )
 
-        print(to_c_method(s.cursor, m, env, type_manager))
+        print(to_c_method(env, s.cursor, m, type_manager))

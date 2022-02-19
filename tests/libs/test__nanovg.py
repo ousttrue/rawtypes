@@ -29,7 +29,7 @@ class TestNanoVG(unittest.TestCase):
         self.assertEqual(1, len(fields))
 
         type_manager = TypeManager()
-        flag = WrapFlags('NVGcolor', fields=True)
+        flag = WrapFlags('nanovg', 'NVGcolor', fields=True)
 
         env = Environment(
             loader=PackageLoader("rawtypes.generator"),
