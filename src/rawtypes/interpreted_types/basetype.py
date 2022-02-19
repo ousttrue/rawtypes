@@ -1,19 +1,31 @@
 from typing import Optional
-import dataclasses
 
 
 class BaseType:
-    __match_args__ = ("name", "is_const", "base")
+    '''
+    コード生成時の型ごとの変換ルールを定義する。
 
-    def __init__(self, name: str, *, is_const: bool = False, base: Optional['BaseType'] = None) -> None:
+    Extension を実装する c/c++ の表現、
+    ctypes.Structure のフィールド表現、
+    language-server 向けの pyi 表現をサポートする。
+
+    それぞれについて、関数の引数、返り値、Structのフィールドのコンテキストがある。
+    `c/c++` に関しては、
+    `PyObjct*` 型のローカル変数への展開、
+    `PyObjct*` 型のローカル変数から `c/c++` の値の取り出し、
+    取り出した変数を用いた関数呼び出し、
+    `void` 以外の関数の実行結果を `PyObject*` にパックする追加のコンテキストがある。
+    '''
+    __match_args__ = ("name", "is_const")
+
+    def __init__(self, name: str, is_const: bool = False) -> None:
         self.name = name
         self.is_const = is_const
-        self.base = base
 
     def __eq__(self, __o: object) -> bool:
         match __o:
-            case BaseType(name, is_const, base):
-                return name == self.name and is_const == self.is_const and base == self.base
+            case BaseType(name, is_const):
+                return name == self.name and is_const == self.is_const
         return False
 
     def __str__(self) -> str:
@@ -21,10 +33,10 @@ class BaseType:
 
     @property
     def const_prefix(self) -> str:
-        is_const = self.is_const
-        if self.base and self.base.is_const:
-            is_const = True
-        return 'const ' if is_const else ''
+        '''
+        ex: const char *
+        '''
+        return 'const ' if self.is_const else ''
 
     @property
     def ctypes_type(self) -> str:
@@ -33,17 +45,28 @@ class BaseType:
         '''
         raise NotImplementedError()
 
+    def ctypes_field(self, name: str) -> str:
+        '''
+        ctypes.Structure の _field_ の中身。
+        '''
+        return f'("{name}", {self.ctypes_type}), # {self}'
+
     @property
     def pyi_type(self) -> str:
+        '''
+        language-server でエラー表示になるのを回避する
+
+        ex: ctypes.c_int32 => int
+        '''
         return self.ctypes_type
 
     def pyi_field(self, indent: str, name: str) -> str:
+        '''
+        pyi のフィールド
+        '''
         return f'{indent}{name}: {self.pyi_type} # {self}'
 
-    def ctypes_field(self, name: str) -> str:
-        return f'("{name}", {self.ctypes_type}), # {self}'
-
-    def param(self, name: str, default_value: str, pyi: bool) -> str:
+    def pyi_param(self, name: str, default_value: str, pyi: bool) -> str:
         '''
         function param
         '''

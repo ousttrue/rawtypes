@@ -5,6 +5,10 @@ from ..parser.struct_cursor import WrapFlags
 
 
 class TypedefType(BaseType):
+    def __init__(self, name: str, base: BaseType, is_const: bool = False) -> None:
+        super().__init__(name, is_const)
+        self.base = base
+
     def result_typing(self, pyi: bool) -> str:
         return self.name
 

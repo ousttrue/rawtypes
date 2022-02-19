@@ -120,7 +120,7 @@ class StructCursor(NamedTuple):
             cursor, includes=flags.methods)
         if methods:
             for method in methods:
-                function_cursor.write_pyx_method(
+                function_cursor.write_pyi_method(
                     type_map, pyi, cursor, method, pyi=True)
 
         for custom in flags.custom_methods:

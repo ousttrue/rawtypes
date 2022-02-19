@@ -20,8 +20,9 @@ def add_impl(base: Optional[BaseType]) -> str:
 
 
 class PointerType(BaseType):
-    def __init__(self, base: BaseType, is_const=False):
-        super().__init__(base.name + '*', base=base, is_const=is_const)
+    def __init__(self, base: BaseType, is_const=False, name_override=None):
+        super().__init__(name_override if name_override else base.name + '*', is_const)
+        self.base = base
 
     def result_typing(self, pyi: bool) -> str:
         return 'ctypes.c_void_p'
@@ -68,8 +69,7 @@ class ReferenceType(PointerType):
     base: BaseType
 
     def __init__(self, base: BaseType, is_const=False):
-        super().__init__(base, is_const)
-        self.name = base.name + '&'
+        super().__init__(base, is_const, name_override=base.name + '&')
 
     def result_typing(self, pyi: bool) -> str:
         return 'ctypes.c_void_p'
@@ -114,9 +114,8 @@ class ArrayType(PointerType):
     size: int
 
     def __init__(self, base: BaseType, size: int, is_const=False):
-        super().__init__(base, is_const)
+        super().__init__(base, is_const, name_override=f'{base.name}[{size}]')
         self.size = size
-        self.name = f'{base.name}[{size}]'
 
     @property
     def ctypes_type(self) -> str:
@@ -140,11 +139,12 @@ class ArrayType(PointerType):
         return 'ctypes.c_void_p'
 
 
-class RefenreceToStdArrayType(BaseType):
+class RefenreceToStdArrayType(PointerType):
     size: int
 
     def __init__(self, base: BaseType, size: int, is_const=False):
-        super().__init__(f'{base.name}[{size}]', base=base, is_const=is_const)
+        super().__init__(base=base, is_const=is_const,
+                         name_override=f'{base.name}[{size}]')
         self.size = size
 
     @property

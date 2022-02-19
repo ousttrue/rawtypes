@@ -11,7 +11,7 @@ from ..parser import Parser
 from ..interpreted_types import *
 from ..parser.struct_cursor import StructCursor, WrapFlags
 from ..parser.typedef_cursor import TypedefCursor
-from ..parser.function_cursor import FunctionCursor, write_pyx_function
+from ..parser.function_cursor import FunctionCursor, write_pyi_function
 
 
 CTYPES_BEGIN = '''from typing import Iterable, Type, Tuple
@@ -204,7 +204,7 @@ from typing import Any, Union, Tuple, Type, Iterable
 
                 name = typedef_or_struct.spelling
                 count = overload.get(name, 0) + 1
-                write_pyx_function(
+                write_pyi_function(
                     self.type_manager, pyi, typedef_or_struct.cursor, pyi=True, overload=count, prefix=header.prefix)
                 overload[name] = count
 

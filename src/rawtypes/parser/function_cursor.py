@@ -57,7 +57,7 @@ def extract_parameters(type_map, pyx: io.IOBase, params: List[ParamContext], ind
     return param_names
 
 
-def write_pyx_function(type_map, pyx: io.IOBase, function: cindex.Cursor, *, pyi=False, overload=1, prefix=''):
+def write_pyi_function(type_map, pyx: io.IOBase, function: cindex.Cursor, *, pyi=False, overload=1, prefix=''):
     result = ResultContext(function)
     result_t = type_map.from_cursor(result.type, result.cursor)
     params = ParamContext.get_function_params(function)
@@ -90,7 +90,7 @@ def write_pyx_function(type_map, pyx: io.IOBase, function: cindex.Cursor, *, pyi
     pyx.write('\n')
 
 
-def write_pyx_method(type_map, pyx: io.IOBase, cursor: cindex.Cursor, method: cindex.Cursor, *, pyi=False):
+def write_pyi_method(type_map, pyx: io.IOBase, cursor: cindex.Cursor, method: cindex.Cursor, *, pyi=False):
     params = ParamContext.get_function_params(method)
     result = ResultContext(method)
     result_t = type_map.from_cursor(result.type, result.cursor)
