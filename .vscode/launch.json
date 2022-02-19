@@ -18,6 +18,7 @@
         {
             "name": "generate rawtypes.clang.cindex typings",
             "type": "python",
+            "python": "C:/Python39/python.exe",
             "request": "launch",
             "program": "${workspaceFolder}/src/rawtypes/clang_util/generate_cindex_stub.py",
             "args": [],

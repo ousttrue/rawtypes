@@ -30,11 +30,10 @@ class Parser:
             return False
 
         if location.file.name == self.entrypoint:
-            match cursor.kind:
-                case cindex.CursorKind.FUNCTION_DECL:
-                    self.functions.append(cursor_path)
-                case cindex.CursorKind.ENUM_DECL:
-                    self.enums.append(cursor_path)
+            if cursor.kind == cindex.CursorKind.FUNCTION_DECL:
+                self.functions.append(cursor_path)
+            elif cursor.kind == cindex.CursorKind.ENUM_DECL:
+                self.enums.append(cursor_path)
 
         return True
 
@@ -77,9 +76,8 @@ def generate_enum(w: io.IOBase, tu, functions: List[Tuple[cindex.Cursor, ...]]):
 
             children = []
             for child in c.get_children():
-                match child.kind:
-                    case cindex.CursorKind.ENUM_CONSTANT_DECL:
-                        children.append(child.spelling)
+                if child.kind == cindex.CursorKind.ENUM_CONSTANT_DECL:
+                    children.append(child.spelling)
 
             if len(children) > 1:
                 logger.debug(c.spelling)
@@ -108,19 +106,18 @@ def generate_instance(w: io.IOBase, obj: object):
     w.write(f'class {obj.__class__.__name__}:\n')
     for k, v in obj.__class__.__dict__.items():
         # print(k, v)
-        match v:
-            case types.FunctionType():
-                args = signature(v)
-                w.write(f'    def {k}{args}:')
-                if v.__doc__:
-                    w.write('\n        """')
-                    w.write(v.__doc__)
-                    w.write('"""\n')
-                    w.write('        ...\n')
-                else:
-                    w.write(' ...\n')
-            case property():
-                w.write(f'    {k}: Any\n')
+        if isinstance(v, types.FunctionType):
+            args = signature(v)
+            w.write(f'    def {k}{args}:')
+            if v.__doc__:
+                w.write('\n        """')
+                w.write(v.__doc__)
+                w.write('"""\n')
+                w.write('        ...\n')
+            else:
+                w.write(' ...\n')
+        elif isinstance(v, property):
+            w.write(f'    {k}: Any\n')
     w.write('\n')
 
 
