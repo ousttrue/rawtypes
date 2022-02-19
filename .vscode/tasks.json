@@ -6,7 +6,14 @@
         {
             "label": "sphinx-autobuild",
             "type": "shell",
-            "command": "C:/Python310/Scripts/sphinx-autobuild docs _build --open-browser --port=0",
+            "command": "sphinx-autobuild docs _build --open-browser --port=0",
+            "problemMatcher": [],
+            "isBackground": true
+        },
+        {
+            "label": "sphinx-apidoc",
+            "type": "shell",
+            "command": "sphinx-apidoc -f --separate -o docs/apidoc src/rawtypes",
             "problemMatcher": [],
             "isBackground": true
         }

@@ -16,6 +16,7 @@ examples/index
 
 ```{toctree}
 :caption: apidoc
+:maxdepth: 1
 apidoc/modules
 ```
 
