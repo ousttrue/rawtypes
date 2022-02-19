@@ -76,15 +76,6 @@ def to_ctypes_iter(env: Environment, s: StructCursor, flags: WrapFlags, type_man
     )
 
 
-def extract_parameters(type_map: TypeManager, pyx: io.IOBase, params: List[ParamContext], indent: str) -> List[str]:
-    param_names = []
-    for i, param in enumerate(params):
-        t = type_map.from_cursor(param.cursor.type, param.cursor)
-        pyx.write(f'{t.py_param(indent, i, param.name)}')
-        param_names.append(t.call_param(i))
-    return param_names
-
-
 def cj(src: Iterable[str]) -> str:
     '''
     comma join
@@ -92,7 +83,7 @@ def cj(src: Iterable[str]) -> str:
     return '(' + ', '.join(src) + ')'
 
 
-def write_pyi_function(type_map: TypeManager, pyx: io.IOBase, function: cindex.Cursor, *, pyi=False, overload=1, prefix=''):
+def write_pyi_function(type_map: TypeManager, pyx: io.IOBase, function: cindex.Cursor, *, overload=1, prefix=''):
     result = ResultContext(function)
     result_t = type_map.from_cursor(result.type, result.cursor)
     params = ParamContext.get_function_params(function)
@@ -101,28 +92,12 @@ def write_pyi_function(type_map: TypeManager, pyx: io.IOBase, function: cindex.C
 
     # signature
     pyx.write(
-        f"def {prefix}{function.spelling}{overload}{cj(type_map.from_cursor(param.type, param.cursor).param(param.name, param.default_value(True), pyi=pyi) for param in params)}")
+        f"def {prefix}{function.spelling}{overload}{cj(type_map.from_cursor(param.type, param.cursor).param(param.name, param.default_value(True), pyi=True) for param in params)}")
     # return type
     pyx.write(f'->{result_t.ctypes_type}:')
 
-    if pyi:
-        pyx.write(' ...\n')
-        return
-
-    pyx.write('\n')
-
-    indent = '    '
-
-    # cdef parameters
-    param_names = extract_parameters(type_map, pyx, params, indent)
-
-    # body
-    call = f'impl.{function.spelling}{cj(param_names)}'
-    if result.is_void:
-        pyx.write(f'{indent}{call}\n')
-    else:
-        pyx.write(result_t.cdef_result(indent, call))
-    pyx.write('\n')
+    pyx.write(' ...\n')
+    return
 
 
 def self_cj(src: Iterable[str]) -> str:
@@ -138,38 +113,18 @@ def self_cj(src: Iterable[str]) -> str:
     return sio.getvalue()
 
 
-def write_pyi_method(type_map: TypeManager, pyx: io.IOBase, cursor: cindex.Cursor, method: cindex.Cursor, *, pyi=False):
+def write_pyi_method(type_map: TypeManager, pyx: io.IOBase, cursor: cindex.Cursor, method: cindex.Cursor):
     params = ParamContext.get_function_params(method)
     result = ResultContext(method)
     result_t = type_map.from_cursor(result.type, result.cursor)
 
     # signature
     pyx.write(
-        f'    def {method.spelling}{self_cj(type_map.from_cursor(param.cursor.type, param.cursor).param(param.name, param.default_value(use_filter=True), pyi=pyi) for param in params)}')
+        f'    def {method.spelling}{self_cj(type_map.from_cursor(param.cursor.type, param.cursor).param(param.name, param.default_value(use_filter=True), pyi=True) for param in params)}')
     pyx.write(f'->{result_t.ctypes_type}:')
 
-    if pyi:
-        pyx.write(' ...\n')
-        return
-
-    pyx.write('\n')
-
-    indent = '        '
-
-    # self to ptr
-    pyx.write(
-        f'{indent}cdef impl.{cursor.spelling} *ptr = <impl.{cursor.spelling}*><uintptr_t>ctypes.addressof(self)\n')
-
-    # cdef parameters
-    param_names = extract_parameters(type_map, pyx, params, indent)
-
-    # body
-    call = f'ptr.{method.spelling}{cj(param_names)}'
-    if result.is_void:
-        pyx.write(f'{indent}{call}\n')
-    else:
-        pyx.write(result_t.cdef_result(indent, call))
-    pyx.write('\n')
+    pyx.write(' ...\n')
+    return
 
 
 def write_pyi_struct(self: StructCursor, type_map, pyi: io.IOBase, *, flags: WrapFlags = WrapFlags('', '')):
@@ -202,7 +157,7 @@ def write_pyi_struct(self: StructCursor, type_map, pyi: io.IOBase, *, flags: Wra
     if methods:
         for method in methods:
             write_pyi_method(
-                type_map, pyi, cursor, method, pyi=True)
+                type_map, pyi, cursor, method)
 
     for custom in flags.custom_methods:
         l = next(iter(custom.splitlines()))

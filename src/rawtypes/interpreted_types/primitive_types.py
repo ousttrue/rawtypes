@@ -20,16 +20,6 @@ class PrimitiveType(BaseType):
     def param(self, name: str, default_value: str, pyi: bool) -> str:
         return f'{name}: {self.ctypes_type}{default_value}'
 
-    def py_param(self, indent: str, i: int, name: str) -> str:
-        return f'''{indent}# {self}
-{indent}cdef {self.name} p{i} = {name}
-'''
-
-    def cdef_result(self, indent: str, call: str) -> str:
-        return f'''{indent}# {self}
-{indent}cdef {self.name} value = {call}
-{indent}return value
-'''
 
 
 class BoolType(PrimitiveType):

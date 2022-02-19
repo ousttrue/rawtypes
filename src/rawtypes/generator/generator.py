@@ -204,7 +204,7 @@ from typing import Any, Union, Tuple, Type, Iterable
                 name = typedef_or_struct.spelling
                 count = overload.get(name, 0) + 1
                 write_pyi_function(
-                    self.type_manager, pyi, typedef_or_struct.cursor, pyi=True, overload=count, prefix=header.prefix)
+                    self.type_manager, pyi, typedef_or_struct.cursor, overload=count, prefix=header.prefix)
                 overload[name] = count
 
 

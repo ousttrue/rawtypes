@@ -22,20 +22,6 @@ class PointerToStructType(PointerType):
     def param(self, name: str, default_value: str, pyi: bool) -> str:
         return f'{name}: {self.ctypes_type}{default_value}'
 
-    def py_param(self, indent: str, i: int, name: str) -> str:
-        return f'''{indent}# {self}
-{indent}cdef impl.{self.ctypes_type} *p{i} = NULL
-{indent}if {name}:
-{indent}    p{i} = <impl.{self.ctypes_type}*><uintptr_t>ctypes.addressof({name})
-'''
-
-    def cdef_result(self, indent: str, call: str) -> str:
-        return f'''{indent}# {self}
-{indent}cdef impl.{self.ctypes_type} *value = {call}
-{indent}if value:
-{indent}    return ctypes.cast(<uintptr_t>value, ctypes.POINTER({self.ctypes_type}))[0]
-'''
-
     def py_value(self, value: str) -> str:
         if self.wrap_type:
             return f'ctypes_cast(c_void_p({value}), "{self.base.name}", "{self.wrap_type.submodule}")'
@@ -60,21 +46,8 @@ class ReferenceToStructType(ReferenceType):
     def param(self, name: str, default_value: str, pyi: bool) -> str:
         return f'{name}: {self.ctypes_type}{default_value}'
 
-    def py_param(self, indent: str, i: int, name: str) -> str:
-        return f'''{indent}# {self}
-{indent}cdef {self.const_prefix}impl.{self.ctypes_type} *p{i} = NULL
-{indent}if isinstance({name}, ctypes.Structure):
-{indent}    p{i} = <{self.const_prefix}impl.{self.ctypes_type} *><uintptr_t>ctypes.addressof({name})
-'''
-
     def call_param(self, i: int) -> str:
         return f'p{i}[0]'
-
-    def cdef_result(self, indent: str, call: str) -> str:
-        return f'''{indent}# {self}
-{indent}cdef {self.const_prefix}impl.{self.ctypes_type} *value = &{call}
-{indent}return ctypes.cast(ctypes.c_void_p(<uintptr_t>value), ctypes.POINTER({self.ctypes_type}))[0]
-'''
 
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
         if default_value:

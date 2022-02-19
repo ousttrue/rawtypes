@@ -17,17 +17,6 @@ class TypedefType(BaseType):
     def param(self, name: str, default_value: str, pyi: bool) -> str:
         return name + default_value
 
-    def py_param(self, indent: str, i: int, name: str) -> str:
-
-        return f'''{indent}# {self}
-{indent}cdef impl.{self.name} p{i} = <impl.{self.name}><uintptr_t>{name}
-'''
-
-    def cdef_result(self, indent: str, call: str) -> str:
-        return f'''{indent}# {self}
-{indent}return {call}
-'''
-
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
         if default_value:
             return f'{indent}{self.name} p{i} = t{i} ? ctypes_get_pointer<{self.name}>(t{i}) : {default_value};\n'
@@ -59,17 +48,6 @@ class StructType(BaseType):
     def param(self, name: str, default_value: str, pyi: bool) -> str:
         return name + default_value
 
-    def py_param(self, indent: str, i: int, name: str) -> str:
-        return f'''{indent}# {self}
-{indent}cdef p{i} = {name}
-'''
-
-    def cdef_result(self, indent: str, call: str) -> str:
-        return f'''{indent}# {self}
-{indent}cdef void* value = <void*>{call}
-{indent}return ctypes.c_void_p(value)
-'''
-
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
         if default_value:
             raise NotImplementedError()
@@ -92,10 +70,6 @@ class EnumType(BaseType):
     def param(self, name: str, default_value: str, pyi: bool) -> str:
         return f'{name}: int{default_value}'
 
-    def py_param(self, indent: str, i: int, name: str) -> str:
-        enum_name = self.name.split('::')[-1]
-        return f'{indent}cdef impl.{enum_name} p{i} = <impl.{enum_name}>{name}\n'
-
     @property
     def ctypes_type(self) -> str:
         return 'ctypes.c_int'
@@ -103,6 +77,3 @@ class EnumType(BaseType):
     @property
     def pyi_type(self) -> str:
         return 'int'
-
-    def cdef_result(self, indent: str, call: str) -> str:
-        return f'{indent}{call}\n'

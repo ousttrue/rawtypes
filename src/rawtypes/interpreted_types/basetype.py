@@ -66,20 +66,8 @@ class BaseType:
         '''
         return f'{indent}{name}: {self.pyi_type} # {self}'
 
-    def py_param(self, indent: str, i: int, name: str) -> str:
-        '''
-        extract params
-        '''
-        raise NotImplementedError()
-
     def call_param(self, i: int) -> str:
         return f'p{i}'
-
-    def cdef_result(self, indent: str, call: str) -> str:
-        '''
-        extract result
-        '''
-        raise NotImplementedError()
 
     def cpp_extract_name(self, i: int):
         return f't{i}'
