@@ -18,8 +18,7 @@ class VoidType(BaseType):
 
 class PrimitiveType(BaseType):
     def py_param(self, name: str, default_value: str, pyi: bool) -> str:
-        return f'{name}: {self.ctypes_type}{default_value}'
-
+        return f'{name}: {self.pyi_type}{default_value}'
 
 
 class BoolType(PrimitiveType):
