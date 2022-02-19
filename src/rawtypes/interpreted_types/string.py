@@ -16,7 +16,7 @@ class StringType(BaseType):
     def py_param(self, name: str, default_value: str, pyi: bool) -> str:
         return f'{name}: str{default_value}'
 
-    def py_value(self, value: str):
+    def cpp_to_py(self, value: str):
         return f'py_string({value})'
 
 
@@ -36,7 +36,7 @@ class CStringType(BaseType):
             default_value = 'nullptr'
         return f'{indent}const char *p{i} = get_cstring(t{i}, {default_value});\n'
 
-    def py_value(self, value: str) -> str:
+    def cpp_to_py(self, value: str) -> str:
         return f'PyUnicode_FromString({value})'
 
 
@@ -54,5 +54,5 @@ class CharPointerType(BaseType):
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
         return f'{indent}char *p{i} = ctypes_get_pointer<char *>(t{i});\n'
 
-    def py_value(self, value: str) -> str:
+    def cpp_to_py(self, value: str) -> str:
         raise NotImplementedError()

@@ -42,7 +42,7 @@ class PointerType(BaseType):
         else:
             return f'{indent}{self.base.const_prefix}{self.base.name} *p{i} = ctypes_get_pointer<{self.base.const_prefix}{self.base.name}*>(t{i});\n'
 
-    def py_value(self, value: str) -> str:
+    def cpp_to_py(self, value: str) -> str:
         return f'c_void_p({value})'
 
 
@@ -61,9 +61,6 @@ class ReferenceType(PointerType):
 
     def py_param(self, name: str, default_value: str, pyi: bool) -> str:
         return f'{name}: {self.ctypes_type}{default_value}'
-
-    def call_param(self, i: int) -> str:
-        return f'p{i}[0]'
 
     def cpp_call_name(self, i: int):
         return f'*p{i}'
@@ -112,6 +109,3 @@ class RefenreceToStdArrayType(PointerType):
 
     def py_param(self, name: str, default_value: str, pyi: bool) -> str:
         return f'{name}: ctypes.Array{default_value}'
-
-    def call_param(self, i: int) -> str:
-        return f'p{i}[0]'

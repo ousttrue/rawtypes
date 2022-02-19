@@ -1,4 +1,3 @@
-from typing import Optional
 
 
 class BaseType:
@@ -32,13 +31,6 @@ class BaseType:
         return f'{self.__class__.__name__}: {self.name}'
 
     @property
-    def const_prefix(self) -> str:
-        '''
-        ex: const char *
-        '''
-        return 'const ' if self.is_const else ''
-
-    @property
     def ctypes_type(self) -> str:
         '''
         ctypes.Structure fields
@@ -69,8 +61,16 @@ class BaseType:
     def py_param(self, name: str, default_value: str, pyi: bool) -> str:
         raise NotImplementedError()
 
-    def call_param(self, i: int) -> str:
-        return f'p{i}'
+    @property
+    def py_result(self) -> str:
+        return self.pyi_type
+
+    @property
+    def const_prefix(self) -> str:
+        '''
+        ex: const char *
+        '''
+        return 'const ' if self.is_const else ''
 
     def cpp_extract_name(self, i: int):
         return f't{i}'
@@ -81,7 +81,7 @@ class BaseType:
 '''
 
     @property
-    def format(self) -> str:
+    def PyArg_ParseTuple_format(self) -> str:
         return 'O'
 
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
@@ -90,11 +90,18 @@ class BaseType:
     def cpp_call_name(self, i: int):
         return f'p{i}'
 
-    def py_value(self, value: str):
+    def cpp_to_py(self, value: str):
+        '''
+        c/c++ の値から PyObject を作る。
+        '''
         raise NotImplementedError()
 
     def cpp_result(self, indent: str, call: str) -> str:
+        '''
+        c/c++ の関数を呼び出す。
+        結果から PyObject を作って返す。
+        '''
         return f'''{indent}auto value = {call};
-{indent}PyObject* py_value = {self.py_value("value")};
+{indent}PyObject* py_value = {self.cpp_to_py("value")};
 {indent}return py_value;
 '''

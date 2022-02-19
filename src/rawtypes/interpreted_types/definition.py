@@ -23,8 +23,8 @@ class TypedefType(BaseType):
         else:
             return f'{indent}{self.name} p{i} = ctypes_get_pointer<{self.name}>(t{i});\n'
 
-    def py_value(self, value: str) -> str:
-        return self.base.py_value(value)
+    def cpp_to_py(self, value: str) -> str:
+        return self.base.cpp_to_py(value)
 
 
 class StructType(BaseType):
@@ -57,7 +57,7 @@ class StructType(BaseType):
     def cpp_call_name(self, i: int):
         return f'*p{i}'
 
-    def py_value(self, value: str) -> str:
+    def cpp_to_py(self, value: str) -> str:
         if not self.wrap_type:
             raise NotImplemented("return by value. but no python type")
         return f'ctypes_copy({value}, "{self.name}", "nanovg")'

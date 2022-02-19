@@ -226,7 +226,7 @@ class TypeManager:
             if not last_format and d:
                 format += '|'
             last_format = d
-            format += t.format
+            format += t.PyArg_ParseTuple_format
             if d:
                 d = d.split('=', maxsplit=1)[1]
             sio_cpp_from_py.write(t.cpp_from_py(

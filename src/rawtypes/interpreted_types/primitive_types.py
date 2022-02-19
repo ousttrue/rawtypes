@@ -36,7 +36,7 @@ class BoolType(PrimitiveType):
         else:
             return f'{indent}bool p{i} = t{i} == Py_True;\n'
 
-    def py_value(self, value: str):
+    def cpp_to_py(self, value: str):
         return f'({value} ? (Py_INCREF(Py_True), Py_True) : (Py_INCREF(Py_False), Py_False))'
 
 
@@ -58,7 +58,7 @@ class UInt8Type(PrimitiveType):
         else:
             return f'{indent}unsigned char p{i} = PyLong_AsUnsignedLong(t{i});\n'
 
-    def py_value(self, value: str):
+    def cpp_to_py(self, value: str):
         return f'PyLong_FromUnsignedLong({value})'
 
 
@@ -99,7 +99,7 @@ class UInt32Type(PrimitiveType):
         else:
             return f'{indent}unsigned int p{i} = PyLong_AsUnsignedLong(t{i});\n'
 
-    def py_value(self, value: str):
+    def cpp_to_py(self, value: str):
         return f'PyLong_FromUnsignedLong({value})'
 
 
@@ -153,7 +153,7 @@ class Int8Type(PrimitiveType):
         else:
             return f'{indent}char p{i} = PyLong_AsLong(t{i});\n'
 
-    def py_value(self, value: str):
+    def cpp_to_py(self, value: str):
         return f'PyLong_FromChar({value})'
 
 
@@ -194,7 +194,7 @@ class Int32Type(PrimitiveType):
         else:
             return f'{indent}int p{i} = PyLong_AsLong(t{i});\n'
 
-    def py_value(self, value: str) -> str:
+    def cpp_to_py(self, value: str) -> str:
         return f'PyLong_FromLong({value})'
 
 
@@ -229,7 +229,7 @@ class FloatType(PrimitiveType):
         else:
             return f'{indent}float p{i} = PyFloat_AsDouble(t{i});\n'
 
-    def py_value(self, value: str) -> str:
+    def cpp_to_py(self, value: str) -> str:
         return f'PyFloat_FromDouble({value})'
 
 
@@ -251,7 +251,7 @@ class DoubleType(PrimitiveType):
         else:
             return f'{indent}float p{i} = PyFloat_AsDouble(t{i});\n'
 
-    def py_value(self, value: str) -> str:
+    def cpp_to_py(self, value: str) -> str:
         return f'PyFloat_FromDouble({value})'
 
 
