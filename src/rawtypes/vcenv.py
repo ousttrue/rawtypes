@@ -5,15 +5,16 @@ import os
 import subprocess
 
 # vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+if platform.system() == 'Windows':
+    VSWHERE = pathlib.Path(os.environ['ProgramFiles(x86)']) / \
+        'Microsoft Visual Studio/Installer/vswhere.exe'
+    VS = pathlib.Path(subprocess.run(
+        [VSWHERE, '-latest', '-products', '*', '-requires',
+            'Microsoft.VisualStudio.Component.VC.Tools.x86.x64', '-property', 'installationPath'],
+        shell=True, check=False, capture_output=True).stdout.decode('utf-8').strip())
+    VCBARS64 = VS / 'VC/Auxiliary/Build/vcvars64.bat'
+    print(VCBARS64)
 
-VSWHERE = pathlib.Path(os.environ['ProgramFiles(x86)']) / \
-    'Microsoft Visual Studio/Installer/vswhere.exe'
-VS = pathlib.Path(subprocess.run(
-    [VSWHERE, '-latest', '-products', '*', '-requires',
-        'Microsoft.VisualStudio.Component.VC.Tools.x86.x64', '-property', 'installationPath'],
-    shell=True, check=False, capture_output=True).stdout.decode('utf-8').strip())
-VCBARS64 = VS / 'VC/Auxiliary/Build/vcvars64.bat'
-print(VCBARS64)
 
 def decode(b: bytes) -> str:
     if platform.system() == 'Windows':
