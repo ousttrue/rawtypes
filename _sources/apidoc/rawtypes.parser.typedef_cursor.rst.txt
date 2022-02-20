@@ -1,7 +1,6 @@
 rawtypes.parser.typedef\_cursor module
 ======================================
 .. inheritance-diagram:: rawtypes.parser.typedef_cursor
-
    :parts: 1
 
 .. automodule:: rawtypes.parser.typedef_cursor

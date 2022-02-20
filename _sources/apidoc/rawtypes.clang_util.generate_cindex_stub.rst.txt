@@ -1,7 +1,6 @@
 rawtypes.clang\_util.generate\_cindex\_stub module
 ==================================================
 .. inheritance-diagram:: rawtypes.clang_util.generate_cindex_stub
-
    :parts: 1
 
 .. automodule:: rawtypes.clang_util.generate_cindex_stub

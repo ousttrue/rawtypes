@@ -1,7 +1,6 @@
 rawtypes.clang.cindex module
 ============================
 .. inheritance-diagram:: rawtypes.clang.cindex
-
    :parts: 1
 
 .. automodule:: rawtypes.clang.cindex

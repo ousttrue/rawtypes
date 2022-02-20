@@ -1,7 +1,6 @@
 rawtypes.interpreted\_types.wrap\_types module
 ==============================================
 .. inheritance-diagram:: rawtypes.interpreted_types.wrap_types
-
    :parts: 1
 
 .. automodule:: rawtypes.interpreted_types.wrap_types

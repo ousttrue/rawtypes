@@ -1,7 +1,6 @@
 rawtypes.interpreted\_types.primitive\_types module
 ===================================================
 .. inheritance-diagram:: rawtypes.interpreted_types.primitive_types
-
    :parts: 1
 
 .. automodule:: rawtypes.interpreted_types.primitive_types

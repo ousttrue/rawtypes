@@ -1,7 +1,6 @@
 rawtypes.generator.cpp\_writer module
 =====================================
 .. inheritance-diagram:: rawtypes.generator.cpp_writer
-
    :parts: 1
 
 .. automodule:: rawtypes.generator.cpp_writer

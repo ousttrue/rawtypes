@@ -1,7 +1,6 @@
 rawtypes.generator.py\_writer module
 ====================================
 .. inheritance-diagram:: rawtypes.generator.py_writer
-
    :parts: 1
 
 .. automodule:: rawtypes.generator.py_writer

@@ -1,7 +1,6 @@
 rawtypes.generator.generator module
 ===================================
 .. inheritance-diagram:: rawtypes.generator.generator
-
    :parts: 1
 
 .. automodule:: rawtypes.generator.generator

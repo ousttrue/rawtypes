@@ -1,7 +1,6 @@
 rawtypes.clang.enumerations module
 ==================================
 .. inheritance-diagram:: rawtypes.clang.enumerations
-
    :parts: 1
 
 .. automodule:: rawtypes.clang.enumerations

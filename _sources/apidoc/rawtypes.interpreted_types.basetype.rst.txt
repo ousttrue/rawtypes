@@ -1,7 +1,6 @@
 rawtypes.interpreted\_types.basetype module
 ===========================================
 .. inheritance-diagram:: rawtypes.interpreted_types.basetype
-
    :parts: 1
 
 .. automodule:: rawtypes.interpreted_types.basetype

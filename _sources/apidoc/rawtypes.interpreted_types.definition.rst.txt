@@ -1,7 +1,6 @@
 rawtypes.interpreted\_types.definition module
 =============================================
 .. inheritance-diagram:: rawtypes.interpreted_types.definition
-
    :parts: 1
 
 .. automodule:: rawtypes.interpreted_types.definition

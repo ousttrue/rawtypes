@@ -1,0 +1,4 @@
+<map id="inheritance4e8a0871c2" name="inheritance4e8a0871c2">
+<area shape="rect" id="node1" href="#rawtypes.parser.struct_cursor.StructCursor" target="_top" title="StructCursor(cursors, record, is_union)" alt="" coords="5,55,108,80"/>
+<area shape="rect" id="node2" href="#rawtypes.parser.struct_cursor.WrapFlags" target="_top" title="WrapFlags(submodule, name, fields, custom_fields, methods, custom_methods, default_constructor)" alt="" coords="11,5,102,31"/>
+</map>

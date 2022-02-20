@@ -1,7 +1,6 @@
 rawtypes.interpreted\_types.pointer\_types module
 =================================================
 .. inheritance-diagram:: rawtypes.interpreted_types.pointer_types
-
    :parts: 1
 
 .. automodule:: rawtypes.interpreted_types.pointer_types

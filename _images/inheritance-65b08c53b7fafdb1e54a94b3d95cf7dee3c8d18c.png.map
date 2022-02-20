@@ -1,0 +1,7 @@
+<map id="inheritance478b294cb7" name="inheritance478b294cb7">
+<area shape="rect" id="node1" href="rawtypes.interpreted_types.basetype.html#rawtypes.interpreted_types.basetype.BaseType" target="_top" title="コード生成時の型ごとの変換ルールを定義する。" alt="" coords="5,31,89,56"/>
+<area shape="rect" id="node3" href="rawtypes.interpreted_types.pointer_types.html#rawtypes.interpreted_types.pointer_types.PointerType" target="_top" title="PointerType" alt="" coords="137,31,236,56"/>
+<area shape="rect" id="node2" href="#rawtypes.interpreted_types.wrap_types.PointerToStructType" target="_top" title="PointerToStructType" alt="" coords="284,5,435,31"/>
+<area shape="rect" id="node5" href="rawtypes.interpreted_types.pointer_types.html#rawtypes.interpreted_types.pointer_types.ReferenceType" target="_top" title="ReferenceType" alt="" coords="300,55,419,80"/>
+<area shape="rect" id="node4" href="#rawtypes.interpreted_types.wrap_types.ReferenceToStructType" target="_top" title="ReferenceToStructType" alt="" coords="483,55,653,80"/>
+</map>
