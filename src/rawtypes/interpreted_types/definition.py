@@ -45,9 +45,6 @@ class StructType(BaseType):
         # anonymous
         return f'_{self.cursor.hash}'
 
-    def py_param(self, name: str, default_value: str, pyi: bool) -> str:
-        return name + default_value
-
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
         if default_value:
             raise NotImplementedError()
@@ -66,9 +63,6 @@ class StructType(BaseType):
 class EnumType(BaseType):
     def __init__(self, name: str):
         super().__init__(name)
-
-    def py_param(self, name: str, default_value: str, pyi: bool) -> str:
-        return f'{name}: int{default_value}'
 
     @property
     def ctypes_type(self) -> str:

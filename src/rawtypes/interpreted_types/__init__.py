@@ -11,7 +11,7 @@ from .primitive_types import VoidType
 from .pointer_types import PointerType, ReferenceType, ArrayType, RefenreceToStdArrayType
 from .wrap_types import PointerToStructType, ReferenceToStructType
 from .definition import StructType, TypedefType, EnumType
-from .string import StringType, CStringType, CharPointerType
+from .string import CppStringType, CStringType, CharPointerType
 
 
 class TypeWithCursor(NamedTuple):
@@ -116,7 +116,7 @@ class TypeManager:
 
         match c.spelling:
             case 'std::string' | 'const std::string &':
-                return StringType()
+                return CppStringType()
             case 'const char *':
                 return CStringType()
             case 'size_t':

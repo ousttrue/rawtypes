@@ -33,20 +33,22 @@ class BaseType:
     @property
     def ctypes_type(self) -> str:
         '''
-        ctypes.Structure fields
+        python type for `ctypes.Structure fields`
         '''
         raise NotImplementedError()
 
     def ctypes_field(self, name: str) -> str:
         '''
-        ctypes.Structure の _field_ の中身。
+        python type with name for a item of ctypes.Structure._field_
+
+        use ctypes_type.
         '''
         return f'("{name}", {self.ctypes_type}), # {self}'
 
     @property
     def pyi_type(self) -> str:
         '''
-        language-server でエラー表示になるのを回避する
+        rename python type for aoivd language-server error
 
         ex: ctypes.c_int32 => int
         '''
@@ -54,12 +56,19 @@ class BaseType:
 
     def pyi_field(self, indent: str, name: str) -> str:
         '''
-        pyi のフィールド
+        python type with name for a member of pyi class
+
+        use pyi_type.
         '''
         return f'{indent}{name}: {self.pyi_type} # {self}'
 
     def py_param(self, name: str, default_value: str, pyi: bool) -> str:
-        raise NotImplementedError()
+        '''
+        python type with name for a pyi function param
+
+        use pyi_type.
+        '''
+        return f'{name}: {self.pyi_type}{default_value}'
 
     @property
     def py_result(self) -> str:

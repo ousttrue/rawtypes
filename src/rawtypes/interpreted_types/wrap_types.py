@@ -19,9 +19,6 @@ class PointerToStructType(PointerType):
     def ctypes_field(self, name: str) -> str:
         return f'("{name}", ctypes.c_void_p), # {self}'
 
-    def py_param(self, name: str, default_value: str, pyi: bool) -> str:
-        return f'{name}: {self.ctypes_type}{default_value}'
-
     def cpp_to_py(self, value: str) -> str:
         if self.wrap_type:
             return f'ctypes_cast(c_void_p({value}), "{self.base.name}", "{self.wrap_type.submodule}")'
@@ -42,9 +39,6 @@ class ReferenceToStructType(ReferenceType):
 
     def ctypes_field(self, name: str) -> str:
         return f'("{name}", ctypes.c_void_p), # {self}'
-
-    def py_param(self, name: str, default_value: str, pyi: bool) -> str:
-        return f'{name}: {self.ctypes_type}{default_value}'
 
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
         if default_value:

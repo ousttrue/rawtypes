@@ -1,0 +1,12 @@
+{%- if show_headings %}
+{{- [basename, "module"] | join(' ') | e | heading }}
+.. inheritance-diagram:: {{basename}}
+
+   :parts: 1
+
+{% endif -%}
+.. automodule:: {{ qualname }}
+{%- for option in automodule_options %}
+   :{{ option }}:
+{%- endfor %}
+

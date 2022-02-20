@@ -33,8 +33,9 @@ class PointerType(BaseType):
     def ctypes_field(self, name: str) -> str:
         return f'("{name}", ctypes.c_void_p), # {self}'
 
-    def py_param(self, name: str, default_value: str, pyi: bool) -> str:
-        return f'{name}: Union[ctypes.c_void_p, ctypes.Array, ctypes.Structure]{default_value}'
+    @property
+    def pyi_type(self) -> str:
+        return 'Union[ctypes.c_void_p, ctypes.Array, ctypes.Structure, None]'
 
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
         if default_value:
@@ -58,9 +59,6 @@ class ReferenceType(PointerType):
 
     def ctypes_field(self, name: str) -> str:
         return f'("{name}", ctypes.c_void_p), # {self}'
-
-    def py_param(self, name: str, default_value: str, pyi: bool) -> str:
-        return f'{name}: {self.ctypes_type}{default_value}'
 
     def cpp_call_name(self, i: int):
         return f'*p{i}'
@@ -89,9 +87,6 @@ class ArrayType(PointerType):
     def ctypes_field(self, name: str) -> str:
         return f'("{name}", {self.ctypes_type}), # {self}'
 
-    def py_param(self, name: str, default_value: str, pyi: bool) -> str:
-        return f'{name}: ctypes.Array{default_value}'
-
 
 class RefenreceToStdArrayType(PointerType):
     size: int
@@ -106,6 +101,3 @@ class RefenreceToStdArrayType(PointerType):
         if not self.base:
             raise RuntimeError()
         return f'{self.base.ctypes_type} * {self.size}'
-
-    def py_param(self, name: str, default_value: str, pyi: bool) -> str:
-        return f'{name}: ctypes.Array{default_value}'

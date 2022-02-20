@@ -13,7 +13,7 @@
         {
             "label": "sphinx-apidoc",
             "type": "shell",
-            "command": "sphinx-apidoc -f --separate -o docs/apidoc src/rawtypes",
+            "command": "sphinx-apidoc -f --separate -o docs/apidoc src/rawtypes -t docs/_templates/apidoc",
             "problemMatcher": [],
             "isBackground": true
         }
