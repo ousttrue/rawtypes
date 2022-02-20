@@ -1,5 +1,8 @@
 rawtypes.parser.header module
 =============================
+.. inheritance-diagram:: rawtypes.parser.header
+
+   :parts: 1
 
 .. automodule:: rawtypes.parser.header
    :members:

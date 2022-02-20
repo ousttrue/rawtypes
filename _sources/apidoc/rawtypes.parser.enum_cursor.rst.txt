@@ -1,5 +1,8 @@
 rawtypes.parser.enum\_cursor module
 ===================================
+.. inheritance-diagram:: rawtypes.parser.enum_cursor
+
+   :parts: 1
 
 .. automodule:: rawtypes.parser.enum_cursor
    :members:

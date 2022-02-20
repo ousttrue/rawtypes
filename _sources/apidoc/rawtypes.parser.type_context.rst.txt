@@ -1,5 +1,8 @@
 rawtypes.parser.type\_context module
 ====================================
+.. inheritance-diagram:: rawtypes.parser.type_context
+
+   :parts: 1
 
 .. automodule:: rawtypes.parser.type_context
    :members:

@@ -1,5 +1,8 @@
 rawtypes.vcenv module
 =====================
+.. inheritance-diagram:: rawtypes.vcenv
+
+   :parts: 1
 
 .. automodule:: rawtypes.vcenv
    :members:

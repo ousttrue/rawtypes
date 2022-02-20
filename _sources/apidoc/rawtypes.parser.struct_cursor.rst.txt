@@ -1,5 +1,8 @@
 rawtypes.parser.struct\_cursor module
 =====================================
+.. inheritance-diagram:: rawtypes.parser.struct_cursor
+
+   :parts: 1
 
 .. automodule:: rawtypes.parser.struct_cursor
    :members:

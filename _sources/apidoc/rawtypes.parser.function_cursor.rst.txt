@@ -1,5 +1,8 @@
 rawtypes.parser.function\_cursor module
 =======================================
+.. inheritance-diagram:: rawtypes.parser.function_cursor
+
+   :parts: 1
 
 .. automodule:: rawtypes.parser.function_cursor
    :members:
