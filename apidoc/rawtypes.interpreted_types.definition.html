@@ -279,7 +279,7 @@
 <dt class="sig sig-object py" id="rawtypes.interpreted_types.definition.TypedefType.py_param">
 <span class="sig-name descname"><span class="pre">py_param</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pyi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#rawtypes.interpreted_types.definition.TypedefType.py_param" title="この定義へのパーマリンク">¶</a></dt>
 <dd><p>python type with name for a pyi function param</p>
-<p>use pyi_type.</p>
+<p>use pyi_types.</p>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="rawtypes.interpreted_types.definition.TypedefType.cpp_from_py">
@@ -330,8 +330,8 @@
 <dd><p>python type for <cite>ctypes.Structure fields</cite></p>
 </dd></dl>
 <dl class="py property">
-<dt class="sig sig-object py" id="rawtypes.interpreted_types.definition.EnumType.pyi_type">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pyi_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#rawtypes.interpreted_types.definition.EnumType.pyi_type" title="この定義へのパーマリンク">¶</a></dt>
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.definition.EnumType.pyi_types">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pyi_types</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#rawtypes.interpreted_types.definition.EnumType.pyi_types" title="この定義へのパーマリンク">¶</a></dt>
 <dd><p>rename python type for aoivd language-server error</p>
 <p>ex: ctypes.c_int32 =&gt; int</p>
 </dd></dl>
