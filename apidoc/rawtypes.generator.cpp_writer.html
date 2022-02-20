@@ -260,6 +260,81 @@
         <article role="main">
           <section id="rawtypes-generator-cpp-writer-module">
 <h1>rawtypes.generator.cpp_writer module<a class="headerlink" href="#rawtypes-generator-cpp-writer-module" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<span class="target" id="module-rawtypes.generator.cpp_writer"></span><dl class="py class">
+<dt class="sig sig-object py" id="rawtypes.generator.cpp_writer.ParamInfo">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawtypes.generator.cpp_writer.</span></span><span class="sig-name descname"><span class="pre">ParamInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawtypes.generator.cpp_writer.ParamInfo" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rawtypes.generator.cpp_writer.ParamInfo.param">
+<span class="sig-name descname"><span class="pre">param</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="rawtypes.parser.type_context.html#rawtypes.parser.type_context.ParamContext" title="rawtypes.parser.type_context.ParamContext"><span class="pre">rawtypes.parser.type_context.ParamContext</span></a></em><a class="headerlink" href="#rawtypes.generator.cpp_writer.ParamInfo.param" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rawtypes.generator.cpp_writer.ParamInfo.type">
+<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="rawtypes.interpreted_types.basetype.html#rawtypes.interpreted_types.basetype.BaseType" title="rawtypes.interpreted_types.basetype.BaseType"><span class="pre">rawtypes.interpreted_types.basetype.BaseType</span></a></em><a class="headerlink" href="#rawtypes.generator.cpp_writer.ParamInfo.type" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rawtypes.generator.cpp_writer.ParamInfo.default_value">
+<span class="sig-name descname"><span class="pre">default_value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#rawtypes.generator.cpp_writer.ParamInfo.default_value" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="rawtypes.generator.cpp_writer.ParamInfo.index">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">index</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#rawtypes.generator.cpp_writer.ParamInfo.index" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return first index of value.</p>
+<p>Raises ValueError if the value is not present.</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="rawtypes.generator.cpp_writer.ParamInfo.cpp_param_declare">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cpp_param_declare</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#rawtypes.generator.cpp_writer.ParamInfo.cpp_param_declare" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>declara t0.
+PyObject <a href="#id1"><span class="problematic" id="id2">*</span></a>t0 = NULL;</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="rawtypes.generator.cpp_writer.ParamInfo.cpp_extract_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cpp_extract_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#rawtypes.generator.cpp_writer.ParamInfo.cpp_extract_name" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>load t0.
+&amp;t0</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="rawtypes.generator.cpp_writer.ParamInfo.cpp_from_py">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cpp_from_py</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#rawtypes.generator.cpp_writer.ParamInfo.cpp_from_py" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>t0 to p0.
+CXSourceLocation <em>p0 = ctypes_get_pointer&lt;CXSourceLocation</em>&gt;(t0);</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="rawtypes.generator.cpp_writer.ParamInfo.cpp_call_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cpp_call_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#rawtypes.generator.cpp_writer.ParamInfo.cpp_call_name" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="rawtypes.generator.cpp_writer.to_fromat">
+<span class="sig-prename descclassname"><span class="pre">rawtypes.generator.cpp_writer.</span></span><span class="sig-name descname"><span class="pre">to_fromat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#rawtypes.generator.cpp_writer.ParamInfo" title="rawtypes.generator.cpp_writer.ParamInfo"><span class="pre">rawtypes.generator.cpp_writer.ParamInfo</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#rawtypes.generator.cpp_writer.to_fromat" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="rawtypes.generator.cpp_writer.FunctionCustomization">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawtypes.generator.cpp_writer.</span></span><span class="sig-name descname"><span class="pre">FunctionCustomization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_override</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawtypes.generator.cpp_writer.FunctionCustomization" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rawtypes.generator.cpp_writer.FunctionCustomization.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#rawtypes.generator.cpp_writer.FunctionCustomization.name" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rawtypes.generator.cpp_writer.FunctionCustomization.param_override">
+<span class="sig-name descname"><span class="pre">param_override</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="rawtypes.interpreted_types.basetype.html#rawtypes.interpreted_types.basetype.BaseType" title="rawtypes.interpreted_types.basetype.BaseType"><span class="pre">rawtypes.interpreted_types.basetype.BaseType</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#rawtypes.generator.cpp_writer.FunctionCustomization.param_override" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="rawtypes.generator.cpp_writer.to_c_function">
+<span class="sig-prename descclassname"><span class="pre">rawtypes.generator.cpp_writer.</span></span><span class="sig-name descname"><span class="pre">to_c_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jinja2.environment.Environment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function_cursor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rawtypes.parser.function_cursor.html#rawtypes.parser.function_cursor.FunctionCursor" title="rawtypes.parser.function_cursor.FunctionCursor"><span class="pre">rawtypes.parser.function_cursor.FunctionCursor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_manager</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rawtypes.interpreted_types.html#rawtypes.interpreted_types.TypeManager" title="rawtypes.interpreted_types.TypeManager"><span class="pre">rawtypes.interpreted_types.TypeManager</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">namespace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#rawtypes.generator.cpp_writer.FunctionCustomization" title="rawtypes.generator.cpp_writer.FunctionCustomization"><span class="pre">rawtypes.generator.cpp_writer.FunctionCustomization</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#rawtypes.generator.cpp_writer.to_c_function" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="rawtypes.generator.cpp_writer.to_c_method">
+<span class="sig-prename descclassname"><span class="pre">rawtypes.generator.cpp_writer.</span></span><span class="sig-name descname"><span class="pre">to_c_method</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jinja2.environment.Environment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rawtypes.clang.cindex.html#rawtypes.clang.cindex.Cursor" title="rawtypes.clang.cindex.Cursor"><span class="pre">rawtypes.clang.cindex.Cursor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rawtypes.parser.function_cursor.html#rawtypes.parser.function_cursor.FunctionCursor" title="rawtypes.parser.function_cursor.FunctionCursor"><span class="pre">rawtypes.parser.function_cursor.FunctionCursor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_manager</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rawtypes.interpreted_types.html#rawtypes.interpreted_types.TypeManager" title="rawtypes.interpreted_types.TypeManager"><span class="pre">rawtypes.interpreted_types.TypeManager</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#rawtypes.generator.cpp_writer.to_c_method" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
 </section>
 
         </article>

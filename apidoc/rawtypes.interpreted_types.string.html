@@ -260,6 +260,83 @@
         <article role="main">
           <section id="rawtypes-interpreted-types-string-module">
 <h1>rawtypes.interpreted_types.string module<a class="headerlink" href="#rawtypes-interpreted-types-string-module" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<span class="target" id="module-rawtypes.interpreted_types.string"></span><dl class="py class">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.string.StrType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawtypes.interpreted_types.string.</span></span><span class="sig-name descname"><span class="pre">StrType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_const</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawtypes.interpreted_types.string.StrType" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <a class="reference internal" href="rawtypes.interpreted_types.basetype.html#rawtypes.interpreted_types.basetype.BaseType" title="rawtypes.interpreted_types.basetype.BaseType"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawtypes.interpreted_types.basetype.BaseType</span></code></a></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.string.StrType.pyi_type">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pyi_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#rawtypes.interpreted_types.string.StrType.pyi_type" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>rename python type for aoivd language-server error</p>
+<p>ex: ctypes.c_int32 =&gt; int</p>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.string.CppStringType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawtypes.interpreted_types.string.</span></span><span class="sig-name descname"><span class="pre">CppStringType</span></span><a class="headerlink" href="#rawtypes.interpreted_types.string.CppStringType" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <a class="reference internal" href="#rawtypes.interpreted_types.string.StrType" title="rawtypes.interpreted_types.string.StrType"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawtypes.interpreted_types.string.StrType</span></code></a></p>
+<p><a class="reference external" href="http://docs.cython.org/en/latest/src/tutorial/strings.html#c-strings">http://docs.cython.org/en/latest/src/tutorial/strings.html#c-strings</a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.string.CppStringType.cpp_to_py">
+<span class="sig-name descname"><span class="pre">cpp_to_py</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawtypes.interpreted_types.string.CppStringType.cpp_to_py" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>c/c++ の値から PyObject* を作る</p>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.string.CStringType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawtypes.interpreted_types.string.</span></span><span class="sig-name descname"><span class="pre">CStringType</span></span><a class="headerlink" href="#rawtypes.interpreted_types.string.CStringType" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <a class="reference internal" href="#rawtypes.interpreted_types.string.StrType" title="rawtypes.interpreted_types.string.StrType"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawtypes.interpreted_types.string.StrType</span></code></a></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.string.CStringType.ctypes_type">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ctypes_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#rawtypes.interpreted_types.string.CStringType.ctypes_type" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>python type for <cite>ctypes.Structure fields</cite></p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.string.CStringType.py_result">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">py_result</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#rawtypes.interpreted_types.string.CStringType.py_result" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.string.CStringType.cpp_from_py">
+<span class="sig-name descname"><span class="pre">cpp_from_py</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#rawtypes.interpreted_types.string.CStringType.cpp_from_py" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>PyObject* から c/c++ の値を取り出す</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.string.CStringType.cpp_to_py">
+<span class="sig-name descname"><span class="pre">cpp_to_py</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#rawtypes.interpreted_types.string.CStringType.cpp_to_py" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>c/c++ の値から PyObject* を作る</p>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.string.CharPointerType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawtypes.interpreted_types.string.</span></span><span class="sig-name descname"><span class="pre">CharPointerType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_const</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawtypes.interpreted_types.string.CharPointerType" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <a class="reference internal" href="rawtypes.interpreted_types.basetype.html#rawtypes.interpreted_types.basetype.BaseType" title="rawtypes.interpreted_types.basetype.BaseType"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawtypes.interpreted_types.basetype.BaseType</span></code></a></p>
+<p>str, bytes を const char* ではなく、
+c_void_p を const char * として受け取りたい。</p>
+<p>例 const char <a href="#id1"><span class="problematic" id="id2">*</span></a>text = "abcd";
+auto end = text + strlen(text);</p>
+<p>some_func(text, end); // pointer for text range.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.string.CharPointerType.ctypes_type">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ctypes_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#rawtypes.interpreted_types.string.CharPointerType.ctypes_type" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>python type for <cite>ctypes.Structure fields</cite></p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.string.CharPointerType.py_param">
+<span class="sig-name descname"><span class="pre">py_param</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pyi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#rawtypes.interpreted_types.string.CharPointerType.py_param" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>python type with name for a pyi function param</p>
+<p>use pyi_type.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.string.CharPointerType.cpp_from_py">
+<span class="sig-name descname"><span class="pre">cpp_from_py</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#rawtypes.interpreted_types.string.CharPointerType.cpp_from_py" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>PyObject* から c/c++ の値を取り出す</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.string.CharPointerType.cpp_to_py">
+<span class="sig-name descname"><span class="pre">cpp_to_py</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#rawtypes.interpreted_types.string.CharPointerType.cpp_to_py" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>c/c++ の値から PyObject* を作る</p>
+</dd></dl>
+</dd></dl>
 </section>
 
         </article>

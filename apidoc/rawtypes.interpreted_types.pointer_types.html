@@ -260,6 +260,106 @@
         <article role="main">
           <section id="rawtypes-interpreted-types-pointer-types-module">
 <h1>rawtypes.interpreted_types.pointer_types module<a class="headerlink" href="#rawtypes-interpreted-types-pointer-types-module" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<span class="target" id="module-rawtypes.interpreted_types.pointer_types"></span><dl class="py function">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.pointer_types.add_impl">
+<span class="sig-prename descclassname"><span class="pre">rawtypes.interpreted_types.pointer_types.</span></span><span class="sig-name descname"><span class="pre">add_impl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="rawtypes.interpreted_types.basetype.html#rawtypes.interpreted_types.basetype.BaseType" title="rawtypes.interpreted_types.basetype.BaseType"><span class="pre">rawtypes.interpreted_types.basetype.BaseType</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#rawtypes.interpreted_types.pointer_types.add_impl" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.pointer_types.PointerType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawtypes.interpreted_types.pointer_types.</span></span><span class="sig-name descname"><span class="pre">PointerType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rawtypes.interpreted_types.basetype.html#rawtypes.interpreted_types.basetype.BaseType" title="rawtypes.interpreted_types.basetype.BaseType"><span class="pre">rawtypes.interpreted_types.basetype.BaseType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_const</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_override</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawtypes.interpreted_types.pointer_types.PointerType" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <a class="reference internal" href="rawtypes.interpreted_types.basetype.html#rawtypes.interpreted_types.basetype.BaseType" title="rawtypes.interpreted_types.basetype.BaseType"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawtypes.interpreted_types.basetype.BaseType</span></code></a></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.pointer_types.PointerType.ctypes_type">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ctypes_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#rawtypes.interpreted_types.pointer_types.PointerType.ctypes_type" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>python type for <cite>ctypes.Structure fields</cite></p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.pointer_types.PointerType.ctypes_field">
+<span class="sig-name descname"><span class="pre">ctypes_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#rawtypes.interpreted_types.pointer_types.PointerType.ctypes_field" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>python type with name for a item of ctypes.Structure._field_</p>
+<p>use ctypes_type.</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.pointer_types.PointerType.pyi_type">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pyi_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#rawtypes.interpreted_types.pointer_types.PointerType.pyi_type" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>rename python type for aoivd language-server error</p>
+<p>ex: ctypes.c_int32 =&gt; int</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.pointer_types.PointerType.cpp_from_py">
+<span class="sig-name descname"><span class="pre">cpp_from_py</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#rawtypes.interpreted_types.pointer_types.PointerType.cpp_from_py" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>PyObject* から c/c++ の値を取り出す</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.pointer_types.PointerType.cpp_to_py">
+<span class="sig-name descname"><span class="pre">cpp_to_py</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#rawtypes.interpreted_types.pointer_types.PointerType.cpp_to_py" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>c/c++ の値から PyObject* を作る</p>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.pointer_types.ReferenceType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawtypes.interpreted_types.pointer_types.</span></span><span class="sig-name descname"><span class="pre">ReferenceType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rawtypes.interpreted_types.basetype.html#rawtypes.interpreted_types.basetype.BaseType" title="rawtypes.interpreted_types.basetype.BaseType"><span class="pre">rawtypes.interpreted_types.basetype.BaseType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_const</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawtypes.interpreted_types.pointer_types.ReferenceType" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <a class="reference internal" href="#rawtypes.interpreted_types.pointer_types.PointerType" title="rawtypes.interpreted_types.pointer_types.PointerType"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawtypes.interpreted_types.pointer_types.PointerType</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.pointer_types.ReferenceType.base">
+<span class="sig-name descname"><span class="pre">base</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="rawtypes.interpreted_types.basetype.html#rawtypes.interpreted_types.basetype.BaseType" title="rawtypes.interpreted_types.basetype.BaseType"><span class="pre">rawtypes.interpreted_types.basetype.BaseType</span></a></em><a class="headerlink" href="#rawtypes.interpreted_types.pointer_types.ReferenceType.base" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.pointer_types.ReferenceType.ctypes_type">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ctypes_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#rawtypes.interpreted_types.pointer_types.ReferenceType.ctypes_type" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>python type for <cite>ctypes.Structure fields</cite></p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.pointer_types.ReferenceType.ctypes_field">
+<span class="sig-name descname"><span class="pre">ctypes_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#rawtypes.interpreted_types.pointer_types.ReferenceType.ctypes_field" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>python type with name for a item of ctypes.Structure._field_</p>
+<p>use ctypes_type.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.pointer_types.ReferenceType.cpp_call_name">
+<span class="sig-name descname"><span class="pre">cpp_call_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawtypes.interpreted_types.pointer_types.ReferenceType.cpp_call_name" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.pointer_types.ReferenceType.cpp_result">
+<span class="sig-name descname"><span class="pre">cpp_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">call</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#rawtypes.interpreted_types.pointer_types.ReferenceType.cpp_result" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>c/c++ の関数を呼び出す。
+結果から PyObject* を作って返す。</p>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.pointer_types.ArrayType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawtypes.interpreted_types.pointer_types.</span></span><span class="sig-name descname"><span class="pre">ArrayType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rawtypes.interpreted_types.basetype.html#rawtypes.interpreted_types.basetype.BaseType" title="rawtypes.interpreted_types.basetype.BaseType"><span class="pre">rawtypes.interpreted_types.basetype.BaseType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_const</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawtypes.interpreted_types.pointer_types.ArrayType" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <a class="reference internal" href="#rawtypes.interpreted_types.pointer_types.PointerType" title="rawtypes.interpreted_types.pointer_types.PointerType"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawtypes.interpreted_types.pointer_types.PointerType</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.pointer_types.ArrayType.size">
+<span class="sig-name descname"><span class="pre">size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#rawtypes.interpreted_types.pointer_types.ArrayType.size" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.pointer_types.ArrayType.ctypes_type">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ctypes_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#rawtypes.interpreted_types.pointer_types.ArrayType.ctypes_type" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>python type for <cite>ctypes.Structure fields</cite></p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.pointer_types.ArrayType.ctypes_field">
+<span class="sig-name descname"><span class="pre">ctypes_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#rawtypes.interpreted_types.pointer_types.ArrayType.ctypes_field" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>python type with name for a item of ctypes.Structure._field_</p>
+<p>use ctypes_type.</p>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.pointer_types.RefenreceToStdArrayType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawtypes.interpreted_types.pointer_types.</span></span><span class="sig-name descname"><span class="pre">RefenreceToStdArrayType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rawtypes.interpreted_types.basetype.html#rawtypes.interpreted_types.basetype.BaseType" title="rawtypes.interpreted_types.basetype.BaseType"><span class="pre">rawtypes.interpreted_types.basetype.BaseType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_const</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawtypes.interpreted_types.pointer_types.RefenreceToStdArrayType" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <a class="reference internal" href="#rawtypes.interpreted_types.pointer_types.PointerType" title="rawtypes.interpreted_types.pointer_types.PointerType"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawtypes.interpreted_types.pointer_types.PointerType</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.pointer_types.RefenreceToStdArrayType.size">
+<span class="sig-name descname"><span class="pre">size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#rawtypes.interpreted_types.pointer_types.RefenreceToStdArrayType.size" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.pointer_types.RefenreceToStdArrayType.ctypes_type">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ctypes_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#rawtypes.interpreted_types.pointer_types.RefenreceToStdArrayType.ctypes_type" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>python type for <cite>ctypes.Structure fields</cite></p>
+</dd></dl>
+</dd></dl>
 </section>
 
         </article>
