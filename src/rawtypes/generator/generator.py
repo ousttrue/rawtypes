@@ -14,7 +14,7 @@ from ..parser.typedef_cursor import TypedefCursor
 from ..parser.function_cursor import FunctionCursor
 
 
-CTYPES_BEGIN = '''from typing import Iterable, Type, Tuple
+PY_BEGIN = '''from typing import Type, Tuple, Union, Any, Iterable
 import ctypes
 from enum import IntEnum
 '''
@@ -69,7 +69,7 @@ class Generator:
             structs: List[Tuple[StructCursor, WrapFlags]] = []
 
             with (package_dir / f'{header.path.stem}.py').open('w') as ew:
-                ew.write(CTYPES_BEGIN)
+                ew.write(PY_BEGIN)
                 ew.write(f'from .impl.{header.path.stem} import *\n')
                 ew.write(header.begin)
                 for wrap_type in self.type_manager.WRAP_TYPES:
@@ -97,10 +97,7 @@ class Generator:
             # pyi
             #
             with (package_dir / f'{header.path.stem}.pyi').open('w') as pyi:
-                pyi.write('''import ctypes
-from typing import Any, Union, Tuple, Type, Iterable
-''')
-
+                pyi.write(PY_BEGIN)
                 pyi.write(header.begin)
                 self.write_pyi(header, pyi)
 
@@ -206,8 +203,3 @@ from typing import Any, Union, Tuple, Type, Iterable
                 write_pyi_function(
                     self.type_manager, pyi, typedef_or_struct.cursor, overload=count, prefix=header.prefix)
                 overload[name] = count
-
-
-def generate(headers: List[Header], package_dir: pathlib.Path) -> pathlib.Path:
-    generator = Generator(*headers)
-    return generator.generate(package_dir)
