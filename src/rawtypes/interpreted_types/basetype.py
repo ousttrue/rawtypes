@@ -1,3 +1,4 @@
+from typing import Tuple
 
 
 class BaseType:
@@ -46,33 +47,42 @@ class BaseType:
         return f'("{name}", {self.ctypes_type}), # {self}'
 
     @property
-    def pyi_type(self) -> str:
+    def pyi_types(self) -> Tuple[str, ...]:
         '''
         rename python type for aoivd language-server error
 
         ex: ctypes.c_int32 => int
         '''
-        return self.ctypes_type
+        return (self.ctypes_type,)
 
     def pyi_field(self, indent: str, name: str) -> str:
         '''
         python type with name for a member of pyi class
 
-        use pyi_type.
+        use pyi_types[0].
         '''
-        return f'{indent}{name}: {self.pyi_type} # {self}'
+        return f'{indent}{name}: {self.pyi_types[0]} # {self}'
 
     def py_param(self, name: str, default_value: str, pyi: bool) -> str:
         '''
         python type with name for a pyi function param
 
-        use pyi_type.
+        use pyi_types.
         '''
-        return f'{name}: {self.pyi_type}{default_value}'
+        types = self.pyi_types
+        match len(types):
+            case 0:
+                pyi_type = f''
+            case 1:
+                pyi_type = f': {types[0]}'
+            case _:
+                pyi_type = f': Union[{", ".join(types)}]'
+
+        return f'{name}{pyi_type}{default_value}'
 
     @property
     def py_result(self) -> str:
-        return self.pyi_type
+        return self.pyi_types[0]
 
     @property
     def const_prefix(self) -> str:

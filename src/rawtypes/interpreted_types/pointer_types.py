@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Tuple
 from .basetype import BaseType
 from .primitive_types import PrimitiveType, VoidType
 
@@ -34,8 +34,8 @@ class PointerType(BaseType):
         return f'("{name}", ctypes.c_void_p), # {self}'
 
     @property
-    def pyi_type(self) -> str:
-        return 'Union[ctypes.c_void_p, ctypes.Array, ctypes.Structure, None]'
+    def pyi_types(self) -> Tuple[str, ...]:
+        return ('ctypes.c_void_p', 'ctypes.Array', 'ctypes.Structure', 'None')
 
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
         if default_value:

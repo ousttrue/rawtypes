@@ -1,10 +1,10 @@
-from .basetype import BaseType
+from .basetype import BaseType, Tuple
 
 
 class StrType(BaseType):
     @property
-    def pyi_type(self) -> str:
-        return 'Union[bytes, str, None]'
+    def pyi_types(self) -> Tuple[str, ...]:
+        return ('str', 'bytes', 'None')
 
 
 class CppStringType(StrType):

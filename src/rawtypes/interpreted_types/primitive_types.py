@@ -1,3 +1,4 @@
+from typing import Tuple
 from .basetype import BaseType
 
 
@@ -29,8 +30,8 @@ class BoolType(PrimitiveType):
         return 'ctypes.c_bool'
 
     @property
-    def pyi_type(self) -> str:
-        return 'bool'
+    def pyi_types(self) -> Tuple[str]:
+        return ('bool',)
 
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
         if default_value:
@@ -47,8 +48,8 @@ class IntegerType(PrimitiveType):
         super().__init__(name, is_const)
 
     @property
-    def pyi_type(self) -> str:
-        return 'int'
+    def pyi_types(self) -> Tuple[str]:
+        return ('int',)
 
 
 class UInt8Type(IntegerType):
@@ -191,8 +192,8 @@ class FloatingType(PrimitiveType):
         super().__init__(name, is_const)
 
     @property
-    def pyi_type(self) -> str:
-        return 'float'
+    def pyi_types(self) -> Tuple[str]:
+        return ('float',)
 
 
 class FloatType(FloatingType):

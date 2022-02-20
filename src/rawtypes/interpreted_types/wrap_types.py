@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Tuple
 import io
 from .basetype import BaseType
 from .pointer_types import PointerType, ReferenceType
@@ -7,17 +7,21 @@ from ..parser.struct_cursor import WrapFlags
 
 class PointerToStructType(PointerType):
     def __init__(self, base: BaseType, is_const: bool, wrap_type: Optional[WrapFlags]):
+        if not base:
+            raise RuntimeError()
         super().__init__(base, is_const)
         self.wrap_type = wrap_type
 
     @property
     def ctypes_type(self) -> str:
-        if not self.base:
-            raise RuntimeError()
         return f'{self.base.name}'
 
     def ctypes_field(self, name: str) -> str:
         return f'("{name}", ctypes.c_void_p), # {self}'
+
+    @property
+    def pyi_types(self) -> Tuple[str]:
+        return (f'{self.base.name}',)
 
     def cpp_to_py(self, value: str) -> str:
         if self.wrap_type:
@@ -28,17 +32,21 @@ class PointerToStructType(PointerType):
 
 class ReferenceToStructType(ReferenceType):
     def __init__(self, base: BaseType, is_const: bool, wrap_type: Optional[WrapFlags]):
+        if not base:
+            raise RuntimeError()
         super().__init__(base, is_const)
         self.wrap_type = wrap_type
 
     @property
     def ctypes_type(self) -> str:
-        if not self.base:
-            raise RuntimeError()
         return f'{self.base.name}'
 
     def ctypes_field(self, name: str) -> str:
         return f'("{name}", ctypes.c_void_p), # {self}'
+
+    @property
+    def pyi_types(self) -> Tuple[str]:
+        return (f'{self.base.name}',)
 
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
         if default_value:

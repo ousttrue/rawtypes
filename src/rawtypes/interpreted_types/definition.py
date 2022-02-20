@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Tuple
 from rawtypes.clang import cindex
 from .basetype import BaseType
 from ..parser.struct_cursor import WrapFlags
@@ -69,5 +69,5 @@ class EnumType(BaseType):
         return 'ctypes.c_int'
 
     @property
-    def pyi_type(self) -> str:
-        return 'int'
+    def pyi_types(self) -> Tuple[str]:
+        return ('int',)
