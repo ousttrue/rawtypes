@@ -5,6 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "test", // <----- this is for tests
+            "console": "integratedTerminal"
+        },
+        {
             "name": "setup.py sdist",
             "type": "python",
             "request": "launch",

@@ -18,6 +18,9 @@ class TestImGuiParse(unittest.TestCase):
         f = parser.get_function('GetIO')
         self.assertIsNotNone(f)
 
+        f = parser.get_function('BeginChild')
+        self.assertIsNotNone(f)
+
         # 'ImFontAtlas_AddFont'
         s = parser.get_struct('ImFontAtlas')
         self.assertIsNotNone(s)
