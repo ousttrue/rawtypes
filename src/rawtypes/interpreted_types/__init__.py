@@ -221,13 +221,11 @@ class TypeManager:
             t = self.from_cursor(param.type, param.cursor)
             sio_extract.write(f'PyObject *t{param.index} = NULL;\n')
             types.append(t)
-            d = param.default_value(use_filter=False)
+            d = param.default_value
             if not last_format and d:
                 format += '|'
             last_format = d
             format += t.PyArg_ParseTuple_format
-            if d:
-                d = d.split('=', maxsplit=1)[1]
             sio_cpp_from_py.write(t.cpp_from_py(
-                indent, param.index, d))
+                indent, param.index, d.cpp_value if d else ''))
         return Params(types, format, sio_extract.getvalue(), sio_cpp_from_py.getvalue())

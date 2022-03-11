@@ -92,12 +92,6 @@ class TypeContext:
 class DefaultValue:
     def __init__(self, tokens: List[str]) -> None:
         self.tokens = tokens
-        # equal = tokens.index('=')
-
-        # # if use_filter:
-        # #     value = ' '.join(token_filter(t) for t in tokens[equal+1:])
-        # # else:
-        # self.value = ' '.join(t for t in tokens[equal+1:])
 
     @staticmethod
     def create(cursor: cindex.Cursor) -> Optional['DefaultValue']:
@@ -111,7 +105,7 @@ class DefaultValue:
                       | cindex.CursorKind.CXX_BOOL_LITERAL_EXPR
                       | cindex.CursorKind.UNARY_OPERATOR
                       | cindex.CursorKind.CALL_EXPR
-                      | cindex.CursorKind.CXX_NULL_PTR_LITERAL_EXPR # bool
+                      | cindex.CursorKind.CXX_NULL_PTR_LITERAL_EXPR  # bool
                       ):
                     tokens = [
                         token.spelling for token in cursor.get_tokens()]
@@ -127,27 +121,41 @@ class DefaultValue:
 
         return DefaultValue(tokens)
 
-    def token_filter(self, src: str) -> str:
+    @property
+    def cpp_value(self) -> str:
+        index = self.tokens.index('=')
+        assert(isinstance(index, int))
+        return ' '.join(self.tokens[index+1:])
 
-        match src:
-            case 'NULL' | 'nullptr':
-                return 'None'
-            case 'true':
-                return 'True'
-            case 'false':
-                return 'False'
-            case 'FLT_MAX':
-                return '3.402823466e+38'
-            case 'FLT_MIN':
-                return '1.175494351e-38'
-            case _:
-                if src.startswith('"'):
-                    # string literal
-                    return 'b' + src
-                if re.search(r'[\d.]f$', src):
-                    return src[:-1]
+    @property
+    def py_value(self) -> str:
+        index = self.tokens.index('=')
+        assert(isinstance(index, int))
 
-                return src
+        def token_filter(src: str) -> str:
+
+            match src:
+                case 'NULL' | 'nullptr':
+                    return 'None'
+                case 'true':
+                    return 'True'
+                case 'false':
+                    return 'False'
+                case 'FLT_MAX':
+                    return '3.402823466e+38'
+                case 'FLT_MIN':
+                    return '1.175494351e-38'
+                case _:
+                    if src.startswith('"'):
+                        # string literal
+                        return 'b' + src
+                    if re.search(r'[\d.]f$', src):
+                        return src[:-1]
+
+                    return src
+
+        equal = self.tokens.index('=')
+        return '=' + ''.join(token_filter(t) for t in self.tokens[equal+1:])
 
 
 class ParamContext(TypeContext):

@@ -84,9 +84,13 @@ def write_pyi_function(type_map: TypeManager, pyx: io.IOBase, function: cindex.C
 
     overload = '' if overload == 1 else f'_{overload}'
 
+    values = []
+    for param in params:
+        values.append(type_map.from_cursor(param.type, param.cursor).py_param(param.name, param.default_value.py_value if param.default_value else '', pyi=True))
+
     # signature
     pyx.write(
-        f"def {prefix}{function.spelling}{overload}{cj(type_map.from_cursor(param.type, param.cursor).py_param(param.name, param.default_value(True), pyi=True) for param in params)}")
+        f"def {prefix}{function.spelling}{overload}{cj(values)}")
     # return type
     pyx.write(f'->{result_t.py_result}:')
 
@@ -112,9 +116,14 @@ def write_pyi_method(type_map: TypeManager, pyx: io.IOBase, cursor: cindex.Curso
     result = ResultContext(method)
     result_t = type_map.from_cursor(result.type, result.cursor)
 
+    values = []
+    for param in params:
+        values.append(type_map.from_cursor(param.cursor.type, param.cursor).py_param(
+            param.name, param.default_value.py_value if param.default_value else '', pyi=True))
+
     # signature
     pyx.write(
-        f'    def {method.spelling}{self_cj(type_map.from_cursor(param.cursor.type, param.cursor).py_param(param.name, param.default_value(use_filter=True), pyi=True) for param in params)}')
+        f'    def {method.spelling}{self_cj(values)}')
     pyx.write(f'->{result_t.py_result}:')
 
     pyx.write(' ...\n')

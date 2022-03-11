@@ -80,8 +80,8 @@ def to_c_function(env: Environment, function_cursor: FunctionCursor, type_manage
             return custom.param_override[param.name]
         return type_manager.to_type(param)
     types = [param_type(param) for param in params]
-    paramlist = [ParamInfo(param, t, param.default_value(
-        use_filter=False)) for param, t in zip(params, types)]
+    paramlist = [ParamInfo(param, t, param.default_value.cpp_value if param.default_value else '')
+                 for param, t in zip(params, types)]
 
     # call & result
     result = function_cursor.result
