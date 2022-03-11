@@ -58,7 +58,7 @@ class TypeContext:
     @staticmethod
     def get_default_constructor(cursor: cindex.Cursor) -> Optional[cindex.Cursor]:
         for constructor in TypeContext.get_constructors(cursor):
-            params = TypeContext.get_function_params(constructor)
+            params = ParamContext.get_function_params(constructor)
             if len(params) == 0:
                 return constructor
 
@@ -88,62 +88,76 @@ class TypeContext:
     def is_anonymous_field(self) -> bool:
         return self.cursor.is_anonymous()
 
-    def default_value(self, use_filter: bool) -> str:
+
+class DefaultValue:
+    def __init__(self, tokens: List[str]) -> None:
+        self.tokens = tokens
+        # equal = tokens.index('=')
+
+        # # if use_filter:
+        # #     value = ' '.join(token_filter(t) for t in tokens[equal+1:])
+        # # else:
+        # self.value = ' '.join(t for t in tokens[equal+1:])
+
+    @staticmethod
+    def create(cursor: cindex.Cursor) -> Optional['DefaultValue']:
         tokens = []
-        for child in self.cursor.get_children():
+        for child in cursor.get_children():
             # logger.debug(child.spelling)
             match child.kind:
-                case cindex.CursorKind.UNEXPOSED_EXPR | cindex.CursorKind.INTEGER_LITERAL | cindex.CursorKind.FLOATING_LITERAL | cindex.CursorKind.CXX_BOOL_LITERAL_EXPR | cindex.CursorKind.UNARY_OPERATOR | cindex.CursorKind.CALL_EXPR:
+                case (cindex.CursorKind.UNEXPOSED_EXPR
+                      | cindex.CursorKind.INTEGER_LITERAL
+                      | cindex.CursorKind.FLOATING_LITERAL
+                      | cindex.CursorKind.CXX_BOOL_LITERAL_EXPR
+                      | cindex.CursorKind.UNARY_OPERATOR
+                      | cindex.CursorKind.CALL_EXPR
+                      | cindex.CursorKind.CXX_NULL_PTR_LITERAL_EXPR # bool
+                      ):
                     tokens = [
-                        token.spelling for token in self.cursor.get_tokens()]
+                        token.spelling for token in cursor.get_tokens()]
                     if '=' not in tokens:
                         tokens = []
                 case cindex.CursorKind.TYPE_REF | cindex.CursorKind.TEMPLATE_REF | cindex.CursorKind.NAMESPACE_REF:
                     pass
                 case _:
-                    logger.debug(f'{self.cursor.spelling}: {child.kind}')
+                    logger.debug(f'{cursor.spelling}: {child.kind}')
 
         if not tokens:
-            return ''
+            return
 
-        def token_filter(src: str) -> str:
+        return DefaultValue(tokens)
 
-            match src:
-                case 'NULL' | 'nullptr':
-                    return 'None'
-                case 'true':
-                    return 'True'
-                case 'false':
-                    return 'False'
-                case 'FLT_MAX':
-                    return '3.402823466e+38'
-                case 'FLT_MIN':
-                    return '1.175494351e-38'
-                case _:
-                    if src.startswith('"'):
-                        # string literal
-                        return 'b' + src
-                    if re.search(r'[\d.]f$', src):
-                        return src[:-1]
+    def token_filter(self, src: str) -> str:
 
-                    return src
+        match src:
+            case 'NULL' | 'nullptr':
+                return 'None'
+            case 'true':
+                return 'True'
+            case 'false':
+                return 'False'
+            case 'FLT_MAX':
+                return '3.402823466e+38'
+            case 'FLT_MIN':
+                return '1.175494351e-38'
+            case _:
+                if src.startswith('"'):
+                    # string literal
+                    return 'b' + src
+                if re.search(r'[\d.]f$', src):
+                    return src[:-1]
 
-        equal = tokens.index('=')
-
-        if use_filter:
-            value = ' '.join(token_filter(t) for t in tokens[equal+1:])
-        else:
-            value = ' '.join(t for t in tokens[equal+1:])
-
-        return '= ' + value
+                return src
 
 
 class ParamContext(TypeContext):
     index: int
+    default_value: Optional[DefaultValue]
 
     def __init__(self, index: int, cursor: cindex.Cursor) -> None:
         super().__init__(cursor.type, cursor)
         self.index = index
+        self.default_value = DefaultValue.create(cursor)
 
     @staticmethod
     def get_function_params(cursor: cindex.Cursor) -> List['ParamContext']:
