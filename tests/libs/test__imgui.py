@@ -12,8 +12,7 @@ HEADER = pathlib.Path('C:/vcpkg/installed/x64-windows/include/imgui.h')
 class TestImGuiParse(unittest.TestCase):
 
     def test_parse(self):
-        parser = Parser([HEADER])
-        parser.traverse()
+        parser = Parser.parse([HEADER])
 
         f = parser.get_function('GetIO')
         self.assertIsNotNone(f)

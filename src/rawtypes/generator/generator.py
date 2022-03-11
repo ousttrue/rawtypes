@@ -43,7 +43,7 @@ class Generator:
         # parse
         include_dirs = sum(
             [list(header.include_dirs) for header in headers], include_dirs)
-        self.parser = Parser(
+        self.parser = Parser.parse(
             [header.path for header in headers],
             include_dirs=include_dirs,
             definitions=sum([list(header.definitions)
@@ -51,7 +51,6 @@ class Generator:
         )
         self.headers = [
             header for header in headers if not header.include_only]
-        self.parser.traverse()
         # prepare
         self.type_manager = TypeManager()
         self.env = Environment(

@@ -12,26 +12,42 @@ logger = logging.getLogger(__name__)
 
 
 class Parser:
-    def __init__(self, headers: Iterable[pathlib.Path], *, include_dirs: Iterable[pathlib.Path] = (), definitions=()) -> None:
-        self.headers = list(headers)
-
-        sio = io.StringIO()
-        for header in self.headers:
-            sio.write(f'#include "{header.name}"\n')
-
-        _include_dirs = [str(header.parent)for header in self.headers] + \
-            [str(dir) for dir in include_dirs]
-        unsaved = clang_util.Unsaved('tmp.h', sio.getvalue())
-        self.tu = clang_util.get_tu(
-            'tmp.h', include_dirs=_include_dirs, definitions=definitions, unsaved=[unsaved], flags=['-DNOMINMAX'])
+    def __init__(self, tu: cindex.TranslationUnit, headers: List[pathlib.Path]) -> None:
+        self.tu = tu
+        self.headers = headers
         self.functions: List[FunctionCursor] = []
         self.enums: List[EnumCursor] = []
         self.typedef_struct_list: List[Union[TypedefCursor, StructCursor]] = []
-
         self.used = []
         self.skip = []
 
-    def callback(self, *cursor_path: cindex.Cursor) -> bool:
+    @staticmethod
+    def parse(headers: Iterable[pathlib.Path], *, include_dirs: Iterable[pathlib.Path] = (), definitions=()) -> "Parser":
+        headers = list(headers)
+
+        sio = io.StringIO()
+        for header in headers:
+            sio.write(f'#include "{header.name}"\n')
+
+        _include_dirs = [str(header.parent)
+                         for header in headers] + [str(dir) for dir in include_dirs]
+        unsaved = clang_util.Unsaved('tmp.h', sio.getvalue())
+        tu = clang_util.get_tu(
+            'tmp.h', include_dirs=_include_dirs, definitions=definitions, unsaved=[unsaved], flags=['-DNOMINMAX'])
+
+        parser = Parser(tu, headers)
+        parser._traverse()
+        return parser
+
+    @staticmethod
+    def parse_source(src: str) -> "Parser":
+        tu = clang_util.get_tu(
+            'tmp.h', unsaved=[clang_util.Unsaved('tmp.h', src)])
+        parser = Parser(tu, [pathlib.Path('tmp.h')])
+        parser._traverse()
+        return parser
+
+    def _callback(self, *cursor_path: cindex.Cursor) -> bool:
         cursor = cursor_path[-1]
         location: cindex.SourceLocation = cursor.location
         if not location:
@@ -74,11 +90,14 @@ class Parser:
                 case cindex.CursorKind.TYPEDEF_DECL:
                     self.typedef_struct_list.append(TypedefCursor(cursor_path))
                 case cindex.CursorKind.STRUCT_DECL:
-                    self.typedef_struct_list.append(StructCursor(cursor_path, cursor.type, False))
+                    self.typedef_struct_list.append(
+                        StructCursor(cursor_path, cursor.type, False))
                 case cindex.CursorKind.CLASS_TEMPLATE:
-                    self.typedef_struct_list.append(StructCursor(cursor_path, cursor.type, False))
+                    self.typedef_struct_list.append(
+                        StructCursor(cursor_path, cursor.type, False))
                 case cindex.CursorKind.CLASS_DECL:
-                    self.typedef_struct_list.append(StructCursor(cursor_path, cursor.type, False))
+                    self.typedef_struct_list.append(
+                        StructCursor(cursor_path, cursor.type, False))
                 case cindex.CursorKind.UNEXPOSED_DECL:
                     # extern C etc...
                     return True
@@ -95,8 +114,8 @@ class Parser:
 
         return False
 
-    def traverse(self):
-        clang_util.traverse(self.tu, self.callback)
+    def _traverse(self):
+        clang_util.traverse(self.tu, self._callback)
 
     def get_function(self, name: str) -> FunctionCursor:
         for f in self.functions:
