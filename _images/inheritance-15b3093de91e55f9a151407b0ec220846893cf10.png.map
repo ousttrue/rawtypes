@@ -1,0 +1,7 @@
+<map id="inheritance093954d08c" name="inheritance093954d08c">
+<area shape="rect" id="node1" href="#rawtypes.parser.type_context.DefaultValue" target="_top" title="DefaultValue" alt="" coords="5,104,112,129"/>
+<area shape="rect" id="node2" href="#rawtypes.parser.type_context.FieldContext" target="_top" title="FieldContext" alt="" coords="165,5,269,31"/>
+<area shape="rect" id="node3" href="#rawtypes.parser.type_context.TypeContext" target="_top" title="TypeContext" alt="" coords="7,55,110,80"/>
+<area shape="rect" id="node4" href="#rawtypes.parser.type_context.ParamContext" target="_top" title="ParamContext" alt="" coords="160,55,275,80"/>
+<area shape="rect" id="node5" href="#rawtypes.parser.type_context.ResultContext" target="_top" title="ResultContext" alt="" coords="160,104,275,129"/>
+</map>

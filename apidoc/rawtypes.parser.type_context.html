@@ -260,12 +260,13 @@
         <article role="main">
           <section id="rawtypes-parser-type-context-module">
 <h1>rawtypes.parser.type_context module<a class="headerlink" href="#rawtypes-parser-type-context-module" title="このヘッドラインへのパーマリンク">¶</a></h1>
-<div class="graphviz"><img alt="Inheritance diagram of rawtypes.parser.type_context" class="inheritance graphviz" src="../_images/inheritance-8fae406226dd955f970df45397b7b19120198348.png" usemap="#inheritance093954d08c"/></div>
+<div class="graphviz"><img alt="Inheritance diagram of rawtypes.parser.type_context" class="inheritance graphviz" src="../_images/inheritance-15b3093de91e55f9a151407b0ec220846893cf10.png" usemap="#inheritance093954d08c"/></div>
 <map id="inheritance093954d08c" name="inheritance093954d08c">
-<area alt="" coords="161,5,265,31" href="#rawtypes.parser.type_context.FieldContext" id="node1" shape="rect" target="_top" title="FieldContext"/>
-<area alt="" coords="5,55,108,80" href="#rawtypes.parser.type_context.TypeContext" id="node2" shape="rect" target="_top" title="TypeContext"/>
-<area alt="" coords="156,55,271,80" href="#rawtypes.parser.type_context.ParamContext" id="node3" shape="rect" target="_top" title="ParamContext"/>
-<area alt="" coords="156,104,271,129" href="#rawtypes.parser.type_context.ResultContext" id="node4" shape="rect" target="_top" title="ResultContext"/>
+<area alt="" coords="5,104,112,129" href="#rawtypes.parser.type_context.DefaultValue" id="node1" shape="rect" target="_top" title="DefaultValue"/>
+<area alt="" coords="165,5,269,31" href="#rawtypes.parser.type_context.FieldContext" id="node2" shape="rect" target="_top" title="FieldContext"/>
+<area alt="" coords="7,55,110,80" href="#rawtypes.parser.type_context.TypeContext" id="node3" shape="rect" target="_top" title="TypeContext"/>
+<area alt="" coords="160,55,275,80" href="#rawtypes.parser.type_context.ParamContext" id="node4" shape="rect" target="_top" title="ParamContext"/>
+<area alt="" coords="160,104,275,129" href="#rawtypes.parser.type_context.ResultContext" id="node5" shape="rect" target="_top" title="ResultContext"/>
 </map><span class="target" id="module-rawtypes.parser.type_context"></span><dl class="py function">
 <dt class="sig sig-object py" id="rawtypes.parser.type_context.symbol_filter">
 <span class="sig-prename descclassname"><span class="pre">rawtypes.parser.type_context.</span></span><span class="sig-name descname"><span class="pre">symbol_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#rawtypes.parser.type_context.symbol_filter" title="この定義へのパーマリンク">¶</a></dt>
@@ -311,9 +312,22 @@
 <dt class="sig sig-object py" id="rawtypes.parser.type_context.TypeContext.is_anonymous_field">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_anonymous_field</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#rawtypes.parser.type_context.TypeContext.is_anonymous_field" title="この定義へのパーマリンク">¶</a></dt>
 <dd></dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="rawtypes.parser.type_context.DefaultValue">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawtypes.parser.type_context.</span></span><span class="sig-name descname"><span class="pre">DefaultValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tokens</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawtypes.parser.type_context.DefaultValue" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
-<dt class="sig sig-object py" id="rawtypes.parser.type_context.TypeContext.default_value">
-<span class="sig-name descname"><span class="pre">default_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#rawtypes.parser.type_context.TypeContext.default_value" title="この定義へのパーマリンク">¶</a></dt>
+<dt class="sig sig-object py" id="rawtypes.parser.type_context.DefaultValue.create">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cursor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rawtypes.clang.cindex.html#rawtypes.clang.cindex.Cursor" title="rawtypes.clang.cindex.Cursor"><span class="pre">rawtypes.clang.cindex.Cursor</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#rawtypes.parser.type_context.DefaultValue" title="rawtypes.parser.type_context.DefaultValue"><span class="pre">rawtypes.parser.type_context.DefaultValue</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#rawtypes.parser.type_context.DefaultValue.create" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="rawtypes.parser.type_context.DefaultValue.cpp_value">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cpp_value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#rawtypes.parser.type_context.DefaultValue.cpp_value" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="rawtypes.parser.type_context.DefaultValue.py_value">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">py_value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#rawtypes.parser.type_context.DefaultValue.py_value" title="この定義へのパーマリンク">¶</a></dt>
 <dd></dd></dl>
 </dd></dl>
 <dl class="py class">
@@ -323,6 +337,10 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="rawtypes.parser.type_context.ParamContext.index">
 <span class="sig-name descname"><span class="pre">index</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#rawtypes.parser.type_context.ParamContext.index" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="rawtypes.parser.type_context.ParamContext.default_value">
+<span class="sig-name descname"><span class="pre">default_value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#rawtypes.parser.type_context.DefaultValue" title="rawtypes.parser.type_context.DefaultValue"><span class="pre">rawtypes.parser.type_context.DefaultValue</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#rawtypes.parser.type_context.ParamContext.default_value" title="この定義へのパーマリンク">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="rawtypes.parser.type_context.ParamContext.get_function_params">
