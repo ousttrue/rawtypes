@@ -8,7 +8,7 @@ from rawtypes.parser.struct_cursor import WrapFlags
 from rawtypes.parser.type_context import TypeContext
 from .basetype import BaseType
 from .primitive_types import VoidType
-from .pointer_types import PointerType, ReferenceType, ArrayType, RefenreceToStdArrayType
+from .pointer_types import PointerType, ReferenceType, ArrayType, ReferenceToStdArrayType
 from .wrap_types import PointerToStructType, ReferenceToStructType
 from .definition import StructType, TypedefType, EnumType
 from .string import CppStringType, CStringType, CharPointerType
@@ -112,7 +112,7 @@ class TypeManager:
         if m:
             is_const = True if m.group(1) else False
             base = primitive_types.get(m.group(2), False)
-            return RefenreceToStdArrayType(base, int(m.group(3)), is_const=is_const)
+            return ReferenceToStdArrayType(base, int(m.group(3)), is_const=is_const)
 
         match c.spelling:
             case 'std::string' | 'const std::string &':
