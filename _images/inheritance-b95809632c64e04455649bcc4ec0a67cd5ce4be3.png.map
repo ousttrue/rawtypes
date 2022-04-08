@@ -1,7 +1,7 @@
 <map id="inheritance82d8bb2c08" name="inheritance82d8bb2c08">
 <area shape="rect" id="node1" href="#rawtypes.interpreted_types.pointer_types.ArrayType" target="_top" title="ArrayType" alt="" coords="335,5,421,31"/>
 <area shape="rect" id="node2" href="#rawtypes.interpreted_types.pointer_types.PointerType" target="_top" title="PointerType" alt="" coords="137,55,236,80"/>
-<area shape="rect" id="node4" href="#rawtypes.interpreted_types.pointer_types.RefenreceToStdArrayType" target="_top" title="RefenreceToStdArrayType" alt="" coords="284,55,472,80"/>
+<area shape="rect" id="node4" href="#rawtypes.interpreted_types.pointer_types.ReferenceToStdArrayType" target="_top" title="ReferenceToStdArrayType" alt="" coords="284,55,472,80"/>
 <area shape="rect" id="node5" href="#rawtypes.interpreted_types.pointer_types.ReferenceType" target="_top" title="ReferenceType" alt="" coords="319,104,437,129"/>
 <area shape="rect" id="node3" href="rawtypes.interpreted_types.basetype.html#rawtypes.interpreted_types.basetype.BaseType" target="_top" title="コード生成時の型ごとの変換ルールを定義する。" alt="" coords="5,55,89,80"/>
 </map>
