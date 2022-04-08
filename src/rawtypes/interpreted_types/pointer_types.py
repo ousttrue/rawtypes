@@ -87,8 +87,12 @@ class ArrayType(PointerType):
     def ctypes_field(self, name: str) -> str:
         return f'("{name}", {self.ctypes_type}), # {self}'
 
+    @property
+    def pyi_types(self) -> Tuple[str, ...]:
+        return ('ctypes.Array', 'ctypes.c_void_p', 'None')
 
-class RefenreceToStdArrayType(PointerType):
+
+class ReferenceToStdArrayType(PointerType):
     size: int
 
     def __init__(self, base: BaseType, size: int, is_const=False):

@@ -49,7 +49,7 @@ class BaseType:
     @property
     def pyi_types(self) -> Tuple[str, ...]:
         '''
-        rename python type for aoivd language-server error
+        rename python type for avoid language-server error
 
         ex: ctypes.c_int32 => int
         '''
