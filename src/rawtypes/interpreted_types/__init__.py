@@ -98,7 +98,7 @@ class TypeManager:
             # for C struct without typedef
             name = name[7:]
         for w in self.WRAP_TYPES:
-            if w.name == name:
+            if w.name == name and w.fields:
                 return w
 
     def get(self, c: TypeWithCursor, is_const=False) -> BaseType:
