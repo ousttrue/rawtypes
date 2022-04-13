@@ -4,6 +4,12 @@ from rawtypes.clang import cindex
 import pathlib
 
 
+def escape(name: str):
+    if name[0] in ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'):
+        return '_' + name
+    return name
+
+
 class EnumCursor(NamedTuple):
     cursors: Tuple[cindex.Cursor, ...]
 
@@ -24,5 +30,5 @@ class EnumCursor(NamedTuple):
                     name = name[len(self.cursor.spelling):]
                 if name == 'None':
                     name = 'NONE'
-                w.write(f'    {name} = {hex(child.enum_value)}\n')
+                w.write(f'    {escape(name)} = {hex(child.enum_value)}\n')
         w.write('\n')
