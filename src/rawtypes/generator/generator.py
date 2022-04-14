@@ -145,6 +145,13 @@ class Generator:
                     f"{f.spelling}{overload}", func_name, "METH_VARARGS", f"{namespace}{f.spelling}")
                 methods.append(method)
 
+            if header.additional_functions:
+                for k, v in header.additional_functions.items():
+                    sio.write(v)
+                    method = PyMethodDef(
+                        k, k, "METH_VARARGS", f"additional: {k}")
+                    methods.append(method)
+
             for struct, wrap_type in structs:
                 for method in struct.get_methods(wrap_type):
                     sio.write(to_c_method(self.env, struct.cursor,
