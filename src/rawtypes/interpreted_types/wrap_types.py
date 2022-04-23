@@ -50,7 +50,7 @@ class ReferenceToStructType(ReferenceType):
 
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
         if default_value:
-            return f'''{indent}{self.name} default_value{i} = {default_value};
+            return f'''{indent}auto default_value{i} = {default_value};
 {indent}{self.base.name} *p{i} = t{i} ? ctypes_get_pointer<{self.base.name}*>(t{i}) : &default_value{i};
 '''
         else:
