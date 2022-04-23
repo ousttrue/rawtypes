@@ -1,9 +1,13 @@
 from typing import NamedTuple, List, Optional, Callable
 import os
+import pathlib
 import platform
 from ..clang import cindex
 import logging
 logger = logging.getLogger(__name__)
+
+SO_UBUNTU = pathlib.Path('/usr/lib/x86_64-linux-gnu/libclang-13.so')
+SO_GENTOO = pathlib.Path('/usr/lib/llvm/13/lib64/libclang.so.13')
 
 
 class Unsaved(NamedTuple):
@@ -42,17 +46,19 @@ def get_tu(entrypoint: str,
     elif os.name == 'nt':
         cindex.Config.library_path = 'C:\\Program Files\\LLVM\\bin'
     elif platform.system() == 'Linux':
-        # ubuntu
-        # apt install libclang1-13        
-        cindex.Config.library_path = '/usr/lib/x86_64-linux-gnu'
-        cindex.Config.library_file = 'libclang-13.so'
-        
+        if SO_UBUNTU.exists():
+            # apt install libclang1-13
+            cindex.Config.library_path = str(SO_UBUNTU.parent)
+            cindex.Config.library_file = SO_UBUNTU.name
+        elif SO_GENTOO.exists():
+            cindex.Config.library_path = str(SO_GENTOO.parent)
+            cindex.Config.library_file = SO_GENTOO.name
 
     index = cindex.Index.create()
     logger.debug(arguments)
     tu = index.parse(entrypoint, arguments, unsaved,
-                     cindex.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD |
-                     cindex.TranslationUnit.PARSE_SKIP_FUNCTION_BODIES)
+                     cindex.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD
+                     | cindex.TranslationUnit.PARSE_SKIP_FUNCTION_BODIES)
 
     return tu
 
