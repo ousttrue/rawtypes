@@ -62,11 +62,13 @@ if not CLANG_SRC.exists():
 setuptools.setup(name='rawtypes',
                  use_scm_version=True,
                  setup_requires=['setuptools_scm'],
+                 # package
                  package_dir={'': 'src'},
                  packages=setuptools.find_packages("src"),
                  package_data={'rawtypes.generator': ['templates/*']},
                  install_requires=["Jinja2"],
                  # meta-data
+                 description='A code generator using libclang for a python extension.',
                  long_description=(HERE / 'README.md').read_text(),
                  long_description_content_type='text/markdown',
                  author='ousttrue',
