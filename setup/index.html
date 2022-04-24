@@ -171,6 +171,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pypi.html">pypi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="metadata.html">metadata</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../cindex/index.html">clang.cindex パースと情報収集</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -319,56 +320,29 @@
 <li class="toctree-l2"><a class="reference internal" href="pypi.html#github-action">github action</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="metadata.html">metadata</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="metadata.html#header-etc">header etc</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="metadata.html#project-name">project_name</a></li>
+<li class="toctree-l3"><a class="reference internal" href="metadata.html#version">version</a></li>
+<li class="toctree-l3"><a class="reference internal" href="metadata.html#description">description</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="metadata.html#side">side</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="metadata.html#author">author</a></li>
+<li class="toctree-l3"><a class="reference internal" href="metadata.html#author-email">author_email</a></li>
+<li class="toctree-l3"><a class="reference internal" href="metadata.html#url">url</a></li>
+<li class="toctree-l3"><a class="reference internal" href="metadata.html#license">license</a></li>
+<li class="toctree-l3"><a class="reference internal" href="metadata.html#classifiers">classifiers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="metadata.html#main">main</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="metadata.html#long-description">long description</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </div>
-</section>
-<section id="meta-data">
-<h2>meta-data<a class="headerlink" href="#meta-data" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/distutils/setupscript.html#meta-data">https://docs.python.org/3/distutils/setupscript.html#meta-data</a></p></li>
-<li><p><a class="reference external" href="https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/#setup-args">https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/#setup-args</a></p></li>
-</ul>
-<section id="name-author-author-email-url">
-<h3>name, author, author_email, url<a class="headerlink" href="#name-author-author-email-url" title="このヘッドラインへのパーマリンク">¶</a></h3>
-<p>適当に。</p>
-</section>
-<section id="project-urls">
-<h3>project_urls<a class="headerlink" href="#project-urls" title="このヘッドラインへのパーマリンク">¶</a></h3>
-<p><a class="reference external" href="https://github.com/pallets/flask/blob/main/setup.cfg">https://github.com/pallets/flask/blob/main/setup.cfg</a></p>
-</section>
-<section id="version">
-<h3>version<a class="headerlink" href="#version" title="このヘッドラインへのパーマリンク">¶</a></h3>
-<p><a class="reference external" href="https://github.com/pypa/setuptools_scm/">https://github.com/pypa/setuptools_scm/</a></p>
-<p>git のタグからバージョンを付ける。</p>
-<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="n">setup</span><span class="p">(</span>
-    <span class="n">use_scm_version</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">setup_requires</span><span class="o">=</span><span class="p">[</span><span class="s1">'setuptools_scm'</span><span class="p">]</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="long-description-readme-md">
-<h3>long_description(README.md)<a class="headerlink" href="#long-description-readme-md" title="このヘッドラインへのパーマリンク">¶</a></h3>
-<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">setuptools</span> <span class="kn">import</span> <span class="n">setup</span>
-
-<span class="c1"># read the contents of your README file</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="n">this_directory</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span>
-<span class="n">long_description</span> <span class="o">=</span> <span class="p">(</span><span class="n">this_directory</span> <span class="o">/</span> <span class="s2">"README.md"</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
-
-<span class="n">setup</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s1">'an_example_package'</span><span class="p">,</span>
-    <span class="c1"># other arguments omitted</span>
-    <span class="n">long_description</span><span class="o">=</span><span class="n">long_description</span><span class="p">,</span>
-    <span class="n">long_description_content_type</span><span class="o">=</span><span class="s1">'text/markdown'</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="classifiers">
-<h3>classifiers<a class="headerlink" href="#classifiers" title="このヘッドラインへのパーマリンク">¶</a></h3>
-<p><a class="reference external" href="https://pypi.org/classifiers/">https://pypi.org/classifiers/</a></p>
-</section>
 </section>
 </section>
 
@@ -425,14 +399,6 @@
             <ul>
 <li><a class="reference internal" href="#">setup.py</a><ul>
 <li><a class="reference internal" href="#setuptools-distutils">setuptools と distutils</a></li>
-<li><a class="reference internal" href="#meta-data">meta-data</a><ul>
-<li><a class="reference internal" href="#name-author-author-email-url">name, author, author_email, url</a></li>
-<li><a class="reference internal" href="#project-urls">project_urls</a></li>
-<li><a class="reference internal" href="#version">version</a></li>
-<li><a class="reference internal" href="#long-description-readme-md">long_description(README.md)</a></li>
-<li><a class="reference internal" href="#classifiers">classifiers</a></li>
-</ul>
-</li>
 </ul>
 </li>
 </ul>

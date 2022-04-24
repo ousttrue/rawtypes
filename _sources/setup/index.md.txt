@@ -36,52 +36,5 @@ setup.py:1: DeprecationWarning: The distutils package is deprecated and slated f
 ```{toctree}
 command/index
 pypi
+metadata
 ```
-
-## meta-data
-
-* <https://docs.python.org/3/distutils/setupscript.html#meta-data>
-* <https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/#setup-args>
-
-### name, author, author_email, url
-
-適当に。
-
-### project_urls
-
-<https://github.com/pallets/flask/blob/main/setup.cfg>
-
-### version
-
-<https://github.com/pypa/setuptools_scm/>
-
-git のタグからバージョンを付ける。
-
-```py
-setup(
-    use_scm_version=True,
-    setup_requires=['setuptools_scm']
-)
-```
-
-### long_description(README.md)
-
-```py
-from setuptools import setup
-
-# read the contents of your README file
-from pathlib import Path
-this_directory = Path(__file__).parent
-long_description = (this_directory / "README.md").read_text()
-
-setup(
-    name='an_example_package',
-    # other arguments omitted
-    long_description=long_description,
-    long_description_content_type='text/markdown'
-)
-```
-
-### classifiers
-
-<https://pypi.org/classifiers/>

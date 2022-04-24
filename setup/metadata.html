@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="検索" href="../search.html" /><link rel="next" title="setup.py" href="../setup/index.html" /><link rel="prev" title="引き数" href="args.html" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="検索" href="../search.html" /><link rel="next" title="clang.cindex パースと情報収集" href="../cindex/index.html" /><link rel="prev" title="pypi" href="pypi.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.01.02"/>
-        <title>関数の実行と戻り値 - rawtypes ドキュメント</title>
+        <title>metadata - rawtypes ドキュメント</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=df49af52631e7917044a9c21a57f7b83170a6dd0" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
@@ -157,21 +157,21 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
-<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">rawtypes</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="args.html">引き数</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">関数の実行と戻り値</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../rawtypes/index.html">rawtypes</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../rawtypes/args.html">引き数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rawtypes/result.html">関数の実行と戻り値</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../setup/index.html">setup.py</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../setup/command/index.html">Command</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../setup/command/build_py.html">build_py</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../setup/command/build_ext.html">build_ext</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../setup/command/sdist.html">sdist</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../setup/command/install.html">install</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">setup.py</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="command/index.html">Command</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="command/build_py.html">build_py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="command/build_ext.html">build_ext</a></li>
+<li class="toctree-l3"><a class="reference internal" href="command/sdist.html">sdist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="command/install.html">install</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../setup/pypi.html">pypi</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../setup/metadata.html">metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypi.html">pypi</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">metadata</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../cindex/index.html">clang.cindex パースと情報収集</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -259,61 +259,79 @@
           </label>
         </div>
         <article role="main">
-          <section class="tex2jax_ignore mathjax_ignore" id="id1">
-<h1>関数の実行と戻り値<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h1>
-<section id="id2">
-<h2>関数の実行<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>ローカル変数に展開した引数で関数を呼び出す。</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ImGui</span><span class="o">::</span><span class="n">Begin</span><span class="p">(</span><span class="n">p0</span><span class="p">,</span><span class="w"> </span><span class="n">p1</span><span class="p">,</span><span class="w"> </span><span class="n">p2</span><span class="p">);</span><span class="w"></span>
+          <section class="tex2jax_ignore mathjax_ignore" id="metadata">
+<h1>metadata<a class="headerlink" href="#metadata" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/distutils/setupscript.html#meta-data">https://docs.python.org/3/distutils/setupscript.html#meta-data</a></p></li>
+<li><p><a class="reference external" href="https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/#setup-args">https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/#setup-args</a></p></li>
+</ul>
+<p>要するに pypi のサイトにどのように反映されるのか知りたい。</p>
+<section id="header-etc">
+<h2>header etc<a class="headerlink" href="#header-etc" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<section id="project-name">
+<h3>project_name<a class="headerlink" href="#project-name" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<ul class="simple">
+<li><p>https://pypi.org/project/rawtypes/</p></li>
+</ul>
+</section>
+<section id="version">
+<h3>version<a class="headerlink" href="#version" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><a class="reference external" href="https://github.com/pypa/setuptools_scm/">https://github.com/pypa/setuptools_scm/</a></p>
+<p>git のタグからバージョンを付ける。</p>
+<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="n">setup</span><span class="p">(</span>
+    <span class="n">use_scm_version</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">setup_requires</span><span class="o">=</span><span class="p">[</span><span class="s1">'setuptools_scm'</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>setup.py で pypi にアップロードする際にコード生成してる？</p>
+</section>
+<section id="description">
+<h3>description<a class="headerlink" href="#description" title="このヘッドラインへのパーマリンク">¶</a></h3>
+</section>
+</section>
+<section id="side">
+<h2>side<a class="headerlink" href="#side" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<section id="author">
+<h3>author<a class="headerlink" href="#author" title="このヘッドラインへのパーマリンク">¶</a></h3>
+</section>
+<section id="author-email">
+<h3>author_email<a class="headerlink" href="#author-email" title="このヘッドラインへのパーマリンク">¶</a></h3>
+</section>
+<section id="url">
+<h3>url<a class="headerlink" href="#url" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>project_urls</p>
+<p><a class="reference external" href="https://github.com/pallets/flask/blob/main/setup.cfg">https://github.com/pallets/flask/blob/main/setup.cfg</a></p>
+</section>
+<section id="license">
+<h3>license<a class="headerlink" href="#license" title="このヘッドラインへのパーマリンク">¶</a></h3>
+</section>
+<section id="classifiers">
+<h3>classifiers<a class="headerlink" href="#classifiers" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><a class="reference external" href="https://pypi.org/classifiers/">https://pypi.org/classifiers/</a></p>
+</section>
+</section>
+<section id="main">
+<h2>main<a class="headerlink" href="#main" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<section id="long-description">
+<h3>long description<a class="headerlink" href="#long-description" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">README.md</span></code></p>
+<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">setuptools</span> <span class="kn">import</span> <span class="n">setup</span>
+
+<span class="c1"># read the contents of your README file</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="n">this_directory</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span>
+<span class="n">long_description</span> <span class="o">=</span> <span class="p">(</span><span class="n">this_directory</span> <span class="o">/</span> <span class="s2">"README.md"</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+
+<span class="n">setup</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s1">'an_example_package'</span><span class="p">,</span>
+    <span class="c1"># other arguments omitted</span>
+    <span class="n">long_description</span><span class="o">=</span><span class="n">long_description</span><span class="p">,</span>
+    <span class="n">long_description_content_type</span><span class="o">=</span><span class="s1">'text/markdown'</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </section>
-<section id="void">
-<h2>void<a class="headerlink" href="#void" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>戻り値が無い関数は、 <code class="docutils literal notranslate"><span class="pre">Py_None</span></code> を返す。
-<code class="docutils literal notranslate"><span class="pre">NULL</span></code> を返すと例外が起こったことを意味する。</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="n">PyObject</span><span class="w"> </span><span class="o">*</span><span class="nf">imgui_End</span><span class="p">(</span><span class="n">PyObject</span><span class="w"> </span><span class="o">*</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">PyObject</span><span class="w"> </span><span class="o">*</span><span class="n">args</span><span class="p">){</span><span class="w"></span>
-<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">PyArg_ParseTuple</span><span class="p">(</span><span class="n">args</span><span class="p">,</span><span class="w"> </span><span class="s">""</span><span class="p">))</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="n">ImGui</span><span class="o">::</span><span class="n">End</span><span class="p">();</span><span class="w"></span>
-<span class="w">  </span><span class="n">Py_INCREF</span><span class="p">(</span><span class="n">Py_None</span><span class="p">);</span><span class="w">        </span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">Py_None</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-</pre></div>
-</div>
-</section>
-<section id="id3">
-<h2>戻り値 (void以外)<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>c++ の値を <code class="docutils literal notranslate"><span class="pre">PyObject*</span></code> に変換して返す。</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="n">PyObject</span><span class="o">*</span><span class="w"> </span><span class="n">py_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">(</span><span class="n">Py_INCREF</span><span class="p">(</span><span class="n">Py_True</span><span class="p">),</span><span class="w"> </span><span class="n">Py_True</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="n">Py_INCREF</span><span class="p">(</span><span class="n">Py_False</span><span class="p">),</span><span class="w"> </span><span class="n">Py_False</span><span class="p">));</span><span class="w"></span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">py_value</span><span class="p">;</span><span class="w"></span>
-</pre></div>
-</div>
-</section>
-<section id="py-incref">
-<h2>Py_INCREF<a class="headerlink" href="#py-incref" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">PyObject*</span></code> の参照カウントをインクリメントする。
-<code class="docutils literal notranslate"><span class="pre">Py_None</span></code>, <code class="docutils literal notranslate"><span class="pre">Py_True</span></code>, <code class="docutils literal notranslate"><span class="pre">Py_False</span></code> だけ特殊で自前でインクリメントする。
-それ以外(おそらく関数の返り値として入手する)は、手に入った時点で <code class="docutils literal notranslate"><span class="pre">Py_INCREF</span></code> されているようなので、自分でやる必要は無い。
-逆に、使い終わったら <code class="docutils literal notranslate"><span class="pre">Py_DECREF</span></code> で参照を減らしてやる必要がある。</p>
-</section>
-<section id="py-decref">
-<h2>Py_DECREF<a class="headerlink" href="#py-decref" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">Py_DECREF</span></code> の要不要は関数によって違うので逐一調べるしかない。
-必要ない感数は <code class="docutils literal notranslate"><span class="pre">borrow(借用)</span></code> と呼称しているようで、<code class="docutils literal notranslate"><span class="pre">PyArg_ParseTuple</span></code> は <code class="docutils literal notranslate"><span class="pre">借用</span></code> らしい。</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// 例</span>
-<span class="w">    </span><span class="c1">// ctypes.c_void_p</span>
-<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">PyObject_IsInstance</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="n">s_ctypes_c_void_p</span><span class="p">)){</span><span class="w"></span>
-<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">PyObject</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PyObject_GetAttr</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="n">s_value</span><span class="p">))</span><span class="w"></span>
-<span class="w">        </span><span class="p">{</span><span class="w"></span>
-<span class="w">            </span><span class="k">auto</span><span class="w"> </span><span class="n">pp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PyLong_AsVoidPtr</span><span class="p">(</span><span class="n">p</span><span class="p">);</span><span class="w"></span>
-<span class="w">            </span><span class="n">Py_DECREF</span><span class="p">(</span><span class="n">p</span><span class="p">);</span><span class="w"></span>
-<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">T</span><span class="p">)</span><span class="n">pp</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="p">}</span><span class="w"></span>
-<span class="w">        </span><span class="n">PyErr_Clear</span><span class="p">();</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-</pre></div>
-</div>
-<p>実行時に タスクマネージャーでメモリリークが無いことを確認するとよい。</p>
 </section>
 </section>
 
@@ -322,23 +340,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="../setup/index.html">
+          <a class="next-page" href="../cindex/index.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">setup.py</div>
+                <div class="title">clang.cindex パースと情報収集</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="args.html">
+          <a class="prev-page" href="pypi.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">引き数</div>
+                <div class="title">pypi</div>
                 
               </div>
             </a>
@@ -348,7 +366,7 @@
               Copyright &#169; 2022, ousttrue |
           Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
           <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
-            | <a class="muted-link" href="../_sources/rawtypes/result.md.txt"
+            | <a class="muted-link" href="../_sources/setup/metadata.md.txt"
                rel="nofollow">
               ソースコードを表示
             </a>
@@ -368,12 +386,25 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">関数の実行と戻り値</a><ul>
-<li><a class="reference internal" href="#id2">関数の実行</a></li>
-<li><a class="reference internal" href="#void">void</a></li>
-<li><a class="reference internal" href="#id3">戻り値 (void以外)</a></li>
-<li><a class="reference internal" href="#py-incref">Py_INCREF</a></li>
-<li><a class="reference internal" href="#py-decref">Py_DECREF</a></li>
+<li><a class="reference internal" href="#">metadata</a><ul>
+<li><a class="reference internal" href="#header-etc">header etc</a><ul>
+<li><a class="reference internal" href="#project-name">project_name</a></li>
+<li><a class="reference internal" href="#version">version</a></li>
+<li><a class="reference internal" href="#description">description</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#side">side</a><ul>
+<li><a class="reference internal" href="#author">author</a></li>
+<li><a class="reference internal" href="#author-email">author_email</a></li>
+<li><a class="reference internal" href="#url">url</a></li>
+<li><a class="reference internal" href="#license">license</a></li>
+<li><a class="reference internal" href="#classifiers">classifiers</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#main">main</a><ul>
+<li><a class="reference internal" href="#long-description">long description</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
