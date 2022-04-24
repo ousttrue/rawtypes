@@ -1,3 +1,4 @@
+from lib2to3.pgen2 import token
 from typing import NamedTuple, Optional, List
 import logging
 import re
@@ -96,8 +97,9 @@ class DefaultValue:
     @staticmethod
     def create(cursor: cindex.Cursor) -> Optional['DefaultValue']:
         tokens = []
+        children = []
         for child in cursor.get_children():
-            # logger.debug(child.spelling)
+            children.append(child)
             match child.kind:
                 case (cindex.CursorKind.UNEXPOSED_EXPR
                       | cindex.CursorKind.INTEGER_LITERAL
@@ -125,7 +127,7 @@ class DefaultValue:
     def cpp_value(self) -> str:
         index = self.tokens.index('=')
         assert(isinstance(index, int))
-        return ' '.join(self.tokens[index+1:])
+        return ' '.join(self.tokens[index + 1:])
 
     @property
     def py_value(self) -> str:
@@ -155,7 +157,7 @@ class DefaultValue:
                     return src
 
         equal = self.tokens.index('=')
-        return '=' + ''.join(token_filter(t) for t in self.tokens[equal+1:])
+        return '=' + ''.join(token_filter(t) for t in self.tokens[equal + 1:])
 
 
 class ParamContext(TypeContext):
@@ -166,12 +168,6 @@ class ParamContext(TypeContext):
         super().__init__(cursor.type, cursor)
         self.index = index
         self.default_value = DefaultValue.create(cursor)
-
-    @staticmethod
-    def get_function_params(cursor: cindex.Cursor) -> List['ParamContext']:
-        cursors = [child for child in cursor.get_children(
-        ) if child.kind == cindex.CursorKind.PARM_DECL]
-        return [ParamContext(i, child) for i, child in enumerate(cursors)]
 
 
 class FieldContext(TypeContext):

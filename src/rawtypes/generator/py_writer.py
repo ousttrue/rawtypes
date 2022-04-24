@@ -5,11 +5,11 @@ from rawtypes.clang import cindex
 from rawtypes.interpreted_types import TypeManager
 from rawtypes.parser.struct_cursor import StructCursor, WrapFlags
 from rawtypes.parser.type_context import FieldContext, ParamContext, ResultContext, TypeContext
-
+from rawtypes.parser.function_cursor import FunctionCursor
 
 def to_ctypes_method(cursor: cindex.Cursor, method: cindex.Cursor, type_manager: TypeManager) -> str:
     w = io.StringIO()
-    params = ParamContext.get_function_params(method)
+    # params = ParamContext.get_function_params(method)
     result = ResultContext(method)
     result_t = type_manager.from_cursor(result.type, result.cursor)
 
@@ -80,7 +80,7 @@ def cj(src: Iterable[str]) -> str:
 def write_pyi_function(type_map: TypeManager, pyx: io.IOBase, function: cindex.Cursor, *, overload=1, prefix=''):
     result = ResultContext(function)
     result_t = type_map.from_cursor(result.type, result.cursor)
-    params = ParamContext.get_function_params(function)
+    params = FunctionCursor([function]).params
 
     overload = '' if overload == 1 else f'_{overload}'
 
@@ -112,7 +112,7 @@ def self_cj(src: Iterable[str]) -> str:
 
 
 def write_pyi_method(type_map: TypeManager, pyx: io.IOBase, cursor: cindex.Cursor, method: cindex.Cursor):
-    params = ParamContext.get_function_params(method)
+    params = FunctionCursor([method]).params
     result = ResultContext(method)
     result_t = type_map.from_cursor(result.type, result.cursor)
 

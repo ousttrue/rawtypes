@@ -33,7 +33,7 @@ class Parser:
                          for header in headers] + [str(dir) for dir in include_dirs]
         unsaved = clang_util.Unsaved('tmp.h', sio.getvalue())
         tu = clang_util.get_tu(
-            'tmp.h', include_dirs=_include_dirs, definitions=definitions, unsaved=[unsaved], flags=['-DNOMINMAX'])
+            'tmp.h', include_dirs=_include_dirs, definitions=definitions, unsaved=[unsaved], flags=[])
 
         parser = Parser(tu, headers)
         parser._traverse()
@@ -107,7 +107,9 @@ class Parser:
                     logger.debug(cursor.kind)
 
         else:
-            if not location.file.name.startswith('C:'):
+            if location.file.name.startswith('C:') or location.file.name.startswith('/usr'):
+                pass
+            else:
                 if location.file.name not in self.skip:
                     logger.debug(f'unknown header: {location.file.name}')
                     self.skip.append(location.file.name)

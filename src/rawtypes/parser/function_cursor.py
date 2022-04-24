@@ -1,26 +1,19 @@
-from typing import Iterable, List, Tuple, NamedTuple
+from audioop import reverse
+import enum
+from typing import List, Tuple, NamedTuple
 import pathlib
 import logging
-import io
 from rawtypes.clang import cindex
 from .type_context import ParamContext, ResultContext
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
-EXCLUDE_TYPES = (
-    'va_list',
-    'ImGuiTextFilter',
-    'ImGuiStorage',
-    'ImGuiStorage *',
-)
-
-EXCLUDE_FUNCS = (
-    'CheckboxFlags',
-    'Combo',
-    'ListBox',
-    'PlotLines',
-)
+def rindex(l, target) -> int:
+    for i in range(len(l) - 1, -1, -1):
+        if l[i] == target:
+            return i
+    return -1
 
 
 class FunctionCursor(NamedTuple):
@@ -47,28 +40,35 @@ class FunctionCursor(NamedTuple):
 
     @property
     def params(self) -> List[ParamContext]:
-        return [param for param in ParamContext.get_function_params(self.cursor)]
-
-    def is_exclude_function(self) -> bool:
-        cursor = self.cursor
-        if cursor.spelling in EXCLUDE_FUNCS:
-            return True
-        if cursor.spelling.startswith('operator'):
-            logger.debug(f'exclude; {cursor.spelling}')
-            return True
-        if cursor.result_type.spelling in EXCLUDE_TYPES:
-            return True
-        for child in cursor.get_children():
-            if child.kind == cindex.CursorKind.PARM_DECL:
-                if child.type.spelling in EXCLUDE_TYPES:
-                    return True
-                if 'callback' in child.spelling:
-                    # function pointer
-                    return True
-                if 'func' in child.spelling:
-                    # function pointer
-                    return True
-                if '(*)' in child.type.spelling:
-                    # function pointer
-                    return True
-        return False
+        cursors = [child for child in self.cursor.get_children(
+        ) if child.kind == cindex.CursorKind.PARM_DECL]
+        params = [ParamContext(i, child) for i, child in enumerate(cursors)]
+        # params = [param for param in ParamContext.get_function_params(self.cursor)]
+        tokens = [token.spelling for token in self.cursor.get_tokens()]
+        open = tokens.index('(')
+        close = rindex(tokens, ')')
+        args = tokens[open + 1:close]
+        it = iter(args)
+        for i, param in enumerate(params):
+            current = []
+            stack = []
+            while True:
+                try:
+                    tmp = next(it)
+                    if tmp == '(':
+                        stack.append(tmp)
+                    elif tmp == ')':
+                        stack.pop()
+                    elif tmp == ',':
+                        if not stack:
+                            break
+                    current.append(tmp)
+                except StopIteration:
+                    break
+            if param.default_value and param.default_value.tokens[-1] == '=':
+                # work around for linux
+                equal = current.index('=')
+                value = ' '.join(current[equal + 1:])
+                LOGGER.debug(f'restore default argument: {param} => {value}')
+                param.default_value.tokens.append(value)
+        return params

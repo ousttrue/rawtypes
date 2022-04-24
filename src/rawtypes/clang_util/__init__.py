@@ -24,13 +24,17 @@ def get_tu(entrypoint: str,
     arguments = [
         "-x",
         "c++",
-        "-target",
-        "x86_64-windows-msvc",
-        "-fms-compatibility-version=18",
-        "-fdeclspec",
-        "-fms-compatibility",
         "-std=c++17",
     ]
+    if platform.system() == 'Windows':
+        arguments += [
+            "-target",
+            "x86_64-windows-msvc",
+            "-fdeclspec",
+            "-fms-compatibility-version=18",
+            "-fms-compatibility",
+            "-DNOMINMAX",
+        ]
     if include_dirs:
         arguments.extend(f'-I{i}' for i in include_dirs)
     if definitions:

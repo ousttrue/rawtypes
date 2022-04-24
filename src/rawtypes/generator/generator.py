@@ -57,7 +57,7 @@ class Generator:
             loader=PackageLoader("rawtypes.generator"),
         )
 
-    def generate(self, package_dir: pathlib.Path, cpp_path: pathlib.Path, function_custom=[]):
+    def generate(self, package_dir: pathlib.Path, cpp_path: pathlib.Path, *, function_custom=[], is_exclude_function=None):
 
         modules = []
         headers = []
@@ -98,7 +98,7 @@ class Generator:
             with (package_dir / f'{header.path.stem}.pyi').open('w') as pyi:
                 pyi.write(PY_BEGIN)
                 pyi.write(header.begin)
-                self.write_pyi(header, pyi)
+                self.write_pyi(header, pyi, is_exclude_function=is_exclude_function)
 
                 # enum
                 pyi.write('from enum import IntEnum\n\n')
@@ -120,7 +120,7 @@ class Generator:
             for f in self.parser.functions:
                 if header.path != f.path:
                     continue
-                if f.is_exclude_function():
+                if is_exclude_function and is_exclude_function(f):
                     continue
                 if not header.if_include(f.spelling):
                     continue
@@ -180,19 +180,19 @@ class Generator:
             'rawtypes.generator', 'templates/rawtypes.h'))
         shutil.copy(RAWTYPES_H, cpp_path.parent / RAWTYPES_H.name)
 
-    def write_pyi(self, header: Header, pyi: io.IOBase):
+    def write_pyi(self, header: Header, pyi: io.IOBase, is_exclude_function):
         types = [x for x in self.parser.typedef_struct_list if pathlib.Path(
             x.cursor.location.file.name) == header.path]
         if types:
             for v in self.type_manager.WRAP_TYPES:
-                for typedef_or_struct in types:
-                    if typedef_or_struct.cursor.spelling == v.name:
-                        match typedef_or_struct:
+                for f in types:
+                    if f.cursor.spelling == v.name:
+                        match f:
                             case TypedefCursor():
                                 pass
                             case StructCursor():
                                 write_pyi_struct(
-                                    typedef_or_struct, self.type_manager, pyi, flags=v)
+                                    f, self.type_manager, pyi, flags=v)
                             case _:
                                 raise Exception()
 
@@ -200,12 +200,12 @@ class Generator:
             x.cursor.location.file.name) == header.path]
         if funcs:
             overload = {}
-            for typedef_or_struct in funcs:
-                if typedef_or_struct.is_exclude_function():
+            for f in funcs:
+                if is_exclude_function and is_exclude_function(f):
                     continue
 
-                name = typedef_or_struct.spelling
+                name = f.spelling
                 count = overload.get(name, 0) + 1
                 write_pyi_function(
-                    self.type_manager, pyi, typedef_or_struct.cursor, overload=count, prefix=header.prefix)
+                    self.type_manager, pyi, f.cursor, overload=count, prefix=header.prefix)
                 overload[name] = count
