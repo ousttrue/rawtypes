@@ -35,6 +35,10 @@ def get_tu(entrypoint: str,
             "-fms-compatibility",
             "-DNOMINMAX",
         ]
+    else:
+        arguments += [
+            "-I/usr/lib/clang/13.0.1/include",
+        ]
     if include_dirs:
         arguments.extend(f'-I{i}' for i in include_dirs)
     if definitions:

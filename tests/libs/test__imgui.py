@@ -42,7 +42,7 @@ class TestImGuiParse(unittest.TestCase):
         self.assertEqual(1, len(params))
         type_manager = TypeManager()
         p = type_manager.to_type(params[0])
-        pass
+        self.assertEqual('size_t', p.base.name)
 
         # 'ImFontAtlas_AddFont'
         s = parser.get_struct('ImFontAtlas')

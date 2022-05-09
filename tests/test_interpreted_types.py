@@ -45,7 +45,11 @@ class TestInterpretedTypes(unittest.TestCase):
         self.assertEqual(
             float64, interpreted_types.primitive_types.DoubleType())
 
-        size_t = _test_utils.parse_get_result_type('size_t func();')
+    def test_size_t(self):
+        size_t = _test_utils.parse_get_result_type('''
+#include <stddef.h>
+size_t func();
+''')
         self.assertEqual(
             size_t, interpreted_types.primitive_types.SizeType())
 
