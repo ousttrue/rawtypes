@@ -2,8 +2,7 @@ from typing import List, Tuple
 import shutil
 import pathlib
 from jinja2 import Environment, PackageLoader, select_autoescape
-import pkg_resources
-
+import importlib.resources
 from rawtypes.generator.cpp_writer import to_c_function, to_c_method
 from rawtypes.generator.py_writer import to_ctypes_iter, write_pyi_function, write_pyi_struct
 from ..parser.header import Header
@@ -176,7 +175,7 @@ class Generator:
             w.write(template.render(headers=headers, modules=modules))
 
         # copy rawtypes.h
-        RAWTYPES_H = pathlib.Path(pkg_resources.resource_filename(
+        RAWTYPES_H = pathlib.Path(importlib.resources.resource_filename(
             'rawtypes.generator', 'templates/rawtypes.h'))
         shutil.copy(RAWTYPES_H, cpp_path.parent / RAWTYPES_H.name)
 

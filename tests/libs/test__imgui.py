@@ -35,6 +35,15 @@ class TestImGuiParse(unittest.TestCase):
         self.assertEqual(3, len(params))
         self.assertEqual('NULL', params[2].default_value.cpp_value)
 
+        # cehck size_t
+        f = parser.get_function('SaveIniSettingsToMemory')
+        self.assertIsNotNone(f)
+        params = f.params
+        self.assertEqual(1, len(params))
+        type_manager = TypeManager()
+        p = type_manager.to_type(params[0])
+        pass
+
         # 'ImFontAtlas_AddFont'
         s = parser.get_struct('ImFontAtlas')
         self.assertIsNotNone(s)
