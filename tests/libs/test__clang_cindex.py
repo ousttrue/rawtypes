@@ -4,7 +4,7 @@ import logging
 from rawtypes.generator.cpp_writer import to_c_function
 from rawtypes.parser.header import Header
 from rawtypes.parser.struct_cursor import WrapFlags
-import rawtypes.generator.generator
+import rawtypes.generator.python_generator
 
 logging.basicConfig(level=logging.DEBUG)
 HERE = pathlib.Path(__file__).absolute().parent
@@ -14,7 +14,7 @@ CINDEX_HEADER = pathlib.Path("C:/Program Files/LLVM/include/clang-c/Index.h")
 
 class TestGenerator(unittest.TestCase):
     def setUp(self) -> None:
-        self.generator = rawtypes.generator.generator.Generator(
+        self.generator = rawtypes.generator.python_generator.Generator(
             Header(CINDEX_HEADER, include_dirs=[CINDEX_HEADER.parent.parent]))
         self.generator.type_manager.WRAP_TYPES.append(
             WrapFlags('clang', 'CXCursor', True)

@@ -7,7 +7,7 @@ from rawtypes.generator.py_writer import to_ctypes_iter
 from rawtypes.interpreted_types import TypeManager
 from rawtypes.parser.struct_cursor import WrapFlags
 from rawtypes.generator.cpp_writer import to_c_function
-import rawtypes.generator.generator
+import rawtypes.generator.python_generator
 from rawtypes.parser.header import Header
 from rawtypes.parser import parse
 from . import VCPKG_INCLUDE
@@ -18,7 +18,7 @@ class TestEtc(unittest.TestCase):
     def test_clang_getNullCursor(self):
         header = VCPKG_INCLUDE / 'GL/glew.h'
 
-        generator = rawtypes.generator.generator.Generator(
+        generator = rawtypes.generator.python_generator.Generator(
             Header(header, include_dirs=[header.parent.parent])
         )
 

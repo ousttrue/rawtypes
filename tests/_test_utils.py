@@ -1,6 +1,6 @@
 from typing import Callable, Tuple
 from rawtypes.clang import cindex
-from rawtypes.generator.generator import Generator
+from rawtypes.generator.python_generator import Generator
 from rawtypes import interpreted_types
 
 generator = Generator()

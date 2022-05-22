@@ -8,7 +8,7 @@ from rawtypes.interpreted_types import TypeManager
 from rawtypes.interpreted_types.string import CharPointerType
 from rawtypes.parser.struct_cursor import WrapFlags
 from rawtypes.generator.cpp_writer import FunctionCustomization, to_c_function
-import rawtypes.generator.generator
+import rawtypes.generator.python_generator
 from rawtypes.parser.header import Header
 from rawtypes.parser import parse
 

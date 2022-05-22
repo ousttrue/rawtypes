@@ -38,7 +38,7 @@ class PyMethodDef(NamedTuple):
         return f'{{"{self.name}", {self.meth}, {self.flags}, "{self.doc}"}}'
 
 
-class Generator:
+class PythonGenerator:
     def __init__(self, *headers: Header, include_dirs=[]) -> None:
         # parse
         include_dirs = sum(
