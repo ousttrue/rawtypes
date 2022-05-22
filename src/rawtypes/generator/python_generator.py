@@ -1,8 +1,6 @@
-import pkgutil
 from typing import List, Tuple
 import shutil
 import pathlib
-from jinja2 import Environment, PackageLoader, select_autoescape
 import pkg_resources
 from rawtypes.generator.cpp_writer import to_c_function, to_c_method
 from rawtypes.generator.py_writer import to_ctypes_iter, write_pyi_function, write_pyi_struct
@@ -12,6 +10,7 @@ from ..interpreted_types import *
 from ..parser.struct_cursor import StructCursor, WrapFlags
 from ..parser.typedef_cursor import TypedefCursor
 from ..parser.function_cursor import FunctionCursor
+from .generator_base import GeneratorBase
 
 
 PY_BEGIN = '''from typing import Type, Tuple, Union, Any, Iterable
@@ -23,7 +22,7 @@ from enum import IntEnum
 def get_namespace(cursors: Tuple[cindex.Cursor, ...]) -> str:
     sio = io.StringIO()
     for cursor in cursors:
-        if cursor.kind == cindex.CursorKind.NAMESPACE:
+        if cursor.kind == cindex.CursorKind.NAMESPACE: # type: ignore
             sio.write(f'{cursor.spelling}::')
     return sio.getvalue()
 
@@ -38,24 +37,7 @@ class PyMethodDef(NamedTuple):
         return f'{{"{self.name}", {self.meth}, {self.flags}, "{self.doc}"}}'
 
 
-class PythonGenerator:
-    def __init__(self, *headers: Header, include_dirs=[]) -> None:
-        # parse
-        include_dirs = sum(
-            [list(header.include_dirs) for header in headers], include_dirs)
-        self.parser = Parser.parse(
-            [header.path for header in headers],
-            include_dirs=include_dirs,
-            definitions=sum([list(header.definitions)
-                            for header in headers], [])
-        )
-        self.headers = [
-            header for header in headers if not header.include_only]
-        # prepare
-        self.type_manager = TypeManager()
-        self.env = Environment(
-            loader=PackageLoader("rawtypes.generator"),
-        )
+class PythonGenerator(GeneratorBase):
 
     def generate(self, package_dir: pathlib.Path, cpp_path: pathlib.Path, *, function_custom=[], is_exclude_function=None):
 
