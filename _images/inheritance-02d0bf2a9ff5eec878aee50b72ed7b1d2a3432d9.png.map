@@ -1,0 +1,5 @@
+<map id="inheritancee2aa2e0120" name="inheritancee2aa2e0120">
+<area shape="rect" id="node1" href="rawtypes.generator.generator_base.html#rawtypes.generator.generator_base.GeneratorBase" target="_top" title="GeneratorBase" alt="" coords="5,55,124,80"/>
+<area shape="rect" id="node3" href="#rawtypes.generator.python_generator.PythonGenerator" target="_top" title="PythonGenerator" alt="" coords="172,55,304,80"/>
+<area shape="rect" id="node2" href="#rawtypes.generator.python_generator.PyMethodDef" target="_top" title="PyMethodDef(name, meth, flags, doc)" alt="" coords="9,5,120,31"/>
+</map>

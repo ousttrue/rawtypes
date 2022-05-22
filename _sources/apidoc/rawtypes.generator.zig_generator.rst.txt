@@ -1,0 +1,9 @@
+rawtypes.generator.zig\_generator module
+========================================
+.. inheritance-diagram:: rawtypes.generator.zig_generator
+   :parts: 1
+
+.. automodule:: rawtypes.generator.zig_generator
+   :members:
+   :undoc-members:
+   :show-inheritance:

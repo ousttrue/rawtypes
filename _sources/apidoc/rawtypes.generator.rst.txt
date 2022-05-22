@@ -8,8 +8,10 @@ Submodules
    :maxdepth: 4
 
    rawtypes.generator.cpp_writer
-   rawtypes.generator.generator
+   rawtypes.generator.generator_base
    rawtypes.generator.py_writer
+   rawtypes.generator.python_generator
+   rawtypes.generator.zig_generator
 
 Module contents
 ---------------

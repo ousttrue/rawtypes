@@ -6,7 +6,7 @@
 <link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="検索" href="../search.html" /><link rel="next" title="rawtypes.generator.py_writer module" href="rawtypes.generator.py_writer.html" /><link rel="prev" title="rawtypes.generator.cpp_writer module" href="rawtypes.generator.cpp_writer.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.01.02"/>
-        <title>rawtypes.generator.generator module - rawtypes ドキュメント</title>
+        <title>rawtypes.generator.generator_base module - rawtypes ドキュメント</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=df49af52631e7917044a9c21a57f7b83170a6dd0" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
@@ -205,8 +205,10 @@
 </li>
 <li class="toctree-l3 current has-children"><a class="reference internal" href="rawtypes.generator.html">rawtypes.generator package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="rawtypes.generator.cpp_writer.html">rawtypes.generator.cpp_writer module</a></li>
-<li class="toctree-l4 current current-page"><a class="current reference internal" href="#">rawtypes.generator.generator module</a></li>
+<li class="toctree-l4 current current-page"><a class="current reference internal" href="#">rawtypes.generator.generator_base module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="rawtypes.generator.py_writer.html">rawtypes.generator.py_writer module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rawtypes.generator.python_generator.html">rawtypes.generator.python_generator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rawtypes.generator.zig_generator.html">rawtypes.generator.zig_generator module</a></li>
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="rawtypes.interpreted_types.html">rawtypes.interpreted_types package</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -259,52 +261,18 @@
           </label>
         </div>
         <article role="main">
-          <section id="rawtypes-generator-generator-module">
-<h1>rawtypes.generator.generator module<a class="headerlink" href="#rawtypes-generator-generator-module" title="このヘッドラインへのパーマリンク">¶</a></h1>
-<div class="graphviz"><img alt="Inheritance diagram of rawtypes.generator.generator" class="inheritance graphviz" src="../_images/inheritance-758528ef39cf1d3550d85a84e440b0f2e30c926b.png" usemap="#inheritanceb2e6dfbc24"/></div>
-<map id="inheritanceb2e6dfbc24" name="inheritanceb2e6dfbc24">
-<area alt="" coords="17,55,104,80" href="#rawtypes.generator.generator.Generator" id="node1" shape="rect" target="_top" title="Generator"/>
-<area alt="" coords="5,5,116,31" href="#rawtypes.generator.generator.PyMethodDef" id="node2" shape="rect" target="_top" title="PyMethodDef(name, meth, flags, doc)"/>
-</map><span class="target" id="module-rawtypes.generator.generator"></span><dl class="py function">
-<dt class="sig sig-object py" id="rawtypes.generator.generator.get_namespace">
-<span class="sig-prename descclassname"><span class="pre">rawtypes.generator.generator.</span></span><span class="sig-name descname"><span class="pre">get_namespace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cursors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="rawtypes.clang.cindex.html#rawtypes.clang.cindex.Cursor" title="rawtypes.clang.cindex.Cursor"><span class="pre">rawtypes.clang.cindex.Cursor</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#rawtypes.generator.generator.get_namespace" title="この定義へのパーマリンク">¶</a></dt>
-<dd></dd></dl>
-<dl class="py class">
-<dt class="sig sig-object py" id="rawtypes.generator.generator.PyMethodDef">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawtypes.generator.generator.</span></span><span class="sig-name descname"><span class="pre">PyMethodDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawtypes.generator.generator.PyMethodDef" title="この定義へのパーマリンク">¶</a></dt>
-<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="rawtypes.generator.generator.PyMethodDef.name">
-<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#rawtypes.generator.generator.PyMethodDef.name" title="この定義へのパーマリンク">¶</a></dt>
-<dd><p>Alias for field number 0</p>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="rawtypes.generator.generator.PyMethodDef.meth">
-<span class="sig-name descname"><span class="pre">meth</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#rawtypes.generator.generator.PyMethodDef.meth" title="この定義へのパーマリンク">¶</a></dt>
-<dd><p>Alias for field number 1</p>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="rawtypes.generator.generator.PyMethodDef.flags">
-<span class="sig-name descname"><span class="pre">flags</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#rawtypes.generator.generator.PyMethodDef.flags" title="この定義へのパーマリンク">¶</a></dt>
-<dd><p>Alias for field number 2</p>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="rawtypes.generator.generator.PyMethodDef.doc">
-<span class="sig-name descname"><span class="pre">doc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#rawtypes.generator.generator.PyMethodDef.doc" title="この定義へのパーマリンク">¶</a></dt>
-<dd><p>Alias for field number 3</p>
-</dd></dl>
-</dd></dl>
-<dl class="py class">
-<dt class="sig sig-object py" id="rawtypes.generator.generator.Generator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawtypes.generator.generator.</span></span><span class="sig-name descname"><span class="pre">Generator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">headers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rawtypes.parser.header.html#rawtypes.parser.header.Header" title="rawtypes.parser.header.Header"><span class="pre">rawtypes.parser.header.Header</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_dirs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawtypes.generator.generator.Generator" title="この定義へのパーマリンク">¶</a></dt>
+          <section id="rawtypes-generator-generator-base-module">
+<h1>rawtypes.generator.generator_base module<a class="headerlink" href="#rawtypes-generator-generator-base-module" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<div class="graphviz"><img alt="Inheritance diagram of rawtypes.generator.generator_base" class="inheritance graphviz" src="../_images/inheritance-77959e8c719f5d7badd764b9f47d1289d2cd9404.png" usemap="#inheritanced079c9cdeb"/></div>
+<map id="inheritanced079c9cdeb" name="inheritanced079c9cdeb">
+<area alt="" coords="5,5,124,31" href="#rawtypes.generator.generator_base.GeneratorBase" id="node1" shape="rect" target="_top" title="GeneratorBase"/>
+</map><span class="target" id="module-rawtypes.generator.generator_base"></span><dl class="py class">
+<dt class="sig sig-object py" id="rawtypes.generator.generator_base.GeneratorBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawtypes.generator.generator_base.</span></span><span class="sig-name descname"><span class="pre">GeneratorBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">headers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rawtypes.parser.header.html#rawtypes.parser.header.Header" title="rawtypes.parser.header.Header"><span class="pre">rawtypes.parser.header.Header</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_dirs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawtypes.generator.generator_base.GeneratorBase" title="この定義へのパーマリンク">¶</a></dt>
 <dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
-<dt class="sig sig-object py" id="rawtypes.generator.generator.Generator.generate">
-<span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpp_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function_custom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_exclude_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawtypes.generator.generator.Generator.generate" title="この定義へのパーマリンク">¶</a></dt>
-<dd></dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="rawtypes.generator.generator.Generator.write_pyi">
-<span class="sig-name descname"><span class="pre">write_pyi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rawtypes.parser.header.html#rawtypes.parser.header.Header" title="rawtypes.parser.header.Header"><span class="pre">rawtypes.parser.header.Header</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pyi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">io.IOBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_exclude_function</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawtypes.generator.generator.Generator.write_pyi" title="この定義へのパーマリンク">¶</a></dt>
+<dt class="sig sig-object py" id="rawtypes.generator.generator_base.GeneratorBase.generate">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpp_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function_custom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_exclude_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawtypes.generator.generator_base.GeneratorBase.generate" title="この定義へのパーマリンク">¶</a></dt>
 <dd></dd></dl>
 </dd></dl>
 </section>
@@ -340,7 +308,7 @@
               Copyright &#169; 2022, ousttrue |
           Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
           <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
-            | <a class="muted-link" href="../_sources/apidoc/rawtypes.generator.generator.rst.txt"
+            | <a class="muted-link" href="../_sources/apidoc/rawtypes.generator.generator_base.rst.txt"
                rel="nofollow">
               ソースコードを表示
             </a>

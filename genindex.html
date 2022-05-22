@@ -203,8 +203,10 @@
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="apidoc/rawtypes.generator.html">rawtypes.generator package</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="apidoc/rawtypes.generator.cpp_writer.html">rawtypes.generator.cpp_writer module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="apidoc/rawtypes.generator.generator.html">rawtypes.generator.generator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="apidoc/rawtypes.generator.generator_base.html">rawtypes.generator.generator_base module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="apidoc/rawtypes.generator.py_writer.html">rawtypes.generator.py_writer module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="apidoc/rawtypes.generator.python_generator.html">rawtypes.generator.python_generator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="apidoc/rawtypes.generator.zig_generator.html">rawtypes.generator.zig_generator module</a></li>
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="apidoc/rawtypes.interpreted_types.html">rawtypes.interpreted_types package</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -260,7 +262,7 @@
           
 <section class="genindex-section">
   <h1 id="index">索引</h1>
-  <div class="genindex-jumpbox"><a href="#A"><strong>A</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#K"><strong>K</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#O"><strong>O</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#U"><strong>U</strong></a> | <a href="#V"><strong>V</strong></a> | <a href="#W"><strong>W</strong></a> | <a href="#X"><strong>X</strong></a> | <a href="#モ"><strong>モ</strong></a></div>
+  <div class="genindex-jumpbox"><a href="#A"><strong>A</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#K"><strong>K</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#O"><strong>O</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#U"><strong>U</strong></a> | <a href="#V"><strong>V</strong></a> | <a href="#W"><strong>W</strong></a> | <a href="#X"><strong>X</strong></a> | <a href="#Z"><strong>Z</strong></a> | <a href="#モ"><strong>モ</strong></a></div>
 </section>
 <section id="A" class="genindex-section">
   <h2>A</h2>
@@ -754,7 +756,7 @@
 </li>
         <li><a href="apidoc/rawtypes.clang.cindex.html#rawtypes.clang.cindex.CursorKind.DO_STMT">DO_STMT (rawtypes.clang.cindex.CursorKind の属性)</a>
 </li>
-        <li><a href="apidoc/rawtypes.generator.generator.html#rawtypes.generator.generator.PyMethodDef.doc">doc (rawtypes.generator.generator.PyMethodDef の属性)</a>
+        <li><a href="apidoc/rawtypes.generator.python_generator.html#rawtypes.generator.python_generator.PyMethodDef.doc">doc (rawtypes.generator.python_generator.PyMethodDef の属性)</a>
 </li>
         <li><a href="apidoc/rawtypes.clang.cindex.html#rawtypes.clang.cindex.TypeKind.DOUBLE">DOUBLE (rawtypes.clang.cindex.TypeKind の属性)</a>
 </li>
@@ -846,7 +848,7 @@
 </li>
         <li><a href="apidoc/rawtypes.clang.cindex.html#rawtypes.clang.cindex.Diagnostic.fixits">fixits (rawtypes.clang.cindex.Diagnostic のプロパティ)</a>
 </li>
-        <li><a href="apidoc/rawtypes.generator.generator.html#rawtypes.generator.generator.PyMethodDef.flags">flags (rawtypes.generator.generator.PyMethodDef の属性)</a>
+        <li><a href="apidoc/rawtypes.generator.python_generator.html#rawtypes.generator.python_generator.PyMethodDef.flags">flags (rawtypes.generator.python_generator.PyMethodDef の属性)</a>
 </li>
         <li><a href="apidoc/rawtypes.clang.cindex.html#rawtypes.clang.cindex.TypeKind.FLOAT">FLOAT (rawtypes.clang.cindex.TypeKind の属性)</a>
 </li>
@@ -939,14 +941,18 @@
         <li><a href="apidoc/rawtypes.clang_util.generate_cindex_stub.html#rawtypes.clang_util.generate_cindex_stub.generate">generate() (rawtypes.clang_util.generate_cindex_stub モジュール)</a>
 
         <ul>
-          <li><a href="apidoc/rawtypes.generator.generator.html#rawtypes.generator.generator.Generator.generate">(rawtypes.generator.generator.Generator のメソッド)</a>
+          <li><a href="apidoc/rawtypes.generator.generator_base.html#rawtypes.generator.generator_base.GeneratorBase.generate">(rawtypes.generator.generator_base.GeneratorBase のメソッド)</a>
+</li>
+          <li><a href="apidoc/rawtypes.generator.python_generator.html#rawtypes.generator.python_generator.PythonGenerator.generate">(rawtypes.generator.python_generator.PythonGenerator のメソッド)</a>
+</li>
+          <li><a href="apidoc/rawtypes.generator.zig_generator.html#rawtypes.generator.zig_generator.ZigGenerator.generate">(rawtypes.generator.zig_generator.ZigGenerator のメソッド)</a>
 </li>
         </ul></li>
         <li><a href="apidoc/rawtypes.clang_util.generate_cindex_stub.html#rawtypes.clang_util.generate_cindex_stub.generate_enum">generate_enum() (rawtypes.clang_util.generate_cindex_stub モジュール)</a>
 </li>
         <li><a href="apidoc/rawtypes.clang_util.generate_cindex_stub.html#rawtypes.clang_util.generate_cindex_stub.generate_instance">generate_instance() (rawtypes.clang_util.generate_cindex_stub モジュール)</a>
 </li>
-        <li><a href="apidoc/rawtypes.generator.generator.html#rawtypes.generator.generator.Generator">Generator (rawtypes.generator.generator のクラス)</a>
+        <li><a href="apidoc/rawtypes.generator.generator_base.html#rawtypes.generator.generator_base.GeneratorBase">GeneratorBase (rawtypes.generator.generator_base のクラス)</a>
 </li>
         <li><a href="apidoc/rawtypes.clang.cindex.html#rawtypes.clang.cindex.CursorKind.GENERIC_SELECTION_EXPR">GENERIC_SELECTION_EXPR (rawtypes.clang.cindex.CursorKind の属性)</a>
 </li>
@@ -1000,10 +1006,10 @@
 </li>
         <li><a href="apidoc/rawtypes.parser.parser.html#rawtypes.parser.parser.Parser.get_function">get_function() (rawtypes.parser.parser.Parser のメソッド)</a>
 </li>
-        <li><a href="apidoc/rawtypes.clang.cindex.html#rawtypes.clang.cindex.Cursor.get_included_file">get_included_file() (rawtypes.clang.cindex.Cursor のメソッド)</a>
-</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="apidoc/rawtypes.clang.cindex.html#rawtypes.clang.cindex.Cursor.get_included_file">get_included_file() (rawtypes.clang.cindex.Cursor のメソッド)</a>
+</li>
         <li><a href="apidoc/rawtypes.clang.cindex.html#rawtypes.clang.cindex.TranslationUnit.get_includes">get_includes() (rawtypes.clang.cindex.TranslationUnit のメソッド)</a>
 </li>
         <li><a href="apidoc/rawtypes.clang.cindex.html#rawtypes.clang.cindex.TranslationUnit.get_location">get_location() (rawtypes.clang.cindex.TranslationUnit のメソッド)</a>
@@ -1014,7 +1020,7 @@
 </li>
         <li><a href="apidoc/rawtypes.clang.cindex.html#rawtypes.clang.cindex.Type.get_named_type">get_named_type() (rawtypes.clang.cindex.Type のメソッド)</a>
 </li>
-        <li><a href="apidoc/rawtypes.generator.generator.html#rawtypes.generator.generator.get_namespace">get_namespace() (rawtypes.generator.generator モジュール)</a>
+        <li><a href="apidoc/rawtypes.generator.python_generator.html#rawtypes.generator.python_generator.get_namespace">get_namespace() (rawtypes.generator.python_generator モジュール)</a>
 </li>
         <li><a href="apidoc/rawtypes.clang.cindex.html#rawtypes.clang.cindex.Cursor.get_num_template_arguments">get_num_template_arguments() (rawtypes.clang.cindex.Cursor のメソッド)</a>
 
@@ -1332,7 +1338,7 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="apidoc/rawtypes.clang.cindex.html#rawtypes.clang.cindex.TypeKind.MEMBERPOINTER">MEMBERPOINTER (rawtypes.clang.cindex.TypeKind の属性)</a>
 </li>
-        <li><a href="apidoc/rawtypes.generator.generator.html#rawtypes.generator.generator.PyMethodDef.meth">meth (rawtypes.generator.generator.PyMethodDef の属性)</a>
+        <li><a href="apidoc/rawtypes.generator.python_generator.html#rawtypes.generator.python_generator.PyMethodDef.meth">meth (rawtypes.generator.python_generator.PyMethodDef の属性)</a>
 </li>
         <li><a href="apidoc/rawtypes.parser.struct_cursor.html#rawtypes.parser.struct_cursor.WrapFlags.methods">methods (rawtypes.parser.struct_cursor.WrapFlags の属性)</a>
 </li>
@@ -1355,7 +1361,7 @@
 </li>
           <li><a href="apidoc/rawtypes.generator.cpp_writer.html#rawtypes.generator.cpp_writer.FunctionCustomization.name">(rawtypes.generator.cpp_writer.FunctionCustomization の属性)</a>
 </li>
-          <li><a href="apidoc/rawtypes.generator.generator.html#rawtypes.generator.generator.PyMethodDef.name">(rawtypes.generator.generator.PyMethodDef の属性)</a>
+          <li><a href="apidoc/rawtypes.generator.python_generator.html#rawtypes.generator.python_generator.PyMethodDef.name">(rawtypes.generator.python_generator.PyMethodDef の属性)</a>
 </li>
           <li><a href="apidoc/rawtypes.parser.struct_cursor.html#rawtypes.parser.struct_cursor.StructCursor.name">(rawtypes.parser.struct_cursor.StructCursor のプロパティ)</a>
 </li>
@@ -1714,10 +1720,10 @@
 </li>
         <li><a href="apidoc/rawtypes.clang.cindex.html#rawtypes.clang.cindex.TypeKind.POINTER">POINTER (rawtypes.clang.cindex.TypeKind の属性)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="apidoc/rawtypes.interpreted_types.wrap_types.html#rawtypes.interpreted_types.wrap_types.PointerToStructType">PointerToStructType (rawtypes.interpreted_types.wrap_types のクラス)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="apidoc/rawtypes.interpreted_types.pointer_types.html#rawtypes.interpreted_types.pointer_types.PointerType">PointerType (rawtypes.interpreted_types.pointer_types のクラス)</a>
 </li>
         <li><a href="apidoc/rawtypes.clang.cindex.html#rawtypes.clang.cindex.CursorKind.PREPROCESSING_DIRECTIVE">PREPROCESSING_DIRECTIVE (rawtypes.clang.cindex.CursorKind の属性)</a>
@@ -1780,7 +1786,9 @@
           <li><a href="apidoc/rawtypes.interpreted_types.wrap_types.html#rawtypes.interpreted_types.wrap_types.ReferenceToStructType.pyi_types">(rawtypes.interpreted_types.wrap_types.ReferenceToStructType のプロパティ)</a>
 </li>
         </ul></li>
-        <li><a href="apidoc/rawtypes.generator.generator.html#rawtypes.generator.generator.PyMethodDef">PyMethodDef (rawtypes.generator.generator のクラス)</a>
+        <li><a href="apidoc/rawtypes.generator.python_generator.html#rawtypes.generator.python_generator.PyMethodDef">PyMethodDef (rawtypes.generator.python_generator のクラス)</a>
+</li>
+        <li><a href="apidoc/rawtypes.generator.python_generator.html#rawtypes.generator.python_generator.PythonGenerator">PythonGenerator (rawtypes.generator.python_generator のクラス)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -1851,10 +1859,10 @@
 </li>
         </ul></li>
         <li>
-    rawtypes.generator.generator
+    rawtypes.generator.generator_base
 
         <ul>
-          <li><a href="apidoc/rawtypes.generator.generator.html#module-rawtypes.generator.generator">モジュール</a>
+          <li><a href="apidoc/rawtypes.generator.generator_base.html#module-rawtypes.generator.generator_base">モジュール</a>
 </li>
         </ul></li>
         <li>
@@ -1862,6 +1870,20 @@
 
         <ul>
           <li><a href="apidoc/rawtypes.generator.py_writer.html#module-rawtypes.generator.py_writer">モジュール</a>
+</li>
+        </ul></li>
+        <li>
+    rawtypes.generator.python_generator
+
+        <ul>
+          <li><a href="apidoc/rawtypes.generator.python_generator.html#module-rawtypes.generator.python_generator">モジュール</a>
+</li>
+        </ul></li>
+        <li>
+    rawtypes.generator.zig_generator
+
+        <ul>
+          <li><a href="apidoc/rawtypes.generator.zig_generator.html#module-rawtypes.generator.zig_generator">モジュール</a>
 </li>
         </ul></li>
         <li>
@@ -1906,6 +1928,8 @@
           <li><a href="apidoc/rawtypes.interpreted_types.string.html#module-rawtypes.interpreted_types.string">モジュール</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li>
     rawtypes.interpreted_types.wrap_types
 
@@ -1913,8 +1937,6 @@
           <li><a href="apidoc/rawtypes.interpreted_types.wrap_types.html#module-rawtypes.interpreted_types.wrap_types">モジュール</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li>
     rawtypes.parser
 
@@ -2111,6 +2133,8 @@
         <li><a href="apidoc/rawtypes.parser.struct_cursor.html#rawtypes.parser.struct_cursor.WrapFlags.submodule">submodule (rawtypes.parser.struct_cursor.WrapFlags の属性)</a>
 </li>
         <li><a href="apidoc/rawtypes.clang.cindex.html#rawtypes.clang.cindex.CursorKind.SWITCH_STMT">SWITCH_STMT (rawtypes.clang.cindex.CursorKind の属性)</a>
+</li>
+        <li><a href="apidoc/rawtypes.parser.function_cursor.html#rawtypes.parser.function_cursor.FunctionCursor.symbol">symbol (rawtypes.parser.function_cursor.FunctionCursor のプロパティ)</a>
 </li>
         <li><a href="apidoc/rawtypes.parser.type_context.html#rawtypes.parser.type_context.symbol_filter">symbol_filter() (rawtypes.parser.type_context モジュール)</a>
 </li>
@@ -2320,7 +2344,7 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="apidoc/rawtypes.parser.struct_cursor.html#rawtypes.parser.struct_cursor.WrapFlags">WrapFlags (rawtypes.parser.struct_cursor のクラス)</a>
 </li>
-        <li><a href="apidoc/rawtypes.generator.generator.html#rawtypes.generator.generator.Generator.write_pyi">write_pyi() (rawtypes.generator.generator.Generator のメソッド)</a>
+        <li><a href="apidoc/rawtypes.generator.python_generator.html#rawtypes.generator.python_generator.PythonGenerator.write_pyi">write_pyi() (rawtypes.generator.python_generator.PythonGenerator のメソッド)</a>
 </li>
         <li><a href="apidoc/rawtypes.generator.py_writer.html#rawtypes.generator.py_writer.write_pyi_function">write_pyi_function() (rawtypes.generator.py_writer モジュール)</a>
 </li>
@@ -2339,6 +2363,20 @@
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="apidoc/rawtypes.clang.cindex.html#rawtypes.clang.cindex.Cursor.xdata">xdata (rawtypes.clang.cindex.Cursor の属性)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="Z" class="genindex-section">
+  <h2>Z</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="apidoc/rawtypes.generator.zig_generator.html#rawtypes.generator.zig_generator.zig_type">zig_type() (rawtypes.generator.zig_generator モジュール)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="apidoc/rawtypes.generator.zig_generator.html#rawtypes.generator.zig_generator.ZigGenerator">ZigGenerator (rawtypes.generator.zig_generator のクラス)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -2368,9 +2406,13 @@
 </li>
           <li><a href="apidoc/rawtypes.generator.cpp_writer.html#module-rawtypes.generator.cpp_writer">rawtypes.generator.cpp_writer</a>
 </li>
-          <li><a href="apidoc/rawtypes.generator.generator.html#module-rawtypes.generator.generator">rawtypes.generator.generator</a>
+          <li><a href="apidoc/rawtypes.generator.generator_base.html#module-rawtypes.generator.generator_base">rawtypes.generator.generator_base</a>
 </li>
           <li><a href="apidoc/rawtypes.generator.py_writer.html#module-rawtypes.generator.py_writer">rawtypes.generator.py_writer</a>
+</li>
+          <li><a href="apidoc/rawtypes.generator.python_generator.html#module-rawtypes.generator.python_generator">rawtypes.generator.python_generator</a>
+</li>
+          <li><a href="apidoc/rawtypes.generator.zig_generator.html#module-rawtypes.generator.zig_generator">rawtypes.generator.zig_generator</a>
 </li>
           <li><a href="apidoc/rawtypes.interpreted_types.html#module-rawtypes.interpreted_types">rawtypes.interpreted_types</a>
 </li>

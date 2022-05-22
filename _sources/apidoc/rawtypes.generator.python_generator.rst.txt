@@ -1,0 +1,9 @@
+rawtypes.generator.python\_generator module
+===========================================
+.. inheritance-diagram:: rawtypes.generator.python_generator
+   :parts: 1
+
+.. automodule:: rawtypes.generator.python_generator
+   :members:
+   :undoc-members:
+   :show-inheritance:

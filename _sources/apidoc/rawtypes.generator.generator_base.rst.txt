@@ -1,0 +1,9 @@
+rawtypes.generator.generator\_base module
+=========================================
+.. inheritance-diagram:: rawtypes.generator.generator_base
+   :parts: 1
+
+.. automodule:: rawtypes.generator.generator_base
+   :members:
+   :undoc-members:
+   :show-inheritance:
