@@ -1,4 +1,5 @@
 from typing import NamedTuple, Tuple
+import pathlib
 import re
 from rawtypes.clang import cindex
 
@@ -28,6 +29,10 @@ class TypedefCursor(NamedTuple):
     @property
     def spelling(self) -> str:
         return self.cursor.spelling
+
+    @property
+    def path(self) -> pathlib.Path:
+        return pathlib.Path(self.cursor.location.file.name)
 
     @property
     def underlying_type(self) -> cindex.Type:

@@ -1,3 +1,4 @@
+from typing import List, Union
 import io
 import pathlib
 from .generator_base import GeneratorBase
@@ -6,6 +7,7 @@ from ..parser.struct_cursor import StructCursor, WrapFlags
 from ..interpreted_types import TypeManager
 from ..interpreted_types.pointer_types import PointerType
 from ..interpreted_types.primitive_types import FloatType, DoubleType, Int8Type, Int16Type, Int32Type, UInt16Type, UInt32Type
+from ..interpreted_types.definition import StructType
 from ..interpreted_types.string import CStringType
 
 
@@ -46,7 +48,7 @@ class ZigGenerator(GeneratorBase):
         super().__init__(*args, **kw, target=target)
 
     def generate(self, path: pathlib.Path, *, function_custom=[], is_exclude_function=None, exclude_types=[]):
-        sio = io.StringIO()
+        texts = []
 
         modules = []
         headers = []
@@ -58,6 +60,7 @@ class ZigGenerator(GeneratorBase):
                 if e.path != header.path:
                     continue
 
+                sio = io.StringIO()
                 enum_name = e.cursor.spelling
                 if enum_name[-1] == '_':
                     enum_name = enum_name[:-1]
@@ -71,12 +74,12 @@ class ZigGenerator(GeneratorBase):
                             name = name[len(enum_name):]
                     sio.write(f'    {name} = {value.enum_value},\n')
                 sio.write('};\n')
-                sio.write('\n')
+                texts.append(sio.getvalue())
 
             #
             # struct
             #
-            sio.write('''
+            texts.append('''
 pub const ImVector = struct {
     Size: c_int,
     Capacity: c_int,
@@ -85,23 +88,11 @@ pub const ImVector = struct {
 
 ''')
             for t in self.parser.typedef_struct_list:
+                if t.path != header.path:
+                    continue
                 match t:
                     case StructCursor() as s:
-                        if s.path != header.path:
-                            continue
-                        if s.is_forward_decl:
-                            continue
-                        if s.is_template:
-                            continue
-                        sio.write(
-                            f'pub const {s.name} = extern struct {{\n')
-                        for f in s.fields:
-                            sio.write(
-                                f'    {f.name}: {zig_type(self.type_manager, f)},\n')
-                        sio.write('};\n')
-                        sio.write('\n')
-
-                        # test size of
+                        self.write_struct(texts, s)
 
             #
             # function
@@ -130,18 +121,61 @@ pub const ImVector = struct {
 
                 # namespace = get_namespace(f.cursors)
                 func_name = f'{f.spelling}{overload}'
-                # sio.write(to_c_function(self.env, f, self.type_manager,
-                #           namespace=namespace, func_name=func_name, custom=customize))
-                # sio.write('\n')
-
                 args = ', '.join(
                     f'{param.name}: {zig_type(self.type_manager, param)}' for param in f.params)
 
+                sio = io.StringIO()
                 sio.write(
                     f'extern "c" fn {f.symbol}({args}) {zig_type(self.type_manager, f.result)};\n')
                 sio.write(f'pub const {func_name} = {f.symbol};\n')
+                texts.append(sio.getvalue())
 
                 break
 
         with path.open('w', encoding='utf-8') as w:
-            w.write(sio.getvalue())
+            for text in texts:
+                w.write(text)
+                w.write('\n')
+
+    def write_struct(self, texts_or_sio: Union[List[str], io.TextIOBase], s: StructCursor):
+        if s.is_forward_decl:
+            return
+        if s.is_template:
+            return
+
+        if s.name == 'ClipRect':
+            pass
+
+        if isinstance(texts_or_sio, list):
+            texts = texts_or_sio
+            sio = io.StringIO()
+            sio.write(
+                f'pub const {s.name} = extern struct {{\n')
+        else:
+            texts = None
+            sio = texts_or_sio
+            sio.write('struct {\n')
+        for f in s.fields:
+            t = self.type_manager.to_type(f)
+            if isinstance(t, StructType) and t.nested_cursor:
+                if t.nested_cursor.is_anonymous():
+                    sio.write(
+                        f'    {f.name}:')
+                    self.write_struct(sio, StructCursor(
+                        s.cursors + (t.nested_cursor,), t.nested_cursor.type, False))
+                else:
+                    self.write_struct(texts, StructCursor(
+                        s.cursors + (t.nested_cursor,), t.nested_cursor.type, False))
+                    sio.write(
+                        f'    {f.name}: {t.name},\n')
+            else:
+                sio.write(
+                    f'    {f.name}: {zig_type(self.type_manager, f)},\n')
+
+        if texts:
+            sio.write('};\n')
+            texts.append(sio.getvalue())
+        else:
+            sio.write('}\n')
+
+        # test size of

@@ -28,14 +28,13 @@ class TypedefType(BaseType):
 
 
 class StructType(BaseType):
-    cursor: cindex.Cursor
-
-    def __init__(self, name: str, cursor: cindex.Cursor, is_const=False, wrap_type=Optional[WrapFlags]):
+    def __init__(self, name: str, cursor: cindex.Cursor, is_const=False, wrap_type: Optional[WrapFlags] = None, nested_type: Optional[cindex.Cursor] = None):
         if name.startswith('struct '):
             name = name[7:]
         super().__init__(name, is_const=is_const)
         self.cursor = cursor
         self.wrap_type = wrap_type
+        self.nested_cursor = nested_type
 
     @property
     def ctypes_type(self) -> str:

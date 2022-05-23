@@ -184,17 +184,13 @@ class TypeManager:
                 return self.get(current, is_const)
 
             case cindex.TypeKind.RECORD:
-                if c.cursor.is_anonymous():
-                    # union
-                    return StructType(c.cursor.spelling, c.cursor, is_const=is_const)
-                else:
-                    deref = c.ref_from_children()
-                    if deref:
-                        assert deref.referenced.kind == cindex.CursorKind.STRUCT_DECL
-                        return StructType(deref.referenced.spelling, deref.referenced, is_const=is_const, wrap_type=self.get_wrap_type(c.type.spelling))
-                    else:
-                        # internal ?
-                        return StructType(c.cursor.spelling, c.cursor, is_const=is_const)
+                deref = c.ref_from_children()
+                if deref:
+                    assert deref.referenced.kind == cindex.CursorKind.STRUCT_DECL
+                    return StructType(deref.referenced.spelling, deref.referenced, is_const=is_const, wrap_type=self.get_wrap_type(c.type.spelling))
+
+                # inline decl or anonymous
+                return StructType(c.cursor.spelling, c.cursor, is_const=is_const, nested_type=c.cursor)
 
             case cindex.TypeKind.FUNCTIONPROTO:
                 return PointerType(primitive_types.VoidType(), is_const=is_const)
