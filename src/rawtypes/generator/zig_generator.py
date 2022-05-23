@@ -2,8 +2,11 @@ import io
 import pathlib
 from .generator_base import GeneratorBase
 from ..parser.type_context import TypeContext
+from ..parser.struct_cursor import StructCursor, WrapFlags
 from ..interpreted_types import TypeManager
 from ..interpreted_types.pointer_types import PointerType
+from ..interpreted_types.primitive_types import FloatType, DoubleType, Int8Type, Int16Type, Int32Type, UInt16Type, UInt32Type
+from ..interpreted_types.string import CStringType
 
 
 def zig_type(type_manager: TypeManager, t: TypeContext):
@@ -12,8 +15,26 @@ def zig_type(type_manager: TypeManager, t: TypeContext):
     match param_type:
         case PointerType():
             zig_type = '?*anyopaque'
+        case Int8Type():
+            zig_type = 'i8'
+        case Int16Type():
+            zig_type = 'c_short'
+        case Int32Type():
+            zig_type = 'c_int'
+        case UInt16Type():
+            zig_type = 'c_ushort'
+        case UInt32Type():
+            zig_type = 'c_uint'
+        case FloatType():
+            zig_type = 'f32'
+        case DoubleType():
+            zig_type = 'f64'
+        case CStringType():
+            zig_type = '?[*]const u8'
         case _:
             zig_type = param_type.name
+            if zig_type.startswith('ImVector<'):
+                zig_type = 'ImVector'
     assert zig_type
     return f'{zig_type}'
 
@@ -24,12 +45,15 @@ class ZigGenerator(GeneratorBase):
         target = 'x86_64-windows-gnu' if platform.system() == 'Windows' else ''
         super().__init__(*args, **kw, target=target)
 
-    def generate(self, path: pathlib.Path, *, function_custom=[], is_exclude_function=None):
+    def generate(self, path: pathlib.Path, *, function_custom=[], is_exclude_function=None, exclude_types=[]):
         sio = io.StringIO()
 
         modules = []
         headers = []
         for header in self.headers:
+            #
+            # enum
+            #
             for e in self.parser.enums:
                 if e.path != header.path:
                     continue
@@ -47,7 +71,41 @@ class ZigGenerator(GeneratorBase):
                             name = name[len(enum_name):]
                     sio.write(f'    {name} = {value.enum_value},\n')
                 sio.write('};\n')
+                sio.write('\n')
 
+            #
+            # struct
+            #
+            sio.write('''
+pub const ImVector = struct {
+    Size: c_int,
+    Capacity: c_int,
+    Data: *anyopaque,
+};
+
+''')
+            for t in self.parser.typedef_struct_list:
+                match t:
+                    case StructCursor() as s:
+                        if s.path != header.path:
+                            continue
+                        if s.is_forward_decl:
+                            continue
+                        if s.is_template:
+                            continue
+                        sio.write(
+                            f'pub const {s.name} = extern struct {{\n')
+                        for f in s.fields:
+                            sio.write(
+                                f'    {f.name}: {zig_type(self.type_manager, f)},\n')
+                        sio.write('};\n')
+                        sio.write('\n')
+
+                        # test size of
+
+            #
+            # function
+            #
             methods = []
             overload_map = {}
             for f in self.parser.functions:

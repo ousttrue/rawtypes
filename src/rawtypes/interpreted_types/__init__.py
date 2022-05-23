@@ -189,10 +189,12 @@ class TypeManager:
                     return StructType(c.cursor.spelling, c.cursor, is_const=is_const)
                 else:
                     deref = c.ref_from_children()
-                    assert deref
                     if deref:
                         assert deref.referenced.kind == cindex.CursorKind.STRUCT_DECL
                         return StructType(deref.referenced.spelling, deref.referenced, is_const=is_const, wrap_type=self.get_wrap_type(c.type.spelling))
+                    else:
+                        # internal ?
+                        return StructType(c.cursor.spelling, c.cursor, is_const=is_const)
 
             case cindex.TypeKind.FUNCTIONPROTO:
                 return PointerType(primitive_types.VoidType(), is_const=is_const)
@@ -203,7 +205,12 @@ class TypeManager:
             case cindex.TypeKind.ELABORATED:
                 return StructType(c.type.spelling, c.cursor, is_const=is_const, wrap_type=self.get_wrap_type(c.type.spelling))
 
-        raise RuntimeError(f"unknown type: {c.type.kind}")
+            case cindex.TypeKind.UNEXPOSED:
+                # template ?
+                if c.type.spelling[-1] == '>':
+                    return StructType(c.type.spelling, c.cursor, is_const=is_const, wrap_type=self.get_wrap_type(c.type.spelling))
+
+        raise RuntimeError(f"unknown type: {c.cursor.location} {c.type.kind}")
 
     def from_cursor(self, cursor_type: cindex.Type, cursor: cindex.Cursor) -> BaseType:
         return self.get(TypeWithCursor(cursor_type, cursor))

@@ -71,6 +71,10 @@ class StructCursor(NamedTuple):
         return False
 
     @property
+    def is_template(self) -> bool:
+        return self.cursor.displayname[-1] == '>'
+
+    @property
     def fields(self) -> List[FieldContext]:
         return FieldContext.get_struct_fields(self.cursor)
 
