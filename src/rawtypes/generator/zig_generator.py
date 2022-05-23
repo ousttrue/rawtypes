@@ -1,7 +1,8 @@
-from typing import List, Union
+from typing import List, Union, Optional
 import io
 import pathlib
 from .generator_base import GeneratorBase
+from ..clang import cindex
 from ..parser.type_context import TypeContext
 from ..parser.struct_cursor import StructCursor, WrapFlags
 from ..interpreted_types import TypeManager
@@ -137,7 +138,7 @@ pub const ImVector = struct {
                 w.write(text)
                 w.write('\n')
 
-    def write_struct(self, texts_or_sio: Union[List[str], io.TextIOBase], s: StructCursor):
+    def write_struct(self, texts: List[str], s: StructCursor, sio: Optional[io.StringIO] = None):
         if s.is_forward_decl:
             return
         if s.is_template:
@@ -146,36 +147,38 @@ pub const ImVector = struct {
         if s.name == 'ClipRect':
             pass
 
-        if isinstance(texts_or_sio, list):
-            texts = texts_or_sio
+        struct_or_union = 'union' if s.is_union else 'struct'
+        if sio:
+            nested = True
+            sio.write(f'extern {struct_or_union} {{\n')
+        else:
+            nested = False
             sio = io.StringIO()
             sio.write(
-                f'pub const {s.name} = extern struct {{\n')
-        else:
-            texts = None
-            sio = texts_or_sio
-            sio.write('struct {\n')
+                f'pub const {s.name} = extern {struct_or_union} {{\n')
+
         for f in s.fields:
             t = self.type_manager.to_type(f)
             if isinstance(t, StructType) and t.nested_cursor:
+                is_union = t.nested_cursor.kind == cindex.CursorKind.UNION_DECL
                 if t.nested_cursor.is_anonymous():
                     sio.write(
                         f'    {f.name}:')
-                    self.write_struct(sio, StructCursor(
-                        s.cursors + (t.nested_cursor,), t.nested_cursor.type, False))
+                    self.write_struct(texts, StructCursor(
+                        s.cursors + (t.nested_cursor,), t.nested_cursor.type, is_union), sio=sio)
                 else:
                     self.write_struct(texts, StructCursor(
-                        s.cursors + (t.nested_cursor,), t.nested_cursor.type, False))
+                        s.cursors + (t.nested_cursor,), t.nested_cursor.type, is_union))
                     sio.write(
                         f'    {f.name}: {t.name},\n')
             else:
                 sio.write(
                     f'    {f.name}: {zig_type(self.type_manager, f)},\n')
 
-        if texts:
+        if nested:
+            sio.write('}\n')
+        else:
             sio.write('};\n')
             texts.append(sio.getvalue())
-        else:
-            sio.write('}\n')
 
         # test size of
