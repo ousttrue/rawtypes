@@ -22,7 +22,7 @@ class Parser:
         self.skip = []
 
     @staticmethod
-    def parse(headers: Iterable[pathlib.Path], *, include_dirs: Iterable[pathlib.Path] = (), definitions=()) -> "Parser":
+    def parse(headers: Iterable[pathlib.Path], *, include_dirs: Iterable[pathlib.Path] = (), definitions=(), target='') -> "Parser":
         headers = list(headers)
 
         sio = io.StringIO()
@@ -33,7 +33,7 @@ class Parser:
                          for header in headers] + [str(dir) for dir in include_dirs]
         unsaved = clang_util.Unsaved('tmp.h', sio.getvalue())
         tu = clang_util.get_tu(
-            'tmp.h', include_dirs=_include_dirs, definitions=definitions, unsaved=[unsaved], flags=[])
+            'tmp.h', include_dirs=_include_dirs, definitions=definitions, unsaved=[unsaved], flags=[], target=target)
 
         parser = Parser(tu, headers)
         parser._traverse()

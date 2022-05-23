@@ -6,7 +6,7 @@ from ..interpreted_types import TypeManager
 
 
 class GeneratorBase(metaclass=abc.ABCMeta):
-    def __init__(self, *headers: Header, include_dirs=[]) -> None:
+    def __init__(self, *headers: Header, include_dirs=[], target='') -> None:
         # parse
         include_dirs = sum(
             [list(header.include_dirs) for header in headers], include_dirs)
@@ -14,7 +14,8 @@ class GeneratorBase(metaclass=abc.ABCMeta):
             [header.path for header in headers],
             include_dirs=include_dirs,
             definitions=sum([list(header.definitions)
-                            for header in headers], [])
+                            for header in headers], []),
+            target=target
         )
         self.headers = [
             header for header in headers if not header.include_only]

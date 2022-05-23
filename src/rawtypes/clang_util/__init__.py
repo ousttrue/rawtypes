@@ -17,19 +17,25 @@ class Unsaved(NamedTuple):
 
 def get_tu(entrypoint: str,
            *,
-           include_dirs: List[str] = None,
-           definitions: List[str] = None,
-           flags: List[str] = None,
-           unsaved: Optional[List[Unsaved]] = None) -> cindex.TranslationUnit:
+           include_dirs: List[str] = [],
+           definitions: List[str] = [],
+           flags: List[str] = [],
+           unsaved: Optional[List[Unsaved]] = None,
+           target: str = '') -> cindex.TranslationUnit:
     arguments = [
         "-x",
         "c++",
         "-std=c++17",
     ]
+    if target:
+        pass
+    elif platform.system() == 'Windows':
+        target = "x86_64-windows-msvc"
+
     if platform.system() == 'Windows':
         arguments += [
             "-target",
-            "x86_64-windows-msvc",
+            target,
             "-fdeclspec",
             "-fms-compatibility-version=18",
             "-fms-compatibility",
