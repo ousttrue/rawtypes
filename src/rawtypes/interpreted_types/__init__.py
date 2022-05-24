@@ -168,6 +168,11 @@ class TypeManager:
 
                 return ReferenceType(base, is_const=is_const)
 
+            case cindex.TypeKind.INCOMPLETEARRAY:
+                element = c.type.get_array_element_type()
+                base = self.get(TypeWithCursor(element, c.cursor))
+                return PointerType(base, is_const=is_const)
+
             case cindex.TypeKind.CONSTANTARRAY:
                 element = c.type.get_array_element_type()
                 base = self.get(TypeWithCursor(element, c.cursor))

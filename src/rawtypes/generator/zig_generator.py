@@ -5,29 +5,45 @@ from .generator_base import GeneratorBase
 from ..clang import cindex
 from ..parser.type_context import TypeContext
 from ..parser.struct_cursor import StructCursor, WrapFlags
-from ..interpreted_types import TypeManager
-from ..interpreted_types.pointer_types import PointerType
-from ..interpreted_types.primitive_types import FloatType, DoubleType, Int8Type, Int16Type, Int32Type, UInt16Type, UInt32Type
+from ..interpreted_types import TypeManager, BaseType
+from ..interpreted_types.pointer_types import PointerType, VoidType
+from ..interpreted_types.primitive_types import (FloatType, DoubleType,
+                                                 Int8Type, Int16Type, Int32Type,
+                                                 UInt8Type, UInt16Type, UInt32Type, SizeType)
 from ..interpreted_types.definition import StructType
 from ..interpreted_types.string import CStringType
 
+STRUCT_MAP = {}
 
-def zig_type(type_manager: TypeManager, t: TypeContext):
-    param_type = type_manager.to_type(t)
+def from_type(t: BaseType):
     zig_type = ''
-    match param_type:
+    match t:
+        case VoidType():
+            zig_type = 'anyopaque'
         case PointerType():
-            zig_type = '?*anyopaque'
+            base = from_type(t.base)
+            if base=='anyopaque':
+                zig_type = f'?*anyopaque'
+            else:
+                field_count = STRUCT_MAP.get(base, 0)
+                if field_count:
+                    zig_type = f'?[*]{base}'
+                else:
+                    zig_type = f'?*anyopaque'
         case Int8Type():
             zig_type = 'i8'
         case Int16Type():
             zig_type = 'c_short'
         case Int32Type():
             zig_type = 'c_int'
+        case UInt8Type():
+            zig_type = 'u8'
         case UInt16Type():
             zig_type = 'c_ushort'
         case UInt32Type():
             zig_type = 'c_uint'
+        case SizeType():
+            zig_type = 'usize'
         case FloatType():
             zig_type = 'f32'
         case DoubleType():
@@ -35,11 +51,16 @@ def zig_type(type_manager: TypeManager, t: TypeContext):
         case CStringType():
             zig_type = '?[*]const u8'
         case _:
-            zig_type = param_type.name
+            zig_type = t.name
             if zig_type.startswith('ImVector<'):
                 zig_type = 'ImVector'
     assert zig_type
     return f'{zig_type}'
+
+
+def zig_type(type_manager: TypeManager, c: TypeContext):
+    t = type_manager.to_type(c)
+    return from_type(t)
 
 
 class ZigGenerator(GeneratorBase):
@@ -81,7 +102,7 @@ class ZigGenerator(GeneratorBase):
             # struct
             #
             texts.append('''
-pub const ImVector = struct {
+pub const ImVector = extern struct {
     Size: c_int,
     Capacity: c_int,
     Data: *anyopaque,
@@ -131,8 +152,6 @@ pub const ImVector = struct {
                 sio.write(f'pub const {func_name} = {f.symbol};\n')
                 texts.append(sio.getvalue())
 
-                break
-
         with path.open('w', encoding='utf-8') as w:
             for text in texts:
                 w.write(text)
@@ -144,9 +163,6 @@ pub const ImVector = struct {
         if s.is_template:
             return
 
-        if s.name == 'ClipRect':
-            pass
-
         struct_or_union = 'union' if s.is_union else 'struct'
         if sio:
             nested = True
@@ -156,6 +172,7 @@ pub const ImVector = struct {
             sio = io.StringIO()
             sio.write(
                 f'pub const {s.name} = extern {struct_or_union} {{\n')
+            STRUCT_MAP[s.name] = len(s.fields)
 
         for f in s.fields:
             t = self.type_manager.to_type(f)
