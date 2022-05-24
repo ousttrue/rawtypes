@@ -1,4 +1,5 @@
 from typing import List, Union, Optional
+import re
 import io
 import pathlib
 from .generator_base import GeneratorBase
@@ -15,7 +16,10 @@ from ..interpreted_types.string import CStringType
 
 STRUCT_MAP = {}
 
-def from_type(t: BaseType):
+
+def from_type(t: BaseType, *, bit_width: Optional[int] = None):
+    if bit_width:
+        return f'u{bit_width}'
     zig_type = ''
     match t:
         case VoidType():
@@ -25,7 +29,7 @@ def from_type(t: BaseType):
             zig_type = f'[{t.size}]{base}'
         case PointerType():
             base = from_type(t.base)
-            if base=='void':
+            if base == 'void':
                 zig_type = f'?*anyopaque'
             else:
                 field_count = STRUCT_MAP.get(base, 0)
@@ -61,9 +65,9 @@ def from_type(t: BaseType):
     return f'{zig_type}'
 
 
-def zig_type(type_manager: TypeManager, c: TypeContext):
+def zig_type(type_manager: TypeManager, c: TypeContext, *, bit_width: Optional[int] = None):
     t = type_manager.to_type(c)
-    return from_type(t)
+    return from_type(t, bit_width=bit_width)
 
 
 class ZigGenerator(GeneratorBase):
@@ -73,7 +77,9 @@ class ZigGenerator(GeneratorBase):
         super().__init__(*args, **kw, target=target)
 
     def generate(self, path: pathlib.Path, *, function_custom=[], is_exclude_function=None, exclude_types=[]):
-        texts = []
+        texts = [
+            'const expect = @import("std").testing.expect;'
+        ]
 
         modules = []
         headers = []
@@ -173,6 +179,7 @@ class ZigGenerator(GeneratorBase):
                 f'pub const {s.name} = extern {struct_or_union} {{\n')
             STRUCT_MAP[s.name] = len(s.fields)
 
+        has_bitfields = False
         for f in s.fields:
             t = self.type_manager.to_type(f)
             if isinstance(t, StructType) and t.nested_cursor:
@@ -188,13 +195,28 @@ class ZigGenerator(GeneratorBase):
                     sio.write(
                         f'    {f.name}: {t.name},\n')
             else:
+                bit_width = None
+                if f.cursor.is_bitfield():
+                    has_bitfields = True
+                    bit_width = f.cursor.get_bitfield_width()
                 sio.write(
-                    f'    {f.name}: {zig_type(self.type_manager, f)},\n')
+                    f'    {f.name}: {zig_type(self.type_manager, f, bit_width=bit_width)},\n')
 
         if nested:
             sio.write('}\n')
         else:
             sio.write('};\n')
-            texts.append(sio.getvalue())
+            text = sio.getvalue()
+            if has_bitfields:
+                # pub const XXX = extern struct
+                text = text.replace(' extern ', ' packed ', 1)
+            texts.append(text)
 
         # test size of
+        if s.spelling and s.sizeof > 1:
+            texts.append(f'''test "sizeof {s.spelling}" {{
+    // Optional pointers are the same size as normal pointers, because pointer
+    // value 0 is used as the null value.
+    try expect(@sizeOf({s.spelling}) == {s.sizeof});
+}}
+    ''')
