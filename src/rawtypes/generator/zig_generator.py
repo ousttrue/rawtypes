@@ -6,7 +6,7 @@ from ..clang import cindex
 from ..parser.type_context import TypeContext
 from ..parser.struct_cursor import StructCursor, WrapFlags
 from ..interpreted_types import TypeManager, BaseType
-from ..interpreted_types.pointer_types import PointerType, VoidType
+from ..interpreted_types.pointer_types import PointerType, VoidType, ArrayType
 from ..interpreted_types.primitive_types import (FloatType, DoubleType,
                                                  Int8Type, Int16Type, Int32Type,
                                                  UInt8Type, UInt16Type, UInt32Type, SizeType)
@@ -19,15 +19,18 @@ def from_type(t: BaseType):
     zig_type = ''
     match t:
         case VoidType():
-            zig_type = 'anyopaque'
+            zig_type = 'void'
+        case ArrayType():
+            base = from_type(t.base)
+            zig_type = f'[{t.size}]{base}'
         case PointerType():
             base = from_type(t.base)
-            if base=='anyopaque':
+            if base=='void':
                 zig_type = f'?*anyopaque'
             else:
                 field_count = STRUCT_MAP.get(base, 0)
                 if field_count:
-                    zig_type = f'?[*]{base}'
+                    zig_type = f'?*{base}'
                 else:
                     zig_type = f'?*anyopaque'
         case Int8Type():
@@ -75,6 +78,9 @@ class ZigGenerator(GeneratorBase):
         modules = []
         headers = []
         for header in self.headers:
+            if header.begin:
+                texts.append(header.begin)
+
             #
             # enum
             #
@@ -101,14 +107,6 @@ class ZigGenerator(GeneratorBase):
             #
             # struct
             #
-            texts.append('''
-pub const ImVector = extern struct {
-    Size: c_int,
-    Capacity: c_int,
-    Data: *anyopaque,
-};
-
-''')
             for t in self.parser.typedef_struct_list:
                 if t.path != header.path:
                     continue
@@ -152,6 +150,7 @@ pub const ImVector = extern struct {
                 sio.write(f'pub const {func_name} = {f.symbol};\n')
                 texts.append(sio.getvalue())
 
+        path.parent.mkdir(parents=True, exist_ok=True)
         with path.open('w', encoding='utf-8') as w:
             for text in texts:
                 w.write(text)
