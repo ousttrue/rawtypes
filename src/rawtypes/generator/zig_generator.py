@@ -53,16 +53,17 @@ class ZigGenerator(GeneratorBase):
                 else:
                     # array or slice ?
                     zig_type = f'[{t.size}]{base}'
-            case PointerType():
+            case PointerType():                
                 base = self.from_type(t.base, False)
+                const = 'const ' if (is_arg and t.base.is_const) else ''
                 if base == 'void':
-                    zig_type = f'?*anyopaque'
+                    zig_type = f'?*{const}anyopaque'
                 else:
                     field_count = STRUCT_MAP.get(base, 0)
                     if field_count:
-                        zig_type = f'?*{base}'
+                        zig_type = f'?*{const}{base}'
                     else:
-                        zig_type = f'?*anyopaque'
+                        zig_type = f'?*{const}anyopaque'
             case Int8Type():
                 zig_type = 'i8'
             case Int16Type():
