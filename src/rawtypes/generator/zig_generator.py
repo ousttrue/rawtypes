@@ -1,4 +1,4 @@
-from typing import List, Union, Optional
+from typing import List, Union, Optional, Callable, TypeAlias
 import re
 import io
 import pathlib
@@ -15,59 +15,7 @@ from ..interpreted_types.definition import StructType
 from ..interpreted_types.string import CStringType
 
 STRUCT_MAP = {}
-
-
-def from_type(t: BaseType, *, bit_width: Optional[int] = None):
-    if bit_width:
-        return f'u{bit_width}'
-    zig_type = ''
-    match t:
-        case VoidType():
-            zig_type = 'void'
-        case ArrayType():
-            base = from_type(t.base)
-            zig_type = f'[{t.size}]{base}'
-        case PointerType():
-            base = from_type(t.base)
-            if base == 'void':
-                zig_type = f'?*anyopaque'
-            else:
-                field_count = STRUCT_MAP.get(base, 0)
-                if field_count:
-                    zig_type = f'?*{base}'
-                else:
-                    zig_type = f'?*anyopaque'
-        case Int8Type():
-            zig_type = 'i8'
-        case Int16Type():
-            zig_type = 'c_short'
-        case Int32Type():
-            zig_type = 'c_int'
-        case UInt8Type():
-            zig_type = 'u8'
-        case UInt16Type():
-            zig_type = 'c_ushort'
-        case UInt32Type():
-            zig_type = 'c_uint'
-        case SizeType():
-            zig_type = 'usize'
-        case FloatType():
-            zig_type = 'f32'
-        case DoubleType():
-            zig_type = 'f64'
-        case CStringType():
-            zig_type = '?[*]const u8'
-        case _:
-            zig_type = t.name
-            if zig_type.startswith('ImVector<'):
-                zig_type = 'ImVector'
-    assert zig_type
-    return f'{zig_type}'
-
-
-def zig_type(type_manager: TypeManager, c: TypeContext, *, bit_width: Optional[int] = None):
-    t = type_manager.to_type(c)
-    return from_type(t, bit_width=bit_width)
+TYPE_CALLBACK: TypeAlias = Callable[[BaseType], Optional[str]]
 
 
 class ZigGenerator(GeneratorBase):
@@ -75,8 +23,64 @@ class ZigGenerator(GeneratorBase):
         import platform
         target = 'x86_64-windows-gnu' if platform.system() == 'Windows' else ''
         super().__init__(*args, **kw, target=target)
+        self.custom: Optional[TYPE_CALLBACK] = None
 
-    def generate(self, path: pathlib.Path, *, function_custom=[], is_exclude_function=None, exclude_types=[]):
+    def from_type(self, t: BaseType, *, bit_width: Optional[int] = None):
+        if bit_width:
+            return f'u{bit_width}'
+
+        if self.custom:
+            if custom_result := self.custom(t):
+                return custom_result
+
+        zig_type = ''
+        match t:
+            case VoidType():
+                zig_type = 'void'
+            case ArrayType():
+                base = self.from_type(t.base)
+                zig_type = f'[{t.size}]{base}'
+            case PointerType():
+                base = self.from_type(t.base)
+                if base == 'void':
+                    zig_type = f'?*anyopaque'
+                else:
+                    field_count = STRUCT_MAP.get(base, 0)
+                    if field_count:
+                        zig_type = f'?*{base}'
+                    else:
+                        zig_type = f'?*anyopaque'
+            case Int8Type():
+                zig_type = 'i8'
+            case Int16Type():
+                zig_type = 'c_short'
+            case Int32Type():
+                zig_type = 'c_int'
+            case UInt8Type():
+                zig_type = 'u8'
+            case UInt16Type():
+                zig_type = 'c_ushort'
+            case UInt32Type():
+                zig_type = 'c_uint'
+            case SizeType():
+                zig_type = 'usize'
+            case FloatType():
+                zig_type = 'f32'
+            case DoubleType():
+                zig_type = 'f64'
+            case CStringType():
+                zig_type = '?[*]const u8'
+            case _:
+                zig_type = t.name
+        assert zig_type
+        return f'{zig_type}'
+
+    def zig_type(self, c: TypeContext, *, bit_width: Optional[int] = None):
+        t = self.type_manager.to_type(c)
+        return self.from_type(t, bit_width=bit_width)
+
+    def generate(self, path: pathlib.Path, *, function_custom=[], is_exclude_function=None, custom: Optional[TYPE_CALLBACK] = None):
+        self.custom = custom
         texts = [
             'const expect = @import("std").testing.expect;'
         ]
@@ -148,11 +152,11 @@ class ZigGenerator(GeneratorBase):
                 # namespace = get_namespace(f.cursors)
                 func_name = f'{f.spelling}{overload}'
                 args = ', '.join(
-                    f'{param.name}: {zig_type(self.type_manager, param)}' for param in f.params)
+                    f'{param.name}: {self.zig_type(param)}' for param in f.params)
 
                 sio = io.StringIO()
                 sio.write(
-                    f'extern "c" fn {f.symbol}({args}) {zig_type(self.type_manager, f.result)};\n')
+                    f'extern "c" fn {f.symbol}({args}) {self.zig_type(f.result)};\n')
                 sio.write(f'pub const {func_name} = {f.symbol};\n')
                 texts.append(sio.getvalue())
 
@@ -200,7 +204,7 @@ class ZigGenerator(GeneratorBase):
                     has_bitfields = True
                     bit_width = f.cursor.get_bitfield_width()
                 sio.write(
-                    f'    {f.name}: {zig_type(self.type_manager, f, bit_width=bit_width)},\n')
+                    f'    {f.name}: {self.zig_type(f, bit_width=bit_width)},\n')
 
         if nested:
             sio.write('}\n')
