@@ -159,6 +159,33 @@ class DefaultValue:
         equal = self.tokens.index('=')
         return '=' + ''.join(token_filter(t) for t in self.tokens[equal + 1:])
 
+    @property
+    def zig_value(self) -> str:
+        index = self.tokens.index('=')
+        assert(isinstance(index, int))
+
+        def token_filter(src: str) -> str:
+            if src[0] == '+':
+                src = src[1:]
+            if re.match(r'(\d+)?\.(\d+)f$', src):
+                src = src[:-1]
+            src = src.replace('FLT_MAX', '3.402823466e+38')
+            src = src.replace('FLT_MIN', '1.175494351e-38')
+
+            match src:
+                case 'NULL' | 'nullptr':
+                    return 'null'
+                case 'sizeof':
+                    return '@sizeOf'
+                case 'float':
+                    return 'f32'
+                case _:
+                    return src
+
+        equal = self.tokens.index('=')
+        result = ''.join(token_filter(t) for t in self.tokens[equal + 1:])
+        return result
+
 
 class ParamContext(TypeContext):
     index: int
