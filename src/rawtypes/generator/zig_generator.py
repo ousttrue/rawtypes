@@ -17,6 +17,7 @@ from ..interpreted_types.string import CStringType
 STRUCT_MAP = {}
 TYPE_CALLBACK: TypeAlias = Callable[[BaseType], Optional[str]]
 ZIG_SYMBOLS = ['type']
+DEFAULT_ARG_NAME = '__default'
 
 
 def rename_symbol(name: str) -> str:
@@ -167,9 +168,9 @@ class ZigGenerator(GeneratorBase):
                         with_default += ', '
                     if param.default_value:
                         arg_names.append(
-                            '__args__.' + rename_symbol(param.name))
+                            DEFAULT_ARG_NAME + '.' + rename_symbol(param.name))
                         if not has_default:
-                            with_default += '__args__: struct{'
+                            with_default += DEFAULT_ARG_NAME + ': struct{'
                             has_default = True
                         with_default += f'{rename_symbol(param.name)}: {self.zig_type(param)}= {param.default_value.zig_value}'
                     else:
