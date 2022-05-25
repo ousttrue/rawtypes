@@ -196,6 +196,10 @@ class ZigGenerator(GeneratorBase):
         if s.is_template:
             return
 
+        if not s.fields:
+            texts.append(f'pub const {s.name} = opaque {{}};')
+            return
+
         struct_or_union = 'union' if s.is_union else 'struct'
         if sio:
             nested = True
@@ -247,4 +251,4 @@ class ZigGenerator(GeneratorBase):
     // value 0 is used as the null value.
     try expect(@sizeOf({s.spelling}) == {s.sizeof});
 }}
-    ''')
+''')
