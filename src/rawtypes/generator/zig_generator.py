@@ -14,7 +14,6 @@ from ..interpreted_types.primitive_types import (FloatType, DoubleType,
 from ..interpreted_types.definition import StructType
 from ..interpreted_types.string import CStringType
 
-STRUCT_MAP = {}
 TYPE_CALLBACK: TypeAlias = Callable[[BaseType], Optional[str]]
 ZIG_SYMBOLS = ['type']
 DEFAULT_ARG_NAME = '__default'
@@ -32,6 +31,7 @@ class ZigGenerator(GeneratorBase):
         target = 'x86_64-windows-gnu' if platform.system() == 'Windows' else ''
         super().__init__(*args, **kw, target=target)
         self.custom: Optional[TYPE_CALLBACK] = None
+        self.struct_map = {}
 
     def from_type(self, t: BaseType, is_arg: bool, *, bit_width: Optional[int] = None) -> str:
         if bit_width:
@@ -59,7 +59,7 @@ class ZigGenerator(GeneratorBase):
                 if base == 'void':
                     zig_type = f'?*{const}anyopaque'
                 else:
-                    field_count = STRUCT_MAP.get(base, 0)
+                    field_count = self.struct_map.get(base, 0)
                     if field_count:
                         zig_type = f'?*{const}{base}'
                     else:
@@ -228,7 +228,7 @@ class ZigGenerator(GeneratorBase):
             sio = io.StringIO()
             sio.write(
                 f'pub const {s.name} = extern {struct_or_union} {{\n')
-            STRUCT_MAP[s.name] = len(s.fields)
+            self.struct_map[s.name] = len(s.fields)
 
         has_bitfields = False
         for f in s.fields:
