@@ -7,7 +7,7 @@ from ..clang import cindex
 from ..parser.type_context import TypeContext
 from ..parser.struct_cursor import StructCursor, WrapFlags
 from ..interpreted_types import TypeManager, BaseType
-from ..interpreted_types.pointer_types import PointerType, VoidType, ArrayType
+from ..interpreted_types.pointer_types import PointerType, VoidType, ArrayType, ReferenceType
 from ..interpreted_types.primitive_types import (FloatType, DoubleType,
                                                  Int8Type, Int16Type, Int32Type,
                                                  UInt8Type, UInt16Type, UInt32Type, SizeType)
@@ -33,7 +33,7 @@ class ZigGenerator(GeneratorBase):
         super().__init__(*args, **kw, target=target)
         self.custom: Optional[TYPE_CALLBACK] = None
 
-    def from_type(self, t: BaseType, is_arg: bool, *, bit_width: Optional[int] = None):
+    def from_type(self, t: BaseType, is_arg: bool, *, bit_width: Optional[int] = None) -> str:
         if bit_width:
             return f'u{bit_width}'
 
@@ -53,7 +53,7 @@ class ZigGenerator(GeneratorBase):
                 else:
                     # array or slice ?
                     zig_type = f'[{t.size}]{base}'
-            case PointerType():                
+            case PointerType():
                 base = self.from_type(t.base, False)
                 const = 'const ' if (is_arg and t.base.is_const) else ''
                 if base == 'void':
@@ -89,9 +89,15 @@ class ZigGenerator(GeneratorBase):
         assert zig_type
         return f'{zig_type}'
 
-    def zig_type(self, c: TypeContext, is_arg: bool, *, bit_width: Optional[int] = None):
+    def zig_type(self, c: TypeContext, is_arg: bool, *, bit_width: Optional[int] = None) -> str:
         t = self.type_manager.to_type(c)
         return self.from_type(t, is_arg, bit_width=bit_width)
+
+    def is_const_reference(self, c: TypeContext) -> bool:
+        t = self.type_manager.to_type(c)
+        if not isinstance(t, ReferenceType):
+            return False
+        return t.base.is_const
 
     def generate(self, path: pathlib.Path, *, function_custom=[], is_exclude_function=None, custom: Optional[TYPE_CALLBACK] = None):
         self.custom = custom
@@ -173,12 +179,19 @@ class ZigGenerator(GeneratorBase):
                     if with_default:
                         with_default += ', '
                     if param.default_value:
-                        arg_names.append(
-                            DEFAULT_ARG_NAME + '.' + rename_symbol(param.name))
                         if not has_default:
                             with_default += DEFAULT_ARG_NAME + ': struct{'
                             has_default = True
-                        with_default += f'{rename_symbol(param.name)}: {self.zig_type(param, False)}= {param.default_value.zig_value}'
+                        if self.is_const_reference(param):
+                            zig_type = self.zig_type(param, False)
+                            assert zig_type[:2] == '?*'
+                            with_default += f'{rename_symbol(param.name)}: {zig_type[2:]}= {param.default_value.zig_value}'
+                            arg_names.append(
+                                '&' + DEFAULT_ARG_NAME + '.' + rename_symbol(param.name))
+                        else:
+                            with_default += f'{rename_symbol(param.name)}: {self.zig_type(param, False)}= {param.default_value.zig_value}'
+                            arg_names.append(
+                                DEFAULT_ARG_NAME + '.' + rename_symbol(param.name))
                     else:
                         arg_names.append(rename_symbol(param.name))
                         with_default += args[i]
