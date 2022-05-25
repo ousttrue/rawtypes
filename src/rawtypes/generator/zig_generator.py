@@ -1,12 +1,12 @@
-from typing import List, Union, Optional, Callable, TypeAlias
-import re
+from typing import List, Optional, Callable, TypeAlias
 import io
 import pathlib
 from .generator_base import GeneratorBase
 from ..clang import cindex
 from ..parser.type_context import TypeContext
-from ..parser.struct_cursor import StructCursor, WrapFlags
-from ..interpreted_types import TypeManager, BaseType
+from ..parser.struct_cursor import StructCursor
+from ..parser.header import Header
+from ..interpreted_types import BaseType
 from ..interpreted_types.pointer_types import PointerType, VoidType, ArrayType, ReferenceType
 from ..interpreted_types.primitive_types import (FloatType, DoubleType,
                                                  Int8Type, Int16Type, Int32Type,
@@ -26,10 +26,10 @@ def rename_symbol(name: str) -> str:
 
 
 class ZigGenerator(GeneratorBase):
-    def __init__(self, *args, **kw) -> None:
+    def __init__(self, *headers: Header, include_dirs=[]) -> None:
         import platform
         target = 'x86_64-windows-gnu' if platform.system() == 'Windows' else ''
-        super().__init__(*args, **kw, target=target)
+        super().__init__(*headers, include_dirs=include_dirs, target=target)
         self.custom: Optional[TYPE_CALLBACK] = None
         self.struct_map = {}
 
@@ -156,53 +156,60 @@ class ZigGenerator(GeneratorBase):
                 if not header.if_include(f.spelling):
                     continue
 
-                # mangle version
                 args = [
                     f'{rename_symbol(param.name)}: {self.zig_type(param, True)}' for param in f.params]
-                texts.append(
-                    f'extern "c" fn {f.symbol}({", ".join(args)}) {self.zig_type(f.result, False)};')
+                if f.spelling == f.symbol:
+                    texts.append(
+                        f'pub extern "c" fn {f.symbol}({", ".join(args)}) {self.zig_type(f.result, False)};')
+                else:
+                    # mangle version
+                    texts.append(
+                        f'extern "c" fn {f.symbol}({", ".join(args)}) {self.zig_type(f.result, False)};')
 
-                # wrap
-                overload_count = overload_map.get(f.spelling, 0) + 1
-                overload_map[f.spelling] = overload_count
-                overload = ''
-                if overload_count > 1:
-                    overload += f'_{overload_count}'
-                func_name = f'{f.spelling}{overload}'
-                # arg_names = ', '.join(rename_symbol(param.name)
-                #                       for param in f.params)
+                    # wrap
+                    overload_count = overload_map.get(f.spelling, 0) + 1
+                    overload_map[f.spelling] = overload_count
+                    overload = ''
+                    if overload_count > 1:
+                        overload += f'_{overload_count}'
+                    func_name = f'{f.spelling}{overload}'
+                    # arg_names = ', '.join(rename_symbol(param.name)
+                    #                       for param in f.params)
 
-                with_default = ''
-                has_default = False
-                arg_names = []
-                for i, param in enumerate(f.params):
-                    if with_default:
-                        with_default += ', '
-                    if param.default_value:
-                        if not has_default:
-                            with_default += DEFAULT_ARG_NAME + ': struct{'
-                            has_default = True
-                        if self.is_const_reference(param):
-                            zig_type = self.zig_type(param, False)
-                            assert zig_type[:2] == '?*'
-                            with_default += f'{rename_symbol(param.name)}: {zig_type[2:]}= {param.default_value.zig_value}'
-                            arg_names.append(
-                                '&' + DEFAULT_ARG_NAME + '.' + rename_symbol(param.name))
+                    with_default = ''
+                    has_default = False
+                    arg_names = []
+                    for i, param in enumerate(f.params):
+                        if with_default:
+                            with_default += ', '
+                        if param.default_value:
+                            if not has_default:
+                                with_default += DEFAULT_ARG_NAME + ': struct{'
+                                has_default = True
+                            if self.is_const_reference(param):
+                                zig_type = self.zig_type(param, False)
+                                assert zig_type[:2] == '?*'
+                                with_default += f'{rename_symbol(param.name)}: {zig_type[2:]}= {param.default_value.zig_value}'
+                                arg_names.append(
+                                    '&' + DEFAULT_ARG_NAME + '.' + rename_symbol(param.name))
+                            else:
+                                with_default += f'{rename_symbol(param.name)}: {self.zig_type(param, False)}= {param.default_value.zig_value}'
+                                arg_names.append(
+                                    DEFAULT_ARG_NAME + '.' + rename_symbol(param.name))
                         else:
-                            with_default += f'{rename_symbol(param.name)}: {self.zig_type(param, False)}= {param.default_value.zig_value}'
-                            arg_names.append(
-                                DEFAULT_ARG_NAME + '.' + rename_symbol(param.name))
-                    else:
-                        arg_names.append(rename_symbol(param.name))
-                        with_default += args[i]
-                if has_default:
-                    with_default += '}'
+                            arg_names.append(rename_symbol(param.name))
+                            with_default += args[i]
+                    if has_default:
+                        with_default += '}'
 
-                texts.append(f'''pub fn {func_name}({with_default}) {self.zig_type(f.result, False)}
-{{
-    return {f.symbol}({", ".join(arg_names)});
-}}''')
+                    texts.append(f'''pub fn {func_name}({with_default}) {self.zig_type(f.result, False)}
+    {{
+        return {f.symbol}({", ".join(arg_names)});
+    }}''')
 
+        #
+        # write texts
+        #
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open('w', encoding='utf-8') as w:
             for text in texts:
