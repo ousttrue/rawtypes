@@ -184,6 +184,9 @@ class DefaultValue:
 
         equal = self.tokens.index('=')
         result = ''.join(token_filter(t) for t in self.tokens[equal + 1:])
+        if result == 'ImVec2(0,0)':
+            return '.{.x=0, .y=0}'
+
         return result
 
 

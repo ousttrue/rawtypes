@@ -33,7 +33,7 @@ class ZigGenerator(GeneratorBase):
         super().__init__(*args, **kw, target=target)
         self.custom: Optional[TYPE_CALLBACK] = None
 
-    def from_type(self, t: BaseType, *, bit_width: Optional[int] = None):
+    def from_type(self, t: BaseType, is_arg: bool, *, bit_width: Optional[int] = None):
         if bit_width:
             return f'u{bit_width}'
 
@@ -46,10 +46,15 @@ class ZigGenerator(GeneratorBase):
             case VoidType():
                 zig_type = 'void'
             case ArrayType():
-                base = self.from_type(t.base)
-                zig_type = f'[{t.size}]{base}'
+                base = self.from_type(t.base, False)
+                if is_arg:
+                    # to pointer
+                    zig_type = f'*{base}'
+                else:
+                    # array or slice ?
+                    zig_type = f'[{t.size}]{base}'
             case PointerType():
-                base = self.from_type(t.base)
+                base = self.from_type(t.base, False)
                 if base == 'void':
                     zig_type = f'?*anyopaque'
                 else:
@@ -83,9 +88,9 @@ class ZigGenerator(GeneratorBase):
         assert zig_type
         return f'{zig_type}'
 
-    def zig_type(self, c: TypeContext, *, bit_width: Optional[int] = None):
+    def zig_type(self, c: TypeContext, is_arg: bool, *, bit_width: Optional[int] = None):
         t = self.type_manager.to_type(c)
-        return self.from_type(t, bit_width=bit_width)
+        return self.from_type(t, is_arg, bit_width=bit_width)
 
     def generate(self, path: pathlib.Path, *, function_custom=[], is_exclude_function=None, custom: Optional[TYPE_CALLBACK] = None):
         self.custom = custom
@@ -146,9 +151,9 @@ class ZigGenerator(GeneratorBase):
 
                 # mangle version
                 args = [
-                    f'{rename_symbol(param.name)}: {self.zig_type(param)}' for param in f.params]
+                    f'{rename_symbol(param.name)}: {self.zig_type(param, True)}' for param in f.params]
                 texts.append(
-                    f'extern "c" fn {f.symbol}({", ".join(args)}) {self.zig_type(f.result)};')
+                    f'extern "c" fn {f.symbol}({", ".join(args)}) {self.zig_type(f.result, False)};')
 
                 # wrap
                 overload_count = overload_map.get(f.spelling, 0) + 1
@@ -172,14 +177,14 @@ class ZigGenerator(GeneratorBase):
                         if not has_default:
                             with_default += DEFAULT_ARG_NAME + ': struct{'
                             has_default = True
-                        with_default += f'{rename_symbol(param.name)}: {self.zig_type(param)}= {param.default_value.zig_value}'
+                        with_default += f'{rename_symbol(param.name)}: {self.zig_type(param, False)}= {param.default_value.zig_value}'
                     else:
                         arg_names.append(rename_symbol(param.name))
                         with_default += args[i]
                 if has_default:
                     with_default += '}'
 
-                texts.append(f'''pub fn {func_name}({with_default}) {self.zig_type(f.result)}
+                texts.append(f'''pub fn {func_name}({with_default}) {self.zig_type(f.result, False)}
 {{
     return {f.symbol}({", ".join(arg_names)});
 }}''')
@@ -232,7 +237,7 @@ class ZigGenerator(GeneratorBase):
                     has_bitfields = True
                     bit_width = f.cursor.get_bitfield_width()
                 sio.write(
-                    f'    {f.name}: {self.zig_type(f, bit_width=bit_width)},\n')
+                    f'    {f.name}: {self.zig_type(f, False, bit_width=bit_width)},\n')
 
         if nested:
             sio.write('}\n')
