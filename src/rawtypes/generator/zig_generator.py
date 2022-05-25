@@ -16,6 +16,12 @@ from ..interpreted_types.string import CStringType
 
 STRUCT_MAP = {}
 TYPE_CALLBACK: TypeAlias = Callable[[BaseType], Optional[str]]
+ZIG_SYMBOLS = ['type']
+
+def rename_symbol(name: str)->str:
+    if name in ZIG_SYMBOLS:
+        return '_' + name
+    return name
 
 
 class ZigGenerator(GeneratorBase):
@@ -127,7 +133,6 @@ class ZigGenerator(GeneratorBase):
             #
             # function
             #
-            methods = []
             overload_map = {}
             for f in self.parser.functions:
                 if header.path != f.path:
@@ -137,28 +142,24 @@ class ZigGenerator(GeneratorBase):
                 if not header.if_include(f.spelling):
                     continue
 
-                customize = None
-                for custom in function_custom:
-                    if custom.name == f.spelling:
-                        customize = custom
-                        break
+                args = ', '.join(
+                    f'{rename_symbol(param.name)}: {self.zig_type(param)}' for param in f.params)
 
+                texts.append(f'extern "c" fn {f.symbol}({args}) {self.zig_type(f.result)};')
+
+                # wrap
                 overload_count = overload_map.get(f.spelling, 0) + 1
                 overload_map[f.spelling] = overload_count
                 overload = ''
                 if overload_count > 1:
                     overload += f'_{overload_count}'
-
-                # namespace = get_namespace(f.cursors)
                 func_name = f'{f.spelling}{overload}'
-                args = ', '.join(
-                    f'{param.name}: {self.zig_type(param)}' for param in f.params)
+                arg_names = ', '.join(rename_symbol(param.name) for param in f.params)
+                texts.append(f'''pub fn {func_name}({args}) {self.zig_type(f.result)}
+{{
+    return {f.symbol}({arg_names});
+}}''')
 
-                sio = io.StringIO()
-                sio.write(
-                    f'extern "c" fn {f.symbol}({args}) {self.zig_type(f.result)};\n')
-                sio.write(f'pub const {func_name} = {f.symbol};\n')
-                texts.append(sio.getvalue())
 
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open('w', encoding='utf-8') as w:
