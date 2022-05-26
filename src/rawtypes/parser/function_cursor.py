@@ -23,7 +23,7 @@ class FunctionCursor(NamedTuple):
         return self.spelling
 
     @property
-    def symbol(self) -> str:
+    def mangled_name(self) -> str:
         return self.cursor.mangled_name
 
     @property
