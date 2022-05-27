@@ -28,6 +28,14 @@ def rename_symbol(name: str) -> str:
     return name
 
 
+def remove_const_ref(name: str) -> str:
+    if name[0] == '*':
+        name = name[1:].strip()
+    if name.startswith('const '):
+        name = name[6:].strip()
+    return name
+
+
 class ZigGenerator(GeneratorBase):
     def __init__(self, *headers: Header, include_dirs=[]) -> None:
         import platform
@@ -325,7 +333,7 @@ class ZigGenerator(GeneratorBase):
             if with_default:
                 with_default += ', '
 
-            zig_type = self.zig_type(param, False)
+            zig_type = self.zig_type(param, True)
             if param.default_value:
                 if not has_default:
                     with_default += DEFAULT_ARG_NAME + ': struct{'
@@ -334,7 +342,8 @@ class ZigGenerator(GeneratorBase):
                 if self.is_const_reference(param):
                     # remove pointer
                     assert zig_type[0] == '*'
-                    with_default += f'{rename_symbol(param.name)}: {zig_type[1:]}= {param.default_value.zig_value}'
+                    zig_type = remove_const_ref(zig_type)
+                    with_default += f'{rename_symbol(param.name)}: {zig_type}= {param.default_value.zig_value}'
                     # restore pointer
                     arg_names.append(
                         '&' + DEFAULT_ARG_NAME + '.' + rename_symbol(param.name))
@@ -346,7 +355,8 @@ class ZigGenerator(GeneratorBase):
                 if self.is_const_reference(param):
                     # remove pointer
                     assert zig_type[0] == '*'
-                    with_default += f'{rename_symbol(param.name)}: {zig_type[1:]}'
+                    zig_type = remove_const_ref(zig_type)
+                    with_default += f'{rename_symbol(param.name)}: {zig_type}'
                     # restore pointer
                     arg_names.append('&'+rename_symbol(param.name))
                 else:
