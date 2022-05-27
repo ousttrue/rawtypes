@@ -91,7 +91,7 @@ class ZigGenerator(GeneratorBase):
             case DoubleType():
                 zig_type = 'f64'
             case CStringType():
-                zig_type = '?[*]const u8'
+                zig_type = '?[*:0]const u8'
             case TypedefType():
                 if t.is_function_pointer():
                     zig_type = t.name
