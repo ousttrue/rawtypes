@@ -28,6 +28,9 @@ class TypeContext:
         self.type = type
         self.cursor = cursor
 
+    def __str__(self) -> str:
+        return f'{self.cursor.spelling}'
+
     @staticmethod
     def get_struct_methods(cursor: cindex.Cursor, *, excludes=(), includes=False) -> List[cindex.Cursor]:
         def method_filter(method: cindex.Cursor) -> bool:
@@ -107,6 +110,7 @@ class DefaultValue:
                       | cindex.CursorKind.CXX_BOOL_LITERAL_EXPR
                       | cindex.CursorKind.UNARY_OPERATOR
                       | cindex.CursorKind.CALL_EXPR
+                      | cindex.CursorKind.PARM_DECL
                       | cindex.CursorKind.CXX_NULL_PTR_LITERAL_EXPR  # bool
                       ):
                     tokens = [
@@ -116,7 +120,7 @@ class DefaultValue:
                 case cindex.CursorKind.TYPE_REF | cindex.CursorKind.TEMPLATE_REF | cindex.CursorKind.NAMESPACE_REF:
                     pass
                 case _:
-                    logger.debug(f'{cursor.spelling}: {child.kind}')
+                    logger.debug(f'UNKNOWN {cursor.spelling}: {child.kind}')
 
         if not tokens:
             return

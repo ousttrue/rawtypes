@@ -14,7 +14,7 @@ CINDEX_HEADER = pathlib.Path("C:/Program Files/LLVM/include/clang-c/Index.h")
 
 class TestGenerator(unittest.TestCase):
     def setUp(self) -> None:
-        self.generator = rawtypes.generator.python_generator.Generator(
+        self.generator = rawtypes.generator.python_generator.PythonGenerator(
             Header(CINDEX_HEADER, include_dirs=[CINDEX_HEADER.parent.parent]))
         self.generator.type_manager.WRAP_TYPES.append(
             WrapFlags('clang', 'CXCursor', True)

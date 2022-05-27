@@ -1,9 +1,9 @@
 from typing import Callable, Tuple
 from rawtypes.clang import cindex
-from rawtypes.generator.python_generator import Generator
+from rawtypes.generator.python_generator import PythonGenerator
 from rawtypes import interpreted_types
 
-generator = Generator()
+generator = PythonGenerator()
 
 
 def parse_source(src: str) -> cindex.TranslationUnit:
@@ -33,6 +33,6 @@ def parse_get_result_type(src: str) -> interpreted_types.BaseType:
 
 def parse_get_param_type(i: int, src: str) -> interpreted_types.BaseType:
     tu, c = _parse_get_func(src)
-    from rawtypes.parser.type_context import ParamContext
-    p = ParamContext.get_function_params(c)[i].cursor
+    from rawtypes.parser.function_cursor import FunctionCursor
+    p = FunctionCursor((c,)).params[i].cursor
     return generator.type_manager.from_cursor(p.type, p)

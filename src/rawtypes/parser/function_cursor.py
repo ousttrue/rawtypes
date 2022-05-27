@@ -47,7 +47,6 @@ class FunctionCursor(NamedTuple):
         cursors = [child for child in self.cursor.get_children(
         ) if child.kind == cindex.CursorKind.PARM_DECL]
         values = [ParamContext(i, child) for i, child in enumerate(cursors)]
-        # params = [param for param in ParamContext.get_function_params(self.cursor)]
         tokens = [token.spelling for token in self.cursor.get_tokens()]
 
         # remove token !
@@ -58,9 +57,13 @@ class FunctionCursor(NamedTuple):
                 case ['IM_FMTARGS', '(', _, ')']:
                     tokens = tokens[:-4]
 
-        open = tokens.index('(')
-        close = rindex(tokens, ')')
-        args = tokens[open + 1:close]
+        if tokens:
+            open = tokens.index('(')
+            close = rindex(tokens, ')')           
+            args = tokens[open + 1:close]
+        else:
+            args = []
+            
         it = iter(args)
         for i, param in enumerate(values):
             current = []
@@ -82,6 +85,6 @@ class FunctionCursor(NamedTuple):
                 # work around for linux
                 equal = current.index('=')
                 value = ' '.join(current[equal + 1:])
-                LOGGER.debug(f'restore default argument: {param} => {value}')
+                # LOGGER.debug(f'restore default argument: {param} => {value}')
                 param.default_value.tokens.append(value)
         return values

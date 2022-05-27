@@ -111,7 +111,8 @@ class Parser:
                 pass
             else:
                 if location.file.name not in self.skip:
-                    logger.debug(f'unknown header: {location.file.name}')
+                    if location.file.name != 'tmp.h':
+                        logger.debug(f'unknown header: {location.file.name}')
                     self.skip.append(location.file.name)
 
         return False
