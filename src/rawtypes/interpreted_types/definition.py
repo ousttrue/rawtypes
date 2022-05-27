@@ -9,6 +9,16 @@ class TypedefType(BaseType):
         super().__init__(name, is_const)
         self.base = base
 
+    def is_function_pointer(self) -> bool:
+        from .function_types import FunctionProto
+        return isinstance(self.base, FunctionProto)
+
+    def resolve(self) -> BaseType:
+        current = self
+        while isinstance(current, TypedefType):
+            current = current.base
+        return current
+
     @property
     def ctypes_type(self) -> str:
         # TODO:

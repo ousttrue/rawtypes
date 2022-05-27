@@ -4,7 +4,7 @@ from typing import List, Tuple, NamedTuple
 import pathlib
 import logging
 from rawtypes.clang import cindex
-from .type_context import ParamContext, ResultContext
+from .type_context import ParamContext, ResultContext, DefaultValue
 
 LOGGER = logging.getLogger(__name__)
 
@@ -59,20 +59,27 @@ class FunctionCursor(NamedTuple):
                     tokens = tokens[:-4]
 
         stack = []
-        args = [[]]
+        args = []
         for i in range(len(tokens)-1, -1, -1):
-            match tokens[i]:
+            token = tokens[i]
+            match token:
                 case ')':
+                    if not stack:
+                        args.insert(0, [])
+                    else:
+                        args[0].insert(0, token)
                     stack.append(1)
                 case '(':
                     stack.pop()
                     if not stack:
                         break
+                    else:
+                        args[0].insert(0, token)
                 case _:
-                    if len(stack) == 1 and tokens[i] == ',':
+                    if len(stack) == 1 and token == ',':
                         args.insert(0, [])
                     elif stack:
-                        args[0].insert(0, tokens[i])
+                        args[0].insert(0, token)
         if args == [[]] or args == [['void']]:
             args = []
 
@@ -82,6 +89,7 @@ class FunctionCursor(NamedTuple):
         else:
             assert(len(values) == len(args))
             for param, token in zip(values, args):
-                pass
+                if '=' in token:
+                    param.default_value = DefaultValue(token)
 
         return values
