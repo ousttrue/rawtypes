@@ -1,7 +1,8 @@
 from typing import Optional, Tuple
 from rawtypes.clang import cindex
-from .basetype import BaseType
 from ..parser.struct_cursor import WrapFlags
+from .basetype import BaseType
+from .pointer_types import PointerType
 
 
 class TypedefType(BaseType):
@@ -11,7 +12,12 @@ class TypedefType(BaseType):
 
     def is_function_pointer(self) -> bool:
         from .function_types import FunctionProto
-        return isinstance(self.base, FunctionProto)
+        if isinstance(self.base, FunctionProto):
+            return True
+        # if isinstance(self.base, PointerType):
+        #     if isinstance(self.base.base, FunctionProto):
+        #         return True
+        return False
 
     def resolve(self) -> BaseType:
         current = self

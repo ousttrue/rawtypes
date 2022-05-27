@@ -58,7 +58,12 @@ class ZigGenerator(GeneratorBase):
                     zig_type = f'[{t.size}]{base}'
             case PointerType():
                 base = self.from_type(t.base, False)
-                const = 'const ' if (is_arg and t.base.is_const) else ''
+                const = ''
+                if is_arg:
+                    if t.base.is_const:
+                        const = 'const '
+                    elif isinstance(base, FunctionProto):
+                        const = 'const '
                 if base == 'void':
                     zig_type = f'?*{const}anyopaque'
                 else:
@@ -90,13 +95,16 @@ class ZigGenerator(GeneratorBase):
             case TypedefType():
                 if t.is_function_pointer():
                     zig_type = t.name
+                if isinstance(t.base, PointerType) and isinstance(t.base.base, FunctionProto):
+                    zig_type = f'*const {t.name}'
                 else:
-                    zig_type = self.from_type(t.resolve(), False)
+                    zig_type = self.from_type(t.resolve(), is_arg)
             case FunctionProto():
                 f = t.function
                 args = [
                     f'{rename_symbol(param.name)}: {self.zig_type(param, True)}' for param in f.params]
-                zig_type = f'fn ({", ".join(args)}) {self.zig_type(f.result, False)}'
+                const = 'const ' if (is_arg and t.base.is_const) else ''
+                zig_type = f'{const}fn ({", ".join(args)}) {self.zig_type(f.result, False)}'
             case _:
                 zig_type = t.name
                 if zig_type.startswith('const '):
@@ -199,7 +207,7 @@ class ZigGenerator(GeneratorBase):
                     args = [
                         f'{rename_symbol(param.name)}: {self.zig_type(param, True)}' for param in f.params]
                     self.texts.append(
-                        f'const {td.spelling} = fn ({", ".join(args)}) {self.zig_type(f.result, False)};')
+                        f'const {td.spelling} = fn ({", ".join(args)}) callconv(.C) {self.zig_type(f.result, False)};')
             case StructType():
                 pass
             # case _:
