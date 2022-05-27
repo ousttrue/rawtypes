@@ -1,0 +1,9 @@
+rawtypes.interpreted\_types.function\_types module
+==================================================
+.. inheritance-diagram:: rawtypes.interpreted_types.function_types
+   :parts: 1
+
+.. automodule:: rawtypes.interpreted_types.function_types
+   :members:
+   :undoc-members:
+   :show-inheritance:

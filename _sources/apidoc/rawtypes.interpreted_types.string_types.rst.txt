@@ -1,0 +1,9 @@
+rawtypes.interpreted\_types.string\_types module
+================================================
+.. inheritance-diagram:: rawtypes.interpreted_types.string_types
+   :parts: 1
+
+.. automodule:: rawtypes.interpreted_types.string_types
+   :members:
+   :undoc-members:
+   :show-inheritance:

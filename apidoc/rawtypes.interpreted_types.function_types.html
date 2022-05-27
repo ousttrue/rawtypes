@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="検索" href="../search.html" /><link rel="next" title="rawtypes.parser.parser module" href="rawtypes.parser.parser.html" /><link rel="prev" title="rawtypes.parser.function_cursor module" href="rawtypes.parser.function_cursor.html" />
+<link rel="index" title="索引" href="../genindex.html" /><link rel="search" title="検索" href="../search.html" /><link rel="next" title="rawtypes.interpreted_types.pointer_types module" href="rawtypes.interpreted_types.pointer_types.html" /><link rel="prev" title="rawtypes.interpreted_types.definition module" href="rawtypes.interpreted_types.definition.html" />
 
     <meta name="generator" content="sphinx-4.4.0, furo 2022.01.02"/>
-        <title>rawtypes.parser.header module - rawtypes ドキュメント</title>
+        <title>rawtypes.interpreted_types.function_types module - rawtypes ドキュメント</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=df49af52631e7917044a9c21a57f7b83170a6dd0" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
@@ -211,20 +211,20 @@
 <li class="toctree-l4"><a class="reference internal" href="rawtypes.generator.zig_generator.html">rawtypes.generator.zig_generator module</a></li>
 </ul>
 </li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="rawtypes.interpreted_types.html">rawtypes.interpreted_types package</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 current has-children"><a class="reference internal" href="rawtypes.interpreted_types.html">rawtypes.interpreted_types package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="rawtypes.interpreted_types.basetype.html">rawtypes.interpreted_types.basetype module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="rawtypes.interpreted_types.definition.html">rawtypes.interpreted_types.definition module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="rawtypes.interpreted_types.function_types.html">rawtypes.interpreted_types.function_types module</a></li>
+<li class="toctree-l4 current current-page"><a class="current reference internal" href="#">rawtypes.interpreted_types.function_types module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="rawtypes.interpreted_types.pointer_types.html">rawtypes.interpreted_types.pointer_types module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="rawtypes.interpreted_types.primitive_types.html">rawtypes.interpreted_types.primitive_types module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="rawtypes.interpreted_types.string_types.html">rawtypes.interpreted_types.string_types module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="rawtypes.interpreted_types.wrap_types.html">rawtypes.interpreted_types.wrap_types module</a></li>
 </ul>
 </li>
-<li class="toctree-l3 current has-children"><a class="reference internal" href="rawtypes.parser.html">rawtypes.parser package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="rawtypes.parser.html">rawtypes.parser package</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="rawtypes.parser.enum_cursor.html">rawtypes.parser.enum_cursor module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="rawtypes.parser.function_cursor.html">rawtypes.parser.function_cursor module</a></li>
-<li class="toctree-l4 current current-page"><a class="current reference internal" href="#">rawtypes.parser.header module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rawtypes.parser.header.html">rawtypes.parser.header module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="rawtypes.parser.parser.html">rawtypes.parser.parser module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="rawtypes.parser.struct_cursor.html">rawtypes.parser.struct_cursor module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="rawtypes.parser.type_context.html">rawtypes.parser.type_context module</a></li>
@@ -262,31 +262,16 @@
           </label>
         </div>
         <article role="main">
-          <section id="rawtypes-parser-header-module">
-<h1>rawtypes.parser.header module<a class="headerlink" href="#rawtypes-parser-header-module" title="このヘッドラインへのパーマリンク">¶</a></h1>
-<div class="graphviz"><img alt="Inheritance diagram of rawtypes.parser.header" class="inheritance graphviz" src="../_images/inheritance-7d3f8dd07afdc9bac497486bcb64d42c2dd9a47a.png" usemap="#inheritancea1bdf107c0"/></div>
-<map id="inheritancea1bdf107c0" name="inheritancea1bdf107c0">
-<area alt="" coords="43,55,115,80" href="#rawtypes.parser.header.Header" id="node1" shape="rect" target="_top" title="Header"/>
-<area alt="" coords="5,5,152,31" href="#rawtypes.parser.header.StructConfiguration" id="node2" shape="rect" target="_top" title="StructConfiguration(name, methods)"/>
-</map><span class="target" id="module-rawtypes.parser.header"></span><dl class="py class">
-<dt class="sig sig-object py" id="rawtypes.parser.header.StructConfiguration">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawtypes.parser.header.</span></span><span class="sig-name descname"><span class="pre">StructConfiguration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">methods</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawtypes.parser.header.StructConfiguration" title="この定義へのパーマリンク">¶</a></dt>
-<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="rawtypes.parser.header.StructConfiguration.name">
-<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#rawtypes.parser.header.StructConfiguration.name" title="この定義へのパーマリンク">¶</a></dt>
-<dd><p>Alias for field number 0</p>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="rawtypes.parser.header.StructConfiguration.methods">
-<span class="sig-name descname"><span class="pre">methods</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#rawtypes.parser.header.StructConfiguration.methods" title="この定義へのパーマリンク">¶</a></dt>
-<dd><p>Alias for field number 1</p>
-</dd></dl>
-</dd></dl>
-<dl class="py class">
-<dt class="sig sig-object py" id="rawtypes.parser.header.Header">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawtypes.parser.header.</span></span><span class="sig-name descname"><span class="pre">Header</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">path:</span> <span class="pre">pathlib.Path,</span> <span class="pre">*,</span> <span class="pre">prefix:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">include_dirs:</span> <span class="pre">typing.Optional[typing.List[pathlib.Path]]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">begin='',</span> <span class="pre">before_include='',</span> <span class="pre">after_include='',</span> <span class="pre">definitions:</span> <span class="pre">typing.Optional[typing.List[str]]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">include_only=False,</span> <span class="pre">if_include:</span> <span class="pre">typing.Callable[[str],</span> <span class="pre">bool]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">Header.&lt;lambda&gt;&gt;,</span> <span class="pre">additional_functions:</span> <span class="pre">typing.Optional[typing.Dict[str,</span> <span class="pre">str]]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">structs:</span> <span class="pre">typing.Optional[typing.List[rawtypes.parser.header.StructConfiguration]]</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawtypes.parser.header.Header" title="この定義へのパーマリンク">¶</a></dt>
-<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+          <section id="rawtypes-interpreted-types-function-types-module">
+<h1>rawtypes.interpreted_types.function_types module<a class="headerlink" href="#rawtypes-interpreted-types-function-types-module" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<div class="graphviz"><img alt="Inheritance diagram of rawtypes.interpreted_types.function_types" class="inheritance graphviz" src="../_images/inheritance-4cf94d98a2582b827f8f66b3386edbc4b296d9f7.png" usemap="#inheritancea2cf52c882"/></div>
+<map id="inheritancea2cf52c882" name="inheritancea2cf52c882">
+<area alt="" coords="5,5,89,31" href="rawtypes.interpreted_types.basetype.html#rawtypes.interpreted_types.basetype.BaseType" id="node1" shape="rect" target="_top" title="コード生成時の型ごとの変換ルールを定義する。"/>
+<area alt="" coords="137,5,248,31" href="#rawtypes.interpreted_types.function_types.FunctionProto" id="node2" shape="rect" target="_top" title="FunctionProto"/>
+</map><span class="target" id="module-rawtypes.interpreted_types.function_types"></span><dl class="py class">
+<dt class="sig sig-object py" id="rawtypes.interpreted_types.function_types.FunctionProto">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawtypes.interpreted_types.function_types.</span></span><span class="sig-name descname"><span class="pre">FunctionProto</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rawtypes.parser.function_cursor.html#rawtypes.parser.function_cursor.FunctionCursor" title="rawtypes.parser.function_cursor.FunctionCursor"><span class="pre">rawtypes.parser.function_cursor.FunctionCursor</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawtypes.interpreted_types.function_types.FunctionProto" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <a class="reference internal" href="rawtypes.interpreted_types.basetype.html#rawtypes.interpreted_types.basetype.BaseType" title="rawtypes.interpreted_types.basetype.BaseType"><code class="xref py py-class docutils literal notranslate"><span class="pre">rawtypes.interpreted_types.basetype.BaseType</span></code></a></p>
 </dd></dl>
 </section>
 
@@ -295,23 +280,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="rawtypes.parser.parser.html">
+          <a class="next-page" href="rawtypes.interpreted_types.pointer_types.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">rawtypes.parser.parser module</div>
+                <div class="title">rawtypes.interpreted_types.pointer_types module</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="rawtypes.parser.function_cursor.html">
+          <a class="prev-page" href="rawtypes.interpreted_types.definition.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">rawtypes.parser.function_cursor module</div>
+                <div class="title">rawtypes.interpreted_types.definition module</div>
                 
               </div>
             </a>
@@ -321,7 +306,7 @@
               Copyright &#169; 2022, ousttrue |
           Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
           <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
-            | <a class="muted-link" href="../_sources/apidoc/rawtypes.parser.header.rst.txt"
+            | <a class="muted-link" href="../_sources/apidoc/rawtypes.interpreted_types.function_types.rst.txt"
                rel="nofollow">
               ソースコードを表示
             </a>

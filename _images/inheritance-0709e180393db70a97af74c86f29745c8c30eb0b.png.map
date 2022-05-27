@@ -1,0 +1,7 @@
+<map id="inheritance4b10954e25" name="inheritance4b10954e25">
+<area shape="rect" id="node1" href="rawtypes.interpreted_types.basetype.html#rawtypes.interpreted_types.basetype.BaseType" target="_top" title="コード生成時の型ごとの変換ルールを定義する。" alt="" coords="5,55,89,80"/>
+<area shape="rect" id="node3" href="#rawtypes.interpreted_types.string_types.StrType" target="_top" title="StrType" alt="" coords="165,29,237,55"/>
+<area shape="rect" id="node4" href="#rawtypes.interpreted_types.string_types.CharPointerType" target="_top" title="str, bytes を const char* ではなく、" alt="" coords="137,79,265,104"/>
+<area shape="rect" id="node2" href="#rawtypes.interpreted_types.string_types.CStringType" target="_top" title="CStringType" alt="" coords="321,5,420,31"/>
+<area shape="rect" id="node5" href="#rawtypes.interpreted_types.string_types.CppStringType" target="_top" title="http://docs.cython.org/en/latest/src/tutorial/strings.html#c&#45;strings" alt="" coords="313,55,428,80"/>
+</map>

@@ -9,9 +9,10 @@ Submodules
 
    rawtypes.interpreted_types.basetype
    rawtypes.interpreted_types.definition
+   rawtypes.interpreted_types.function_types
    rawtypes.interpreted_types.pointer_types
    rawtypes.interpreted_types.primitive_types
-   rawtypes.interpreted_types.string
+   rawtypes.interpreted_types.string_types
    rawtypes.interpreted_types.wrap_types
 
 Module contents
