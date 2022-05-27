@@ -13,7 +13,7 @@ from ..interpreted_types.primitive_types import (FloatType, DoubleType,
                                                  Int8Type, Int16Type, Int32Type,
                                                  UInt8Type, UInt16Type, UInt32Type, SizeType)
 from ..interpreted_types.definition import StructType
-from ..interpreted_types.string import CStringType
+from ..interpreted_types.string_types import CStringType
 
 TYPE_CALLBACK: TypeAlias = Callable[[BaseType], Optional[str]]
 ZIG_SYMBOLS = ['type']

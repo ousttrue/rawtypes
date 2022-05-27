@@ -34,5 +34,5 @@ def parse_get_result_type(src: str) -> interpreted_types.BaseType:
 def parse_get_param_type(i: int, src: str) -> interpreted_types.BaseType:
     tu, c = _parse_get_func(src)
     from rawtypes.parser.function_cursor import FunctionCursor
-    p = FunctionCursor((c,)).params[i].cursor
+    p = FunctionCursor(c.result_type, (c,)).params[i].cursor
     return generator.type_manager.from_cursor(p.type, p)

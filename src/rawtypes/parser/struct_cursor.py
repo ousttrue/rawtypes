@@ -88,7 +88,7 @@ class StructCursor(NamedTuple):
             self.cursor, includes=flags.methods if isinstance(flags, WrapFlags) else True)
         if not methods:
             return []
-        return [FunctionCursor(self.cursors + (method,)) for method in methods]
+        return [FunctionCursor(method.result_type, self.cursors + (method,)) for method in methods]
 
     def get_method(self, name: str) -> FunctionCursor:
         for method in self.get_methods():

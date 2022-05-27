@@ -238,5 +238,5 @@ class FieldContext(TypeContext):
 
 
 class ResultContext(TypeContext):
-    def __init__(self, cursor: cindex.Cursor) -> None:
-        super().__init__(cursor.result_type, cursor)
+    def __init__(self, type: cindex.Type, cursor: cindex.Cursor) -> None:
+        super().__init__(type, cursor)

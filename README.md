@@ -1,13 +1,21 @@
 # rawtypes
 
-A code generator using libclang for a python extension.
+A code generator using libclang for a python extension or zig.
 
+## parse
 * c function
-  * default value
   * pointer handling
-  * pyi type annotation
-* ctypes struct
+
+* python generator
+  * ctypes struct
   * add method to ctypes struct
+  * default argument
+  * pyi type annotation
+
+* zig generator
+  * mangling
+  * method call
+  * default argument
 
 ## clang.cindex
 

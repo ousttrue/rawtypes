@@ -11,7 +11,8 @@ from .primitive_types import VoidType
 from .pointer_types import PointerType, ReferenceType, ArrayType, ReferenceToStdArrayType
 from .wrap_types import PointerToStructType, ReferenceToStructType
 from .definition import StructType, TypedefType, EnumType
-from .string import CppStringType, CStringType, CharPointerType
+from .string_types import CppStringType, CStringType, CharPointerType
+from .function_types import FunctionProto
 
 
 class TypeWithCursor(NamedTuple):
@@ -129,7 +130,7 @@ class TypeManager:
             case cindex.TypeKind.BOOL:
                 return primitive_types.BoolType(is_const)
 
-            case cindex.TypeKind.CHAR_S | cindex.TypeKind.SCHAR:
+            case cindex.TypeKind.CHAR_S | cindex.TypeKind.SCHAR:  # type: ignore
                 return primitive_types.Int8Type(is_const)
             case cindex.TypeKind.SHORT:
                 return primitive_types.Int16Type(is_const)
@@ -179,14 +180,9 @@ class TypeManager:
                 return ArrayType(base, c.type.get_array_size(), is_const=is_const)
 
             case cindex.TypeKind.TYPEDEF:
-                current = c
-                while True:
-                    underlying = current.underlying
-                    if not underlying:
-                        break
-                    current = underlying
-
-                return self.get(current, is_const)
+                underlying = c.underlying
+                assert(underlying)
+                return TypedefType(c.spelling, self.get(underlying, is_const), is_const=is_const)
 
             case cindex.TypeKind.RECORD:
                 deref = c.ref_from_children()
@@ -198,7 +194,7 @@ class TypeManager:
                 return StructType(c.cursor.spelling, c.cursor, is_const=is_const, nested_type=c.cursor)
 
             case cindex.TypeKind.FUNCTIONPROTO:
-                return PointerType(primitive_types.VoidType(), is_const=is_const)
+                return FunctionProto(FunctionCursor(c.type.get_result(), (c.cursor,)))
 
             case cindex.TypeKind.ENUM:
                 return EnumType(c.type.spelling)

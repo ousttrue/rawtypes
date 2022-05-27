@@ -84,7 +84,7 @@ class Parser:
                     if(cursor.spelling.startswith('operator ')):
                         pass
                     else:
-                        self.functions.append(FunctionCursor(cursor_path))
+                        self.functions.append(FunctionCursor(cursor_path[-1].result_type, cursor_path))
                 case cindex.CursorKind.ENUM_DECL:
                     self.enums.append(EnumCursor(cursor_path))
                 case cindex.CursorKind.TYPEDEF_DECL:

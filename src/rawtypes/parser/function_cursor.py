@@ -17,6 +17,7 @@ def rindex(l, target) -> int:
 
 
 class FunctionCursor(NamedTuple):
+    result_type: cindex.Type
     cursors: Tuple[cindex.Cursor, ...]
 
     def __repr__(self) -> str:
@@ -40,7 +41,7 @@ class FunctionCursor(NamedTuple):
 
     @property
     def result(self) -> ResultContext:
-        return ResultContext(self.cursor)
+        return ResultContext(self.result_type, self.cursor)
 
     @property
     def params(self) -> List[ParamContext]:
@@ -57,34 +58,30 @@ class FunctionCursor(NamedTuple):
                 case ['IM_FMTARGS', '(', _, ')']:
                     tokens = tokens[:-4]
 
-        if tokens:
-            open = tokens.index('(')
-            close = rindex(tokens, ')')           
-            args = tokens[open + 1:close]
-        else:
+        stack = []
+        args = [[]]
+        for i in range(len(tokens)-1, -1, -1):
+            match tokens[i]:
+                case ')':
+                    stack.append(1)
+                case '(':
+                    stack.pop()
+                    if not stack:
+                        break
+                case _:
+                    if len(stack) == 1 and tokens[i] == ',':
+                        args.insert(0, [])
+                    elif stack:
+                        args[0].insert(0, tokens[i])
+        if args == [[]] or args == [['void']]:
             args = []
-            
-        it = iter(args)
-        for i, param in enumerate(values):
-            current = []
-            stack = []
-            while True:
-                try:
-                    tmp = next(it)
-                    if tmp == '(':
-                        stack.append(tmp)
-                    elif tmp == ')':
-                        stack.pop()
-                    elif tmp == ',':
-                        if not stack:
-                            break
-                    current.append(tmp)
-                except StopIteration:
-                    break
-            if param.default_value and param.default_value.tokens[-1] == '=':
-                # work around for linux
-                equal = current.index('=')
-                value = ' '.join(current[equal + 1:])
-                # LOGGER.debug(f'restore default argument: {param} => {value}')
-                param.default_value.tokens.append(value)
+
+        if args and args[-1] == ['...']:
+            # TODO:
+            pass
+        else:
+            assert(len(values) == len(args))
+            for param, token in zip(values, args):
+                pass
+
         return values
