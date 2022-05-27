@@ -7,10 +7,11 @@ from rawtypes.parser.struct_cursor import StructCursor, WrapFlags
 from rawtypes.parser.type_context import FieldContext, ParamContext, ResultContext, TypeContext
 from rawtypes.parser.function_cursor import FunctionCursor
 
+
 def to_ctypes_method(cursor: cindex.Cursor, method: cindex.Cursor, type_manager: TypeManager) -> str:
     w = io.StringIO()
     # params = ParamContext.get_function_params(method)
-    result = ResultContext(method)
+    result = ResultContext(method.result_type, method)
     result_t = type_manager.from_cursor(result.type, result.cursor)
 
     # signature
@@ -78,15 +79,17 @@ def cj(src: Iterable[str]) -> str:
 
 
 def write_pyi_function(type_map: TypeManager, pyx: io.IOBase, function: cindex.Cursor, *, overload=1, prefix=''):
-    result = ResultContext(function)
+    f = FunctionCursor(function.result_type, [function])
+    params = f.params
+    result = f.result
     result_t = type_map.from_cursor(result.type, result.cursor)
-    params = FunctionCursor([function]).params
 
     overload = '' if overload == 1 else f'_{overload}'
 
     values = []
     for param in params:
-        values.append(type_map.from_cursor(param.type, param.cursor).py_param(param.name, param.default_value.py_value if param.default_value else '', pyi=True))
+        values.append(type_map.from_cursor(param.type, param.cursor).py_param(
+            param.name, param.default_value.py_value if param.default_value else '', pyi=True))
 
     # signature
     pyx.write(
@@ -112,8 +115,9 @@ def self_cj(src: Iterable[str]) -> str:
 
 
 def write_pyi_method(type_map: TypeManager, pyx: io.IOBase, cursor: cindex.Cursor, method: cindex.Cursor):
-    params = FunctionCursor([method]).params
-    result = ResultContext(method)
+    f = FunctionCursor(method.result_type, [method])
+    params = f.params
+    result = f.result
     result_t = type_map.from_cursor(result.type, result.cursor)
 
     values = []

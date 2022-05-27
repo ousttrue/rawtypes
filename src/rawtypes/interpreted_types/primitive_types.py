@@ -238,3 +238,23 @@ def get(src: str, is_const: bool) -> PrimitiveType:
             return FloatType(is_const=is_const)
 
     raise RuntimeError()
+
+
+def is_primitive(base: BaseType) -> bool:
+    match base:
+        case (
+            BoolType()
+            | Int8Type()
+            | Int16Type()
+            | Int32Type()
+            | Int64Type()
+            | UInt8Type()
+            | UInt16Type()
+            | UInt32Type()
+            | UInt64Type()
+            | FloatType()
+            | DoubleType()
+        ):
+            return True
+
+    return False

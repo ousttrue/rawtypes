@@ -39,9 +39,9 @@ class PointerType(BaseType):
 
     def cpp_from_py(self, indent: str, i: int, default_value: str) -> str:
         if default_value:
-            return f'{indent}{self.base.const_prefix}{self.base.name} *p{i} = t{i} ? ctypes_get_pointer<{self.base.const_prefix}{self.base.name}*>(t{i}) : {default_value};\n'
+            return f'{indent}{self.base.name} *p{i} = t{i} ? ctypes_get_pointer<{self.base.name}*>(t{i}) : {default_value};\n'
         else:
-            return f'{indent}{self.base.const_prefix}{self.base.name} *p{i} = ctypes_get_pointer<{self.base.const_prefix}{self.base.name}*>(t{i});\n'
+            return f'{indent}{self.base.name} *p{i} = ctypes_get_pointer<{self.base.name}*>(t{i});\n'
 
     def cpp_to_py(self, value: str) -> str:
         return f'c_void_p({value})'
@@ -105,3 +105,11 @@ class ReferenceToStdArrayType(PointerType):
         if not self.base:
             raise RuntimeError()
         return f'{self.base.ctypes_type} * {self.size}'
+
+
+def is_void_p(base: BaseType) -> bool:
+    if not isinstance(base, PointerType):
+        return False
+    if not isinstance(base.base, VoidType):
+        return False
+    return True
