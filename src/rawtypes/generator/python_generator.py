@@ -1,4 +1,5 @@
-from typing import List, Tuple
+from typing import List, Tuple, NamedTuple
+import io
 import shutil
 import pathlib
 import pkg_resources
@@ -22,7 +23,7 @@ from enum import IntEnum
 def get_namespace(cursors: Tuple[cindex.Cursor, ...]) -> str:
     sio = io.StringIO()
     for cursor in cursors:
-        if cursor.kind == cindex.CursorKind.NAMESPACE: # type: ignore
+        if cursor.kind == cindex.CursorKind.NAMESPACE:  # type: ignore
             sio.write(f'{cursor.spelling}::')
     return sio.getvalue()
 
@@ -38,6 +39,9 @@ class PyMethodDef(NamedTuple):
 
 
 class PythonGenerator(GeneratorBase):
+    def __init__(self, *headers: Header, include_dirs=[], target='') -> None:
+        super().__init__(*headers, use_typdef=False,
+                         include_dirs=include_dirs, target=target)
 
     def generate(self, package_dir: pathlib.Path, cpp_path: pathlib.Path, *, function_custom=[], is_exclude_function=None):
 
@@ -80,7 +84,8 @@ class PythonGenerator(GeneratorBase):
             with (package_dir / f'{header.path.stem}.pyi').open('w') as pyi:
                 pyi.write(PY_BEGIN)
                 pyi.write(header.begin)
-                self.write_pyi(header, pyi, is_exclude_function=is_exclude_function)
+                self.write_pyi(
+                    header, pyi, is_exclude_function=is_exclude_function)
 
                 # enum
                 pyi.write('from enum import IntEnum\n\n')

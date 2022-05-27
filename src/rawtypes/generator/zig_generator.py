@@ -40,7 +40,7 @@ class ZigGenerator(GeneratorBase):
     def __init__(self, *headers: Header, include_dirs=[]) -> None:
         import platform
         target = 'x86_64-windows-gnu' if platform.system() == 'Windows' else ''
-        super().__init__(*headers, include_dirs=include_dirs, target=target)
+        super().__init__(*headers, use_typdef=True, include_dirs=include_dirs, target=target)
         self.custom: Optional[TYPE_CALLBACK] = None
         self.struct_map = {}
 

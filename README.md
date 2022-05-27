@@ -3,19 +3,24 @@
 A code generator using libclang for a python extension or zig.
 
 ## parse
-* c function
-  * pointer handling
+
+* function
+* pointer handling
+* struct / union / anonymous
+* typedef
+* functin pointer
+* const
+* reference
+* mangling
+* method call
+* default argument
 
 * python generator
   * ctypes struct
   * add method to ctypes struct
-  * default argument
   * pyi type annotation
 
 * zig generator
-  * mangling
-  * method call
-  * default argument
 
 ## clang.cindex
 

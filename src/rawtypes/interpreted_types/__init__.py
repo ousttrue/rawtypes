@@ -7,4 +7,5 @@ from .pointer_types import PointerType, ReferenceType, ArrayType, ReferenceToStd
 from .definition import StructType, TypedefType, EnumType
 from .string_types import CppStringType, CStringType, CharPointerType
 from .function_types import FunctionProto
-from .type_manager import TypeManager
+from .type_manager import TypeManager, TypeProcessor, TypeWithCursor
+

@@ -60,10 +60,10 @@ class Params(NamedTuple):
 
 
 class TypeManager:
-    def __init__(self) -> None:
+    def __init__(self, use_typedef=True) -> None:
         self.WRAP_TYPES: List[WrapFlags] = []
         self.processors: List[TypeProcessor] = []
-        self.use_typedef = False
+        self.use_typedef = use_typedef
 
     def get_wrap_type(self, name: str) -> Optional[WrapFlags]:
         if name.startswith('struct '):

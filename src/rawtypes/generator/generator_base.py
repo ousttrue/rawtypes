@@ -6,7 +6,7 @@ from ..interpreted_types import TypeManager
 
 
 class GeneratorBase(metaclass=abc.ABCMeta):
-    def __init__(self, *headers: Header, include_dirs=[], target='') -> None:
+    def __init__(self, *headers: Header, use_typdef: bool, include_dirs=[], target='') -> None:
         # parse
         include_dirs = sum(
             [list(header.include_dirs) for header in headers], include_dirs)
@@ -20,7 +20,7 @@ class GeneratorBase(metaclass=abc.ABCMeta):
         self.headers = [
             header for header in headers if not header.include_only]
         # prepare
-        self.type_manager = TypeManager()
+        self.type_manager = TypeManager(use_typedef=use_typdef)
         from jinja2 import Environment, PackageLoader
         self.env = Environment(
             loader=PackageLoader("rawtypes.generator"),
