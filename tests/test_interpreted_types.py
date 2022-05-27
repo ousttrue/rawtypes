@@ -89,8 +89,11 @@ size_t func();
         typedef = _test_utils.parse_get_param_type(0, '''typedef int INT
         void func(INT p0);
         ''')
+        assert isinstance(typedef, interpreted_types.TypedefType)
         self.assertIsInstance(
-            typedef, interpreted_types.primitive_types.Int32Type)
+            typedef, interpreted_types.TypedefType)
+        self.assertIsInstance(
+            typedef.resolve(), interpreted_types.primitive_types.Int32Type)
 
         const_p = _test_utils.parse_get_param_type(0, '''
         struct Some{
@@ -100,12 +103,12 @@ size_t func();
         void func(const SOME *p0);
         ''')
 
-        match const_p:
-            case interpreted_types.PointerType():
-                self.assertIsInstance(
-                    const_p.base, interpreted_types.StructType)
-            case _:
-                raise RuntimeError()
+        assert isinstance(const_p, interpreted_types.PointerType)
+        self.assertIsInstance(const_p, interpreted_types.PointerType)
+        typedef = const_p.base
+        assert isinstance(typedef, interpreted_types.TypedefType)
+        struct_type = typedef.base
+        assert isinstance(struct_type, interpreted_types.StructType)
 
 # typedef
 

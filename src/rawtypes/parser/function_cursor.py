@@ -49,6 +49,8 @@ class FunctionCursor(NamedTuple):
         ) if child.kind == cindex.CursorKind.PARM_DECL]
         values = [ParamContext(i, child) for i, child in enumerate(cursors)]
         tokens = [token.spelling for token in self.cursor.get_tokens()]
+        if not tokens:
+            LOGGER.warn(self.cursor.location)
 
         # remove token !
         if len(tokens) > 4:
@@ -86,10 +88,12 @@ class FunctionCursor(NamedTuple):
         if args and args[-1] == ['...']:
             # TODO:
             pass
-        else:
+        elif tokens:
             assert(len(values) == len(args))
             for param, token in zip(values, args):
                 if '=' in token:
                     param.default_value = DefaultValue(token)
+        else:
+            pass
 
         return values
