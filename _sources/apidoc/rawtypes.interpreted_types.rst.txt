@@ -13,6 +13,7 @@ Submodules
    rawtypes.interpreted_types.pointer_types
    rawtypes.interpreted_types.primitive_types
    rawtypes.interpreted_types.string_types
+   rawtypes.interpreted_types.type_manager
    rawtypes.interpreted_types.wrap_types
 
 Module contents

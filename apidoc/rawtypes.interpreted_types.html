@@ -218,6 +218,7 @@
 <li class="toctree-l4"><a class="reference internal" href="rawtypes.interpreted_types.pointer_types.html">rawtypes.interpreted_types.pointer_types module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="rawtypes.interpreted_types.primitive_types.html">rawtypes.interpreted_types.primitive_types module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="rawtypes.interpreted_types.string_types.html">rawtypes.interpreted_types.string_types module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rawtypes.interpreted_types.type_manager.html">rawtypes.interpreted_types.type_manager module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="rawtypes.interpreted_types.wrap_types.html">rawtypes.interpreted_types.wrap_types module</a></li>
 </ul>
 </li>
@@ -274,107 +275,13 @@
 <li class="toctree-l1"><a class="reference internal" href="rawtypes.interpreted_types.pointer_types.html">rawtypes.interpreted_types.pointer_types module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rawtypes.interpreted_types.primitive_types.html">rawtypes.interpreted_types.primitive_types module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rawtypes.interpreted_types.string_types.html">rawtypes.interpreted_types.string_types module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rawtypes.interpreted_types.type_manager.html">rawtypes.interpreted_types.type_manager module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rawtypes.interpreted_types.wrap_types.html">rawtypes.interpreted_types.wrap_types module</a></li>
 </ul>
 </div>
 </section>
 <section id="module-rawtypes.interpreted_types">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-rawtypes.interpreted_types" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="rawtypes.interpreted_types.TypeWithCursor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawtypes.interpreted_types.</span></span><span class="sig-name descname"><span class="pre">TypeWithCursor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cursor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawtypes.interpreted_types.TypeWithCursor" title="この定義へのパーマリンク">¶</a></dt>
-<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="rawtypes.interpreted_types.TypeWithCursor.type">
-<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="rawtypes.clang.cindex.html#rawtypes.clang.cindex.Type" title="rawtypes.clang.cindex.Type"><span class="pre">rawtypes.clang.cindex.Type</span></a></em><a class="headerlink" href="#rawtypes.interpreted_types.TypeWithCursor.type" title="この定義へのパーマリンク">¶</a></dt>
-<dd><p>Alias for field number 0</p>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="rawtypes.interpreted_types.TypeWithCursor.cursor">
-<span class="sig-name descname"><span class="pre">cursor</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="rawtypes.clang.cindex.html#rawtypes.clang.cindex.Cursor" title="rawtypes.clang.cindex.Cursor"><span class="pre">rawtypes.clang.cindex.Cursor</span></a></em><a class="headerlink" href="#rawtypes.interpreted_types.TypeWithCursor.cursor" title="この定義へのパーマリンク">¶</a></dt>
-<dd><p>Alias for field number 1</p>
-</dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="rawtypes.interpreted_types.TypeWithCursor.spelling">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">spelling</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#rawtypes.interpreted_types.TypeWithCursor.spelling" title="この定義へのパーマリンク">¶</a></dt>
-<dd></dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="rawtypes.interpreted_types.TypeWithCursor.ref_from_children">
-<span class="sig-name descname"><span class="pre">ref_from_children</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="rawtypes.clang.cindex.html#rawtypes.clang.cindex.Cursor" title="rawtypes.clang.cindex.Cursor"><span class="pre">rawtypes.clang.cindex.Cursor</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#rawtypes.interpreted_types.TypeWithCursor.ref_from_children" title="この定義へのパーマリンク">¶</a></dt>
-<dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="rawtypes.interpreted_types.TypeWithCursor.underlying">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">underlying</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#rawtypes.interpreted_types.TypeWithCursor" title="rawtypes.interpreted_types.TypeWithCursor"><span class="pre">rawtypes.interpreted_types.TypeWithCursor</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#rawtypes.interpreted_types.TypeWithCursor.underlying" title="この定義へのパーマリンク">¶</a></dt>
-<dd></dd></dl>
-</dd></dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="rawtypes.interpreted_types.is_primitive">
-<span class="sig-prename descclassname"><span class="pre">rawtypes.interpreted_types.</span></span><span class="sig-name descname"><span class="pre">is_primitive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rawtypes.interpreted_types.basetype.html#rawtypes.interpreted_types.basetype.BaseType" title="rawtypes.interpreted_types.basetype.BaseType"><span class="pre">rawtypes.interpreted_types.basetype.BaseType</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#rawtypes.interpreted_types.is_primitive" title="この定義へのパーマリンク">¶</a></dt>
-<dd></dd></dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="rawtypes.interpreted_types.is_void_p">
-<span class="sig-prename descclassname"><span class="pre">rawtypes.interpreted_types.</span></span><span class="sig-name descname"><span class="pre">is_void_p</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rawtypes.interpreted_types.basetype.html#rawtypes.interpreted_types.basetype.BaseType" title="rawtypes.interpreted_types.basetype.BaseType"><span class="pre">rawtypes.interpreted_types.basetype.BaseType</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#rawtypes.interpreted_types.is_void_p" title="この定義へのパーマリンク">¶</a></dt>
-<dd></dd></dl>
-<dl class="py class">
-<dt class="sig sig-object py" id="rawtypes.interpreted_types.Params">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawtypes.interpreted_types.</span></span><span class="sig-name descname"><span class="pre">Params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extract</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_py</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawtypes.interpreted_types.Params" title="この定義へのパーマリンク">¶</a></dt>
-<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="rawtypes.interpreted_types.Params.types">
-<span class="sig-name descname"><span class="pre">types</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="rawtypes.interpreted_types.basetype.html#rawtypes.interpreted_types.basetype.BaseType" title="rawtypes.interpreted_types.basetype.BaseType"><span class="pre">rawtypes.interpreted_types.basetype.BaseType</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#rawtypes.interpreted_types.Params.types" title="この定義へのパーマリンク">¶</a></dt>
-<dd><p>Alias for field number 0</p>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="rawtypes.interpreted_types.Params.format">
-<span class="sig-name descname"><span class="pre">format</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#rawtypes.interpreted_types.Params.format" title="この定義へのパーマリンク">¶</a></dt>
-<dd><p>Alias for field number 1</p>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="rawtypes.interpreted_types.Params.extract">
-<span class="sig-name descname"><span class="pre">extract</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#rawtypes.interpreted_types.Params.extract" title="この定義へのパーマリンク">¶</a></dt>
-<dd><p>Alias for field number 2</p>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="rawtypes.interpreted_types.Params.from_py">
-<span class="sig-name descname"><span class="pre">from_py</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#rawtypes.interpreted_types.Params.from_py" title="この定義へのパーマリンク">¶</a></dt>
-<dd><p>Alias for field number 3</p>
-</dd></dl>
-</dd></dl>
-<dl class="py class">
-<dt class="sig sig-object py" id="rawtypes.interpreted_types.TypeProcessor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawtypes.interpreted_types.</span></span><span class="sig-name descname"><span class="pre">TypeProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rawtypes.interpreted_types.TypeProcessor" title="この定義へのパーマリンク">¶</a></dt>
-<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="rawtypes.interpreted_types.TypeProcessor.process">
-<span class="sig-name descname"><span class="pre">process</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#rawtypes.interpreted_types.TypeWithCursor" title="rawtypes.interpreted_types.TypeWithCursor"><span class="pre">rawtypes.interpreted_types.TypeWithCursor</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="rawtypes.interpreted_types.basetype.html#rawtypes.interpreted_types.basetype.BaseType" title="rawtypes.interpreted_types.basetype.BaseType"><span class="pre">rawtypes.interpreted_types.basetype.BaseType</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#rawtypes.interpreted_types.TypeProcessor.process" title="この定義へのパーマリンク">¶</a></dt>
-<dd><p>Alias for field number 0</p>
-</dd></dl>
-</dd></dl>
-<dl class="py class">
-<dt class="sig sig-object py" id="rawtypes.interpreted_types.TypeManager">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rawtypes.interpreted_types.</span></span><span class="sig-name descname"><span class="pre">TypeManager</span></span><a class="headerlink" href="#rawtypes.interpreted_types.TypeManager" title="この定義へのパーマリンク">¶</a></dt>
-<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="rawtypes.interpreted_types.TypeManager.get_wrap_type">
-<span class="sig-name descname"><span class="pre">get_wrap_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="rawtypes.parser.struct_cursor.html#rawtypes.parser.struct_cursor.WrapFlags" title="rawtypes.parser.struct_cursor.WrapFlags"><span class="pre">rawtypes.parser.struct_cursor.WrapFlags</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#rawtypes.interpreted_types.TypeManager.get_wrap_type" title="この定義へのパーマリンク">¶</a></dt>
-<dd></dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="rawtypes.interpreted_types.TypeManager.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#rawtypes.interpreted_types.TypeWithCursor" title="rawtypes.interpreted_types.TypeWithCursor"><span class="pre">rawtypes.interpreted_types.TypeWithCursor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_const</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="rawtypes.interpreted_types.basetype.html#rawtypes.interpreted_types.basetype.BaseType" title="rawtypes.interpreted_types.basetype.BaseType"><span class="pre">rawtypes.interpreted_types.basetype.BaseType</span></a></span></span><a class="headerlink" href="#rawtypes.interpreted_types.TypeManager.get" title="この定義へのパーマリンク">¶</a></dt>
-<dd></dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="rawtypes.interpreted_types.TypeManager.from_cursor">
-<span class="sig-name descname"><span class="pre">from_cursor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cursor_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rawtypes.clang.cindex.html#rawtypes.clang.cindex.Type" title="rawtypes.clang.cindex.Type"><span class="pre">rawtypes.clang.cindex.Type</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cursor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rawtypes.clang.cindex.html#rawtypes.clang.cindex.Cursor" title="rawtypes.clang.cindex.Cursor"><span class="pre">rawtypes.clang.cindex.Cursor</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="rawtypes.interpreted_types.basetype.html#rawtypes.interpreted_types.basetype.BaseType" title="rawtypes.interpreted_types.basetype.BaseType"><span class="pre">rawtypes.interpreted_types.basetype.BaseType</span></a></span></span><a class="headerlink" href="#rawtypes.interpreted_types.TypeManager.from_cursor" title="この定義へのパーマリンク">¶</a></dt>
-<dd></dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="rawtypes.interpreted_types.TypeManager.to_type">
-<span class="sig-name descname"><span class="pre">to_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">typewrap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rawtypes.parser.type_context.html#rawtypes.parser.type_context.TypeContext" title="rawtypes.parser.type_context.TypeContext"><span class="pre">rawtypes.parser.type_context.TypeContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="rawtypes.interpreted_types.basetype.html#rawtypes.interpreted_types.basetype.BaseType" title="rawtypes.interpreted_types.basetype.BaseType"><span class="pre">rawtypes.interpreted_types.basetype.BaseType</span></a></span></span><a class="headerlink" href="#rawtypes.interpreted_types.TypeManager.to_type" title="この定義へのパーマリンク">¶</a></dt>
-<dd></dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="rawtypes.interpreted_types.TypeManager.get_params">
-<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rawtypes.parser.function_cursor.html#rawtypes.parser.function_cursor.FunctionCursor" title="rawtypes.parser.function_cursor.FunctionCursor"><span class="pre">rawtypes.parser.function_cursor.FunctionCursor</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="#rawtypes.interpreted_types.Params" title="rawtypes.interpreted_types.Params"><span class="pre">rawtypes.interpreted_types.Params</span></a></span></span><a class="headerlink" href="#rawtypes.interpreted_types.TypeManager.get_params" title="この定義へのパーマリンク">¶</a></dt>
-<dd></dd></dl>
-</dd></dl>
 </section>
 </section>
 

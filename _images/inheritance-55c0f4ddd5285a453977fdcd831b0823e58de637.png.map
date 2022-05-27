@@ -1,0 +1,6 @@
+<map id="inheritance066bf587a6" name="inheritance066bf587a6">
+<area shape="rect" id="node1" href="#rawtypes.interpreted_types.type_manager.Params" target="_top" title="Params(types, format, extract, from_py)" alt="" coords="31,153,103,179"/>
+<area shape="rect" id="node2" href="#rawtypes.interpreted_types.type_manager.TypeManager" target="_top" title="TypeManager" alt="" coords="13,104,122,129"/>
+<area shape="rect" id="node3" href="#rawtypes.interpreted_types.type_manager.TypeProcessor" target="_top" title="TypeProcessor(process,)" alt="" coords="10,55,125,80"/>
+<area shape="rect" id="node4" href="#rawtypes.interpreted_types.type_manager.TypeWithCursor" target="_top" title="TypeWithCursor(type, cursor)" alt="" coords="5,5,129,31"/>
+</map>

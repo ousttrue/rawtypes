@@ -1,0 +1,9 @@
+rawtypes.interpreted\_types.type\_manager module
+================================================
+.. inheritance-diagram:: rawtypes.interpreted_types.type_manager
+   :parts: 1
+
+.. automodule:: rawtypes.interpreted_types.type_manager
+   :members:
+   :undoc-members:
+   :show-inheritance:
