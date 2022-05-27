@@ -64,10 +64,12 @@ class ZigGenerator(GeneratorBase):
                         const = 'const '
                     elif isinstance(base, FunctionProto):
                         const = 'const '
+
+                pointer = '*' if isinstance(t, ReferenceType) else '?*'
                 if base == 'void':
-                    zig_type = f'?*{const}anyopaque'
+                    zig_type = f'{pointer}{const}anyopaque'
                 else:
-                    zig_type = f'?*{const}{base}'
+                    zig_type = f'{pointer}{const}{base}'
             case Int8Type():
                 zig_type = 'i8'
             case Int16Type():
@@ -103,8 +105,7 @@ class ZigGenerator(GeneratorBase):
                 f = t.function
                 args = [
                     f'{rename_symbol(param.name)}: {self.zig_type(param, True)}' for param in f.params]
-                const = 'const ' if (is_arg and t.base.is_const) else ''
-                zig_type = f'{const}fn ({", ".join(args)}) {self.zig_type(f.result, False)}'
+                zig_type = f'fn ({", ".join(args)}) {self.zig_type(f.result, False)}'
             case _:
                 zig_type = t.name
                 if zig_type.startswith('const '):
@@ -303,48 +304,58 @@ class ZigGenerator(GeneratorBase):
         if f.spelling == f.mangled_name:
             self.texts.append(
                 f'pub extern "c" fn {f.mangled_name}({", ".join(args)}) {self.zig_type(f.result, False)};')
-        else:
-            # mangle version
-            self.texts.append(
-                f'extern "c" fn {f.mangled_name}({", ".join(args)}) {self.zig_type(f.result, False)};')
+            return
 
-            # wrap
-            overload_count = self.overload_map.get(f.spelling, 0) + 1
-            self.overload_map[f.spelling] = overload_count
-            overload = ''
-            if overload_count > 1:
-                overload += f'_{overload_count}'
-            func_name = f'{f.spelling}{overload}'
-            # arg_names = ', '.join(rename_symbol(param.name)
-            #                       for param in f.params)
+        # mangle version
+        self.texts.append(
+            f'extern "c" fn {f.mangled_name}({", ".join(args)}) {self.zig_type(f.result, False)};')
 
-            with_default = ''
-            has_default = False
-            arg_names = []
-            for i, param in enumerate(f.params):
-                if with_default:
-                    with_default += ', '
-                if param.default_value:
-                    if not has_default:
-                        with_default += DEFAULT_ARG_NAME + ': struct{'
-                        has_default = True
-                    if self.is_const_reference(param):
-                        zig_type = self.zig_type(param, False)
-                        assert zig_type[:2] == '?*'
-                        with_default += f'{rename_symbol(param.name)}: {zig_type[2:]}= {param.default_value.zig_value}'
-                        arg_names.append(
-                            '&' + DEFAULT_ARG_NAME + '.' + rename_symbol(param.name))
-                    else:
-                        with_default += f'{rename_symbol(param.name)}: {self.zig_type(param, False)}= {param.default_value.zig_value}'
-                        arg_names.append(
-                            DEFAULT_ARG_NAME + '.' + rename_symbol(param.name))
+        # wrap
+        overload_count = self.overload_map.get(f.spelling, 0) + 1
+        self.overload_map[f.spelling] = overload_count
+        overload = ''
+        if overload_count > 1:
+            overload += f'_{overload_count}'
+        func_name = f'{f.spelling}{overload}'
+
+        with_default = ''
+        has_default = False
+        arg_names = []
+        for i, param in enumerate(f.params):
+            if with_default:
+                with_default += ', '
+
+            zig_type = self.zig_type(param, False)
+            if param.default_value:
+                if not has_default:
+                    with_default += DEFAULT_ARG_NAME + ': struct{'
+                    has_default = True
+
+                if self.is_const_reference(param):
+                    # remove pointer
+                    assert zig_type[0] == '*'
+                    with_default += f'{rename_symbol(param.name)}: {zig_type[1:]}= {param.default_value.zig_value}'
+                    # restore pointer
+                    arg_names.append(
+                        '&' + DEFAULT_ARG_NAME + '.' + rename_symbol(param.name))
                 else:
+                    with_default += f'{rename_symbol(param.name)}: {zig_type}= {param.default_value.zig_value}'
+                    arg_names.append(
+                        DEFAULT_ARG_NAME + '.' + rename_symbol(param.name))
+            else:
+                if self.is_const_reference(param):
+                    # remove pointer
+                    assert zig_type[0] == '*'
+                    with_default += f'{rename_symbol(param.name)}: {zig_type[1:]}'
+                    # restore pointer
+                    arg_names.append('&'+rename_symbol(param.name))
+                else:
+                    with_default += f'{rename_symbol(param.name)}: {zig_type}'
                     arg_names.append(rename_symbol(param.name))
-                    with_default += args[i]
-            if has_default:
-                with_default += '}'
+        if has_default:
+            with_default += '}'
 
-            self.texts.append(f'''pub fn {func_name}({with_default}) {self.zig_type(f.result, False)}
+        self.texts.append(f'''pub fn {func_name}({with_default}) {self.zig_type(f.result, False)}
 {{
     return {f.mangled_name}({", ".join(arg_names)});
 }}''')
