@@ -45,8 +45,9 @@ class FunctionCursor(NamedTuple):
 
     @property
     def params(self) -> List[ParamContext]:
-        cursors = [child for child in self.cursor.get_children(
-        ) if child.kind == cindex.CursorKind.PARM_DECL]
+        children = [child for child in self.cursor.get_children()]
+        cursors = [child for child in children if child.kind ==
+                   cindex.CursorKind.PARM_DECL]
         values = [ParamContext(i, child) for i, child in enumerate(cursors)]
         tokens = [token.spelling for token in self.cursor.get_tokens()]
         if not tokens:
@@ -97,3 +98,7 @@ class FunctionCursor(NamedTuple):
             pass
 
         return values
+
+    @property
+    def is_variadic(self) -> bool:
+        return self.cursor.type.is_function_variadic()

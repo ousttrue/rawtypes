@@ -5,7 +5,8 @@ import platform
 import os
 from jinja2 import Environment, PackageLoader
 from rawtypes.generator.cpp_writer import to_c_method
-from rawtypes.interpreted_types import TypeManager
+from rawtypes.interpreted_types import TypeManager, TypedefType, PointerType
+from rawtypes.interpreted_types import primitive_types
 from rawtypes.parser import Parser
 
 HOME_DIR = pathlib.Path(os.environ['USERPROFILE'] if platform.system(
@@ -27,6 +28,11 @@ if HEADER.exists():
             f = parser.get_function('GetIO')
             self.assertIsNotNone(f)
 
+            f = parser.get_function('Text')
+            self.assertIsNotNone(f)
+            self.assertTrue(f.is_variadic)
+            params = f.params
+
             f = parser.get_function('BeginChild')
             self.assertIsNotNone(f)
 
@@ -43,6 +49,7 @@ if HEADER.exists():
             self.assertEqual(1, len(params))
             type_manager = TypeManager()
             p = type_manager.to_type(params[0])
+            assert isinstance(p, PointerType)
             self.assertEqual('size_t', p.base.name)
 
             # 'ImFontAtlas_AddFont'

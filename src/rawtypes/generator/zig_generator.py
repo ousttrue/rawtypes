@@ -309,6 +309,8 @@ class ZigGenerator(GeneratorBase):
     def write_function(self, f: FunctionCursor):
         args = [
             f'{rename_symbol(param.name)}: {self.zig_type(param, True)}' for param in f.params]
+        if f.is_variadic:
+            args.append('...')
         if f.spelling == f.mangled_name:
             self.texts.append(
                 f'pub extern "c" fn {f.mangled_name}({", ".join(args)}) {self.zig_type(f.result, False)};')
@@ -364,8 +366,14 @@ class ZigGenerator(GeneratorBase):
                     arg_names.append(rename_symbol(param.name))
         if has_default:
             with_default += '}'
-
-        self.texts.append(f'''pub fn {func_name}({with_default}) {self.zig_type(f.result, False)}
+        if f.is_variadic:
+            with_default += ', __va__: anytype'
+            self.texts.append(f'''pub fn {func_name}({with_default}) {self.zig_type(f.result, False)}
+{{
+    return @call(.{{}}, {f.mangled_name}, .{{{", ".join(arg_names)}}} ++ __va__);
+}}''')
+        else:
+            self.texts.append(f'''pub fn {func_name}({with_default}) {self.zig_type(f.result, False)}
 {{
     return {f.mangled_name}({", ".join(arg_names)});
 }}''')

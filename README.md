@@ -4,16 +4,13 @@ A code generator using libclang for a python extension or zig.
 
 ## parse
 
-* function
-* pointer handling
 * struct / union / anonymous
-* typedef
-* functin pointer
-* const
-* reference
-* mangling
-* method call
-* default argument
+* function pointer typedef
+* function
+  * mangling
+  * pointer handling
+  * const reference
+  * default argument
 
 * python generator
   * ctypes struct
@@ -21,6 +18,8 @@ A code generator using libclang for a python extension or zig.
   * pyi type annotation
 
 * zig generator
+  * method call
+  * variadic argument
 
 ## clang.cindex
 
