@@ -65,3 +65,12 @@ if HEADER.exists():
             )
 
             print(to_c_method(env, s.cursor, m, type_manager))
+
+        def test_imvec2(self):
+            parser = Parser.parse([HEADER])
+
+            functions = [
+                f for f in parser.functions if 'ImVec2' in f.result_type.spelling]
+            for f in functions:
+                print(f)
+
