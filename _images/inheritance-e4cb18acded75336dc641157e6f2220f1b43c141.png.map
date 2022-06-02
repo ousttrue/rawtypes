@@ -1,5 +1,0 @@
-<map id="inheritanced8b83bb25e" name="inheritanced8b83bb25e">
-<area shape="rect" id="node1" href="rawtypes.generator.generator_base.html#rawtypes.generator.generator_base.GeneratorBase" target="_top" title="GeneratorBase" alt="" coords="5,55,124,80"/>
-<area shape="rect" id="node3" href="#rawtypes.generator.zig_generator.ZigGenerator" target="_top" title="ZigGenerator" alt="" coords="172,55,280,80"/>
-<area shape="rect" id="node2" href="#rawtypes.generator.zig_generator.Workaround" target="_top" title="Workaround(f, code)" alt="" coords="15,5,114,31"/>
-</map>
