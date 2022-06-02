@@ -1,4 +1,4 @@
-from typing import List, Optional, Callable, TypeAlias, NamedTuple
+from typing import List, Optional, Callable, TypeAlias, NamedTuple, Tuple
 import io
 import pathlib
 from .generator_base import GeneratorBase
@@ -46,6 +46,19 @@ class Workaround(NamedTuple):
     code: str
 
 
+class FunctionOverload:
+    def __init__(self) -> None:
+        self.overload_map = {}
+
+    def get_overloaded_func_name(self, func_name: str) -> str:
+        overload_count = self.overload_map.get(func_name, 0) + 1
+        self.overload_map[func_name] = overload_count
+        overload = ''
+        if overload_count > 1:
+            overload += f'_{overload_count}'
+        return f'{func_name}{overload}'
+
+
 class ZigGenerator(GeneratorBase):
     def __init__(self, *headers: Header, include_dirs=[]) -> None:
         import platform
@@ -53,6 +66,7 @@ class ZigGenerator(GeneratorBase):
         super().__init__(*headers, use_typdef=True, include_dirs=include_dirs, target=target)
         self.custom: Optional[TYPE_CALLBACK] = None
         self.struct_map = {}
+        self.function_overload = FunctionOverload()
 
     def from_type(self, t: BaseType, is_arg: bool, *, bit_width: Optional[int] = None) -> str:
         if bit_width:
@@ -193,7 +207,6 @@ class ZigGenerator(GeneratorBase):
             #
             # function
             #
-            self.overload_map = {}
             for f in self.parser.functions:
                 if header.path != f.path:
                     continue
@@ -283,8 +296,9 @@ class ZigGenerator(GeneratorBase):
                     f'{indent}    {f.name}: {self.zig_type(f, False, bit_width=bit_width)},\n')
 
         if config and config.methods:
+            overload = FunctionOverload()
             for method in s.get_methods():
-                self.write_method(s, method, sio)
+                self.write_method(s, method, sio, overload)
 
         if nested:
             sio.write(f'{indent}}}')
@@ -305,20 +319,25 @@ class ZigGenerator(GeneratorBase):
 }}
 ''')
 
-    def write_method(self, s: StructCursor, f: FunctionCursor, sio: io.StringIO):
+    def write_method(self, s: StructCursor, f: FunctionCursor, sio: io.StringIO, overload: FunctionOverload):
         args = [f'self: * {s.spelling}'] + [
             f'{rename_symbol(param.name)}: {self.zig_type(param, True)}' for param in f.params]
-
         self.texts.append(
             f'''extern fn {f.mangled_name}({", ".join(args)}) {self.zig_type(f.result, False)};''')
 
-        arg_names = ['self']
-        for i, param in enumerate(f.params):
-            arg_names.append(param.name)
-        sio.write(f'''    pub fn {f.spelling}({", ".join(args)}) {self.zig_type(f.result, False)}
+        with_default, arg_names = self.get_params(f)
+        arg_names = ['self'] + arg_names
+        if with_default:
+            with_default = f'self: * {s.spelling}, ' + with_default
+        else:
+            with_default = f'self: * {s.spelling}'
+
+        func_name = overload.get_overloaded_func_name(f.spelling)
+        sio.write(f'''    pub fn {func_name}({with_default}) {self.zig_type(f.result, True)}
     {{
         return {f.mangled_name}({", ".join(arg_names)});
-    }}'''
+    }}
+'''
                   )
 
     def write_function(self, f: FunctionCursor, return_byvalue_workaround=False) -> Optional[Workaround]:
@@ -361,57 +380,15 @@ void imgui_{f.cursor.spelling}({", ".join(args)})
             return Workaround(f, code)
 
         else:
+            with_default, arg_names = self.get_params(f)
 
             # mangle version
             self.texts.append(
                 f'extern "c" fn {f.mangled_name}({", ".join(args)}) {self.zig_type(f.result, False)};')
 
             # wrap
-            overload_count = self.overload_map.get(f.spelling, 0) + 1
-            self.overload_map[f.spelling] = overload_count
-            overload = ''
-            if overload_count > 1:
-                overload += f'_{overload_count}'
-            func_name = f'{f.spelling}{overload}'
-
-            with_default = ''
-            has_default = False
-            arg_names = []
-            for i, param in enumerate(f.params):
-                if with_default:
-                    with_default += ', '
-
-                zig_type = self.zig_type(param, True)
-                if param.default_value:
-                    if not has_default:
-                        with_default += DEFAULT_ARG_NAME + ': struct{'
-                        has_default = True
-
-                    if self.is_const_reference(param):
-                        # remove pointer
-                        assert zig_type[0] == '*'
-                        zig_type = remove_const_ref(zig_type)
-                        with_default += f'{rename_symbol(param.name)}: {zig_type}= {param.default_value.zig_value}'
-                        # restore pointer
-                        arg_names.append(
-                            '&' + DEFAULT_ARG_NAME + '.' + rename_symbol(param.name))
-                    else:
-                        with_default += f'{rename_symbol(param.name)}: {zig_type}= {param.default_value.zig_value}'
-                        arg_names.append(
-                            DEFAULT_ARG_NAME + '.' + rename_symbol(param.name))
-                else:
-                    if self.is_const_reference(param):
-                        # remove pointer
-                        assert zig_type[0] == '*'
-                        zig_type = remove_const_ref(zig_type)
-                        with_default += f'{rename_symbol(param.name)}: {zig_type}'
-                        # restore pointer
-                        arg_names.append('&'+rename_symbol(param.name))
-                    else:
-                        with_default += f'{rename_symbol(param.name)}: {zig_type}'
-                        arg_names.append(rename_symbol(param.name))
-            if has_default:
-                with_default += '}'
+            func_name = self.function_overload.get_overloaded_func_name(
+                f.spelling)
             if f.is_variadic:
                 with_default += ', __va__: anytype'
                 self.texts.append(f'''pub fn {func_name}({with_default}) {self.zig_type(f.result, False)}
@@ -423,3 +400,44 @@ void imgui_{f.cursor.spelling}({", ".join(args)})
 {{
     return {f.mangled_name}({", ".join(arg_names)});
 }}''')
+
+    def get_params(self, f: FunctionCursor) -> Tuple[str, List[str]]:
+        with_default = ''
+        has_default = False
+        arg_names = []
+        for i, param in enumerate(f.params):
+            if with_default:
+                with_default += ', '
+
+            zig_type = self.zig_type(param, True)
+            if param.default_value:
+                if not has_default:
+                    with_default += DEFAULT_ARG_NAME + ': struct{'
+                    has_default = True
+
+                if self.is_const_reference(param):
+                    # remove pointer
+                    assert zig_type[0] == '*'
+                    zig_type = remove_const_ref(zig_type)
+                    with_default += f'{rename_symbol(param.name)}: {zig_type}= {param.default_value.zig_value}'
+                    # restore pointer
+                    arg_names.append(
+                        '&' + DEFAULT_ARG_NAME + '.' + rename_symbol(param.name))
+                else:
+                    with_default += f'{rename_symbol(param.name)}: {zig_type}= {param.default_value.zig_value}'
+                    arg_names.append(
+                        DEFAULT_ARG_NAME + '.' + rename_symbol(param.name))
+            else:
+                if self.is_const_reference(param):
+                    # remove pointer
+                    assert zig_type[0] == '*'
+                    zig_type = remove_const_ref(zig_type)
+                    with_default += f'{rename_symbol(param.name)}: {zig_type}'
+                    # restore pointer
+                    arg_names.append('&'+rename_symbol(param.name))
+                else:
+                    with_default += f'{rename_symbol(param.name)}: {zig_type}'
+                    arg_names.append(rename_symbol(param.name))
+        if has_default:
+            with_default += '}'
+        return with_default, arg_names

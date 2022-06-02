@@ -183,6 +183,8 @@ class DefaultValue:
                     return '@sizeOf'
                 case 'float':
                     return 'f32'
+                case 'IM_COL32_WHITE':
+                    return '0xFFFFFFFF'
                 case _:
                     return src
 
