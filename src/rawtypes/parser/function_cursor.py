@@ -102,3 +102,9 @@ class FunctionCursor(NamedTuple):
     @property
     def is_variadic(self) -> bool:
         return self.cursor.type.is_function_variadic()
+
+    @property
+    def return_struct_byvalue(self) -> bool:
+        if self.result_type.kind in (cindex.TypeKind.RECORD,):
+            return True
+        return False

@@ -70,7 +70,6 @@ if HEADER.exists():
             parser = Parser.parse([HEADER])
 
             functions = [
-                f for f in parser.functions if 'ImVec2' in f.result_type.spelling]
+                f for f in parser.functions if f.return_struct_byvalue]
             for f in functions:
                 print(f)
-
