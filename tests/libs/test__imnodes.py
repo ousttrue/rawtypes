@@ -15,7 +15,7 @@ IMGUI_HEADER = HOME_DIR / ('ghq/github.com/ocornut/imgui/imgui.h')
 HERE = pathlib.Path(__file__).absolute().parent
 HEADER = HERE / 'srcs/ImNodes/ImNodes.h'
 if IMGUI_HEADER.exists():
-    class TestImGuiParse(unittest.TestCase):
+    class TestImNodesParse(unittest.TestCase):
 
         def test_parse(self):
             parser = Parser.parse(
@@ -32,3 +32,6 @@ if IMGUI_HEADER.exists():
             self.assertTrue(f.is_anonymous_type)
             t = type_manager.to_type(f)
             print(f'{f.name}: {t}')
+
+            f = parser.get_function('BeginCanvas')
+            self.assertIsNotNone(f)
