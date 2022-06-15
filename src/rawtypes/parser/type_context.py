@@ -90,6 +90,10 @@ class TypeContext:
 
     @property
     def is_anonymous_field(self) -> bool:
+        return not self.name
+
+    @property
+    def is_anonymous_type(self) -> bool:
         return self.cursor.is_anonymous()
 
 
@@ -222,18 +226,18 @@ class FieldContext(TypeContext):
             match child.kind:
                 case cindex.CursorKind.FIELD_DECL:
                     cursors.append(child)
-                case cindex.CursorKind.UNION_DECL:
-                    if child.type.kind == cindex.TypeKind.RECORD:
-                        cursors.append(child)
-                    else:
-                        # innner type decl ?
-                        pass
-                case cindex.CursorKind.STRUCT_DECL:
-                    if child.type.kind == cindex.TypeKind.RECORD:
-                        cursors.append(child)
-                    else:
-                        # inner type decl ?
-                        pass
+                # case cindex.CursorKind.UNION_DECL:
+                #     if child.type.kind == cindex.TypeKind.RECORD:
+                #         cursors.append(child)
+                #     else:
+                #         # innner type decl ?
+                #         pass
+                # case cindex.CursorKind.STRUCT_DECL:
+                #     if child.type.kind == cindex.TypeKind.RECORD:
+                #         cursors.append(child)
+                #     else:
+                #         # inner type decl ?
+                #         pass
                 case _:
                     pass
         return [FieldContext(i, child) for i, child in enumerate(cursors)]
