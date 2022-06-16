@@ -51,6 +51,9 @@ class StructType(BaseType):
         self.cursor = cursor
         self.wrap_type = wrap_type
 
+    def to_struct_cursor(self, cursors: Tuple[cindex.Cursor, ...]) -> StructCursor:
+        return StructCursor(cursors + (self.cursor,), self.cursor.type, self.cursor.kind == cindex.CursorKind.UNION_DECL)
+
     @property
     def ctypes_type(self) -> str:
         name = self.name

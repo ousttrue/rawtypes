@@ -165,7 +165,7 @@ class TypeManager:
                     return StructType(deref.referenced.spelling, deref.referenced, is_const=is_const, wrap_type=self.get_wrap_type(c.type.spelling))
 
                 # inline decl or anonymous
-                return StructType(c.cursor.spelling, c.cursor, is_const=is_const, nested_type=c.cursor)
+                return StructType(c.cursor.spelling, c.cursor, is_const=is_const)
 
             case cindex.TypeKind.FUNCTIONPROTO:
                 return FunctionProto(FunctionCursor(c.type.get_result(), (c.cursor,)))

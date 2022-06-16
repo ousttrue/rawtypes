@@ -94,8 +94,8 @@ class ZigGenerator(GeneratorBase):
                 if is_arg:
                     if t.base.is_const:
                         const = 'const '
-                    elif isinstance(base, FunctionProto):
-                        const = 'const '
+                if isinstance(t.base, FunctionProto):
+                    const = 'const '
 
                 pointer = '*' if isinstance(t, ReferenceType) else '?*'
                 if base == 'void':
@@ -144,6 +144,8 @@ class ZigGenerator(GeneratorBase):
                     zig_type = zig_type[6:]
 
         assert zig_type
+        if zig_type.startswith('class '):
+            zig_type = 'anyopaque'
         return f'{zig_type}'
 
     def zig_type(self, c: TypeContext, is_arg: bool, *, bit_width: Optional[int] = None) -> str:
@@ -274,19 +276,11 @@ class ZigGenerator(GeneratorBase):
         has_bitfields = False
         for f in s.fields:
             t = self.type_manager.to_type(f)
-            if isinstance(t, StructType) and t.nested_cursor:
-                is_union = t.nested_cursor.kind == cindex.CursorKind.UNION_DECL
-                if t.nested_cursor.is_anonymous():
-                    sio.write(
-                        f'{indent}    {f.name}:')
-                    self.write_struct(StructCursor(
-                        s.cursors + (t.nested_cursor,), t.nested_cursor.type, is_union), indent=indent+'    ', sio=sio)
-                    sio.write(',\n')
-                else:
-                    self.write_struct(StructCursor(
-                        s.cursors + (t.nested_cursor,), t.nested_cursor.type, is_union), indent=indent+'    ')
-                    sio.write(
-                        f'{indent}    {f.name}: {t.name},\n')
+            if isinstance(t, StructType) and f.cursor.is_anonymous():
+                sio.write(
+                    f'{indent}    {f.name}:')
+                self.write_struct(t.to_struct_cursor(s.cursors), indent=indent+'    ', sio=sio)
+                sio.write(',\n')
             else:
                 bit_width = None
                 if f.cursor.is_bitfield():
