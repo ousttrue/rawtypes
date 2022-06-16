@@ -1,4 +1,4 @@
-from typing import NamedTuple, Tuple, Dict, Union, List, Optional
+from typing import NamedTuple, Tuple, Dict, Union, List, Optional, Iterable
 import io
 import pathlib
 #
@@ -34,6 +34,32 @@ def is_forward_declaration(cursor: cindex.Cursor) -> bool:
     # are in the same translation unit. This cursor is the forward declaration if
     # it is _not_ the definition.
     return cursor != definition
+
+
+def get_struct_children(in_union: bool, cursors: Tuple[cindex.Cursor, ...]) -> Iterable[Union['FieldContext', 'StructCursor']]:
+    field_index = 0
+    for child in cursors[-1].get_children():
+        if not isinstance(child, cindex.Cursor):
+            raise RuntimeError()
+        match child.kind:
+            case cindex.CursorKind.FIELD_DECL:
+                yield FieldContext(field_index, child)
+                field_index += 1
+            case cindex.CursorKind.UNION_DECL:
+                if child.is_anonymous(): # ?
+                    yield FieldContext(field_index, child)
+                    field_index += 1
+                else:
+                    yield StructCursor(cursors+(child,), child.type, True)
+            case cindex.CursorKind.STRUCT_DECL:
+                if in_union and child.is_anonymous(): # ??
+                    yield FieldContext(field_index, child)
+                    field_index += 1
+                else:
+                    yield StructCursor(
+                        cursors+(child,), child.type, False)
+            case _:
+                pass
 
 
 class StructCursor(NamedTuple):
@@ -72,12 +98,16 @@ class StructCursor(NamedTuple):
 
     @property
     def is_template(self) -> bool:
-        displayname = self.cursor.displayname
-        return displayname and displayname[-1] == '>'
+        display_name = self.cursor.displayname
+        return display_name and (display_name[-1] == '>')
+
+    @property
+    def decls(self) -> List['StructCursor']:
+        return [child for child in get_struct_children(self.is_union, self.cursors) if isinstance(child, StructCursor)]
 
     @property
     def fields(self) -> List[FieldContext]:
-        return FieldContext.get_struct_fields(self.cursor)
+        return [child for child in get_struct_children(self.is_union, self.cursors) if isinstance(child, FieldContext)]
 
     @property
     def sizeof(self) -> int:

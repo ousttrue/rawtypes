@@ -28,7 +28,6 @@ if IMGUI_HEADER.exists():
 
             self.assertEqual(3, len(s.fields))
             f = s.fields[2]
-            self.assertFalse(f.is_anonymous_field)
             self.assertTrue(f.is_anonymous_type)
             t = type_manager.to_type(f)
             print(f'{f.name}: {t}')

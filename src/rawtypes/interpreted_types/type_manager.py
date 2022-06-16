@@ -175,10 +175,10 @@ class TypeManager:
 
             case cindex.TypeKind.ELABORATED:
                 # anoymous
-                for child in c.cursor.get_children():
-                    if child.kind == cindex.CursorKind.STRUCT_DECL:
-                        if child.is_anonymous():
-                            return StructType('', child, is_const=is_const, nested_type=child)
+                # for child in c.cursor.get_children():
+                #     if child.kind == cindex.CursorKind.STRUCT_DECL:
+                #         if child.is_anonymous():
+                #             return StructType('', child, is_const=is_const, nested_type=child)
 
                 return StructType(c.type.spelling, c.cursor, is_const=is_const, wrap_type=self.get_wrap_type(c.type.spelling))
 
