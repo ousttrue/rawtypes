@@ -179,18 +179,31 @@ class ZigGenerator(GeneratorBase):
 
                 sio = io.StringIO()
                 enum_name = e.cursor.spelling
-                if enum_name[-1] == '_':
-                    enum_name = enum_name[:-1]
-                sio.write(f'pub const {enum_name} = enum(c_int) {{\n')
-                for value in e.get_values():
-                    name = value.spelling
-                    if name.startswith(enum_name):
-                        if name[len(enum_name)].isdigit():
-                            pass
-                        else:
-                            name = name[len(enum_name):]
-                    sio.write(f'    {name} = {value.enum_value},\n')
-                sio.write('};\n')
+                if enum_name:
+                    if enum_name[-1] == '_':
+                        enum_name = enum_name[:-1]
+
+                if enum_name:
+                    sio.write(f'pub const {enum_name} = enum(c_int) {{\n')
+                    for value in e.get_values():
+                        name = value.spelling
+                        if name.startswith(enum_name):
+                            if name[len(enum_name)].isdigit():
+                                pass
+                            else:
+                                name = name[len(enum_name):]
+                        sio.write(f'    {name} = {value.enum_value},\n')
+                    sio.write('};\n')
+                else:
+                    for value in e.get_values():
+                        name = value.spelling
+                        if name.startswith(enum_name):
+                            if name[len(enum_name)].isdigit():
+                                pass
+                            else:
+                                name = name[len(enum_name):]
+                        sio.write(f'const {name} = {value.enum_value};\n')
+
                 self.texts.append(sio.getvalue())
 
             #

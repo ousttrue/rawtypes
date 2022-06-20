@@ -107,6 +107,8 @@ class TypeManager:
                 return primitive_types.Int16Type(is_const)
             case cindex.TypeKind.INT:
                 return primitive_types.Int32Type(is_const)
+            case cindex.TypeKind.LONG:
+                return primitive_types.Int32Type(is_const)
             case cindex.TypeKind.LONGLONG:
                 return primitive_types.Int64Type(is_const)
 
@@ -115,6 +117,8 @@ class TypeManager:
             case cindex.TypeKind.USHORT:
                 return primitive_types.UInt16Type(is_const)
             case cindex.TypeKind.UINT:
+                return primitive_types.UInt32Type(is_const)
+            case cindex.TypeKind.ULONG:
                 return primitive_types.UInt32Type(is_const)
             case cindex.TypeKind.ULONGLONG:
                 return primitive_types.UInt64Type(is_const)

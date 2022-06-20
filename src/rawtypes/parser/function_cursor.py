@@ -50,8 +50,8 @@ class FunctionCursor(NamedTuple):
                    cindex.CursorKind.PARM_DECL]
         values = [ParamContext(i, child) for i, child in enumerate(cursors)]
         tokens = [token.spelling for token in self.cursor.get_tokens()]
-        if not tokens:
-            LOGGER.warn(self.cursor.location)
+        # if not tokens:
+        #     LOGGER.warn(f'no tokens: {self.cursor.location}')
 
         # remove token !
         if len(tokens) > 4:
