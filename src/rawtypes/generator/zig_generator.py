@@ -288,11 +288,15 @@ class ZigGenerator(GeneratorBase):
 
         has_bitfields = False
         for f in s.fields:
-            t = self.type_manager.to_type(f)
-            if isinstance(t, StructType) and f.cursor.is_anonymous():
+            if f.cursor.is_anonymous():
                 sio.write(
                     f'{indent}    {f.name}:')
-                self.write_struct(t.to_struct_cursor(s.cursors), indent=indent+'    ', sio=sio)
+                decl = next(child for child in f.cursor.get_children() if child.kind in (
+                    cindex.CursorKind.STRUCT_DECL, cindex.CursorKind.UNION_DECL))
+                anonymous_decl = StructCursor(
+                    s.cursors + (f.cursor, decl), decl.type, decl.kind == cindex.CursorKind.UNION_DECL)
+                self.write_struct(
+                    anonymous_decl, indent=indent+'    ', sio=sio)
                 sio.write(',\n')
             else:
                 bit_width = None

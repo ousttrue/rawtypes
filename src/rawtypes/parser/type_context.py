@@ -209,8 +209,8 @@ class ParamContext(TypeContext):
 class FieldContext(TypeContext):
     index: int
 
-    def __init__(self, index: int, cursor: cindex.Cursor) -> None:
-        super().__init__(cursor.type, cursor)
+    def __init__(self, index: int, cursor: cindex.Cursor, type: cindex.Type) -> None:
+        super().__init__(type, cursor)
         self.index = index
 
 

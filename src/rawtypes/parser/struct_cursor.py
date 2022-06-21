@@ -43,21 +43,13 @@ def get_struct_children(in_union: bool, cursors: Tuple[cindex.Cursor, ...]) -> I
             raise RuntimeError()
         match child.kind:
             case cindex.CursorKind.FIELD_DECL:
-                yield FieldContext(field_index, child)
+                yield FieldContext(field_index, child, child.type)
                 field_index += 1
             case cindex.CursorKind.UNION_DECL:
-                if child.is_anonymous(): # ?
-                    yield FieldContext(field_index, child)
-                    field_index += 1
-                else:
-                    yield StructCursor(cursors+(child,), child.type, True)
+                yield StructCursor(cursors+(child,), child.type, True)
             case cindex.CursorKind.STRUCT_DECL:
-                if in_union and child.is_anonymous(): # ??
-                    yield FieldContext(field_index, child)
-                    field_index += 1
-                else:
-                    yield StructCursor(
-                        cursors+(child,), child.type, False)
+                yield StructCursor(
+                    cursors+(child,), child.type, False)
             case _:
                 pass
 
@@ -107,7 +99,8 @@ class StructCursor(NamedTuple):
 
     @property
     def fields(self) -> List[FieldContext]:
-        return [child for child in get_struct_children(self.is_union, self.cursors) if isinstance(child, FieldContext)]
+        return [child for child in get_struct_children(
+            self.is_union, self.cursors) if isinstance(child, FieldContext)]
 
     @property
     def sizeof(self) -> int:
