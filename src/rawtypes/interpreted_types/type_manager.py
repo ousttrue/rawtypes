@@ -37,15 +37,25 @@ class TypeWithCursor(NamedTuple):
     @property
     def underlying(self) -> Optional['TypeWithCursor']:
         if self.type.kind != cindex.TypeKind.TYPEDEF:
-            return
+            raise Exception()
 
         ref = self.ref_from_children()
-        assert(ref)
-        if ref:
-            assert ref.referenced.kind == cindex.CursorKind.TYPEDEF_DECL
-            underlying_type = ref.referenced.underlying_typedef_type
+        if not ref:
+            raise Exception()
 
-            return TypeWithCursor(underlying_type, ref.referenced)
+        assert ref.referenced.kind == cindex.CursorKind.TYPEDEF_DECL
+        typedef_cursor = ref.referenced
+
+        for child in typedef_cursor.get_children():
+            if child.kind == cindex.CursorKind.TYPE_REF:
+                child_ref = child.referenced
+                match child_ref.kind:
+                    case cindex.CursorKind.STRUCT_DECL:
+                        return TypeWithCursor(child_ref.type, child_ref)
+                    case _:
+                        pass
+
+        return TypeWithCursor(typedef_cursor.underlying_typedef_type, typedef_cursor)
 
 
 class TypeProcessor(NamedTuple):
@@ -157,10 +167,11 @@ class TypeManager:
             case cindex.TypeKind.TYPEDEF:
                 underlying = c.underlying
                 assert(underlying)
-                if self.use_typedef:
-                    return TypedefType(c.spelling, self.get(underlying, is_const), is_const=is_const)
+                underlying_type = self.get(underlying, is_const)
+                if self.use_typedef and underlying.type.kind != cindex.TypeKind.ELABORATED:
+                    return TypedefType(c.spelling, underlying_type, is_const=is_const)
                 else:
-                    return self.get(underlying, is_const)
+                    return underlying_type
 
             case cindex.TypeKind.RECORD:
                 deref = c.ref_from_children()

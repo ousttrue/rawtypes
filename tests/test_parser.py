@@ -53,8 +53,11 @@ struct NVGcolor {
         s = parser.get_struct('NVGcolor')
         self.assertIsNotNone(s)
 
-        f0 = s.fields[0]
-        self.assertTrue(f0.is_anonymous_type)
+        self.assertEquals(0, len(s.fields))
+        decls = s.decls
+        self.assertEquals(1, len(decls))
+        decl = decls[0]
+        self.assertTrue(decl.cursor.is_anonymous())
 
     def test_elaborate(self):
         SRC = '''

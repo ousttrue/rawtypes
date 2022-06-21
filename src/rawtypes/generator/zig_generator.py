@@ -8,7 +8,7 @@ from ..parser.struct_cursor import StructCursor
 from ..parser.typedef_cursor import TypedefCursor
 from ..parser.function_cursor import FunctionCursor
 from ..parser.header import Header, StructConfiguration
-from ..interpreted_types import BaseType, TypeManager, TypeWithCursor, FunctionProto, TypedefType
+from ..interpreted_types import BaseType, TypeManager, TypeWithCursor, FunctionProto, TypedefType, EnumType
 from ..interpreted_types.pointer_types import PointerType, VoidType, ArrayType, ReferenceType
 from ..interpreted_types.primitive_types import (FloatType, DoubleType,
                                                  Int8Type, Int16Type, Int32Type, Int64Type,
@@ -18,7 +18,7 @@ from ..interpreted_types.definition import StructType
 from ..interpreted_types.string_types import CStringType
 
 TYPE_CALLBACK: TypeAlias = Callable[[BaseType], Optional[str]]
-ZIG_SYMBOLS = ['type', 'align']
+ZIG_SYMBOLS = ['type', 'align', 'async']
 DEFAULT_ARG_NAME = '__default'
 
 
@@ -29,7 +29,7 @@ def to_cpp_arg(p: ParamContext):
 
 def rename_symbol(name: str) -> str:
     if name in ZIG_SYMBOLS:
-        return '_' + name
+        return f'@"{name}"'
     return name
 
 
@@ -90,6 +90,9 @@ class ZigGenerator(GeneratorBase):
                     zig_type = f'[{t.size}]{base}'
             case PointerType():
                 base = self.from_type(t.base, False)
+                if base == '(':
+                    self.from_type(t.base, False)
+                    pass
                 const = ''
                 if is_arg:
                     if t.base.is_const:
@@ -208,17 +211,43 @@ class ZigGenerator(GeneratorBase):
                 self.texts.append(sio.getvalue())
 
             #
-            # struct
+            # typedef / struct
             #
+            last = None
             for t in self.parser.typedef_struct_list:
                 if t.path != header.path:
                     continue
                 match t:
                     case TypedefCursor() as td:
-                        self.write_typedef(td)
+                        underlying = self.type_manager.get(
+                            TypeWithCursor(td.underlying_type, td.cursor))
+                        # if underlying.name == td.spelling:
+                        #     return
+                        match underlying:
+                            case PointerType():
+                                if isinstance(underlying.base, FunctionProto):
+                                    f = underlying.base.function
+                                    args = [
+                                        f'{rename_symbol(param.name)}: {self.zig_type(param, True)}' for param in f.params]
+                                    self.texts.append(
+                                        f'const {td.spelling} = fn ({", ".join(args)}) callconv(.C) {self.zig_type(f.result, False)};')
+                            case StructType():
+                                if isinstance(last, StructCursor):
+                                    if not last.cursor.spelling == '':
+                                        print(td.spelling)
+                                        pass
+                            case EnumType():
+                                pass
+                            case _:
+                                pass
+                                # raise NotImplementedError()
+                            # case _:
+                            #     self.texts.append(
+                            #         f'const {td.spelling} = {self.from_type(underlying, False)};')
                     case StructCursor() as s:
                         self.write_struct(
                             s, config=header.structs.get(s.spelling))
+                last = t
 
             #
             # function
@@ -247,25 +276,6 @@ class ZigGenerator(GeneratorBase):
 
         return workaround_codes
 
-    def write_typedef(self, td: TypedefCursor):
-        underlying = self.type_manager.get(
-            TypeWithCursor(td.underlying_type, td.cursor))
-        if underlying.name == td.spelling:
-            return
-        match underlying:
-            case PointerType():
-                if isinstance(underlying.base, FunctionProto):
-                    f = underlying.base.function
-                    args = [
-                        f'{rename_symbol(param.name)}: {self.zig_type(param, True)}' for param in f.params]
-                    self.texts.append(
-                        f'const {td.spelling} = fn ({", ".join(args)}) callconv(.C) {self.zig_type(f.result, False)};')
-            case StructType():
-                pass
-            # case _:
-            #     self.texts.append(
-            #         f'const {td.spelling} = {self.from_type(underlying, False)};')
-
     def write_struct(self, s: StructCursor, *, indent='', sio: Optional[io.StringIO] = None, config: Optional[StructConfiguration] = None):
         if s.is_forward_decl:
             return
@@ -291,7 +301,7 @@ class ZigGenerator(GeneratorBase):
         for f in s.fields:
             if f.cursor.is_anonymous():
                 sio.write(
-                    f'{indent}    {f.name}:')
+                    f'{indent}    {rename_symbol(f.name)}:')
                 decl = next(child for child in f.cursor.get_children() if child.kind in (
                     cindex.CursorKind.STRUCT_DECL, cindex.CursorKind.UNION_DECL))
                 anonymous_decl = StructCursor(
@@ -305,7 +315,7 @@ class ZigGenerator(GeneratorBase):
                     has_bitfields = True
                     bit_width = f.cursor.get_bitfield_width()
                 sio.write(
-                    f'{indent}    {f.name}: {self.zig_type(f, False, bit_width=bit_width)},\n')
+                    f'{indent}    {rename_symbol(f.name)}: {self.zig_type(f, False, bit_width=bit_width)},\n')
 
         if config and config.methods:
             overload = FunctionOverload()

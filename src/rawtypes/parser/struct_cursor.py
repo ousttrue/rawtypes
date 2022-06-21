@@ -72,9 +72,9 @@ class StructCursor(NamedTuple):
 
     @property
     def name(self) -> str:
-        name = self.cursor.spelling
-        if name:
-            return name
+        if self.cursor.spelling:
+            return self.cursor.spelling
+
         return f'_{self.cursor.hash}'
 
     @property
