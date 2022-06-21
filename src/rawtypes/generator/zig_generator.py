@@ -146,6 +146,7 @@ class ZigGenerator(GeneratorBase):
         assert zig_type
         if zig_type.startswith('class '):
             zig_type = 'anyopaque'
+        zig_type = zig_type.replace('const const', 'const')
         return f'{zig_type}'
 
     def zig_type(self, c: TypeContext, is_arg: bool, *, bit_width: Optional[int] = None) -> str:
