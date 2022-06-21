@@ -211,6 +211,23 @@ class ZigGenerator(GeneratorBase):
             #
             # typedef / struct
             #
+            def is_typedef_underlying(lhs, s: StructCursor) -> bool:
+                if isinstance(lhs, TypedefCursor):
+                    for child in lhs.cursor.get_children():
+                        match child.kind:
+                            case cindex.CursorKind.TYPE_REF:
+                                if child.referenced == s.cursor:
+                                    return True
+                                if child.referenced.spelling == s.cursor.spelling:
+                                    return True
+                            case cindex.CursorKind.PARM_DECL:
+                                pass
+                            case cindex.CursorKind.STRUCT_DECL:
+                                if child == s.cursor:
+                                    return True
+                            case _:
+                                pass
+                return False
             i = 0
             types = [
                 t for t in self.parser.typedef_struct_list if t.path == header.path]
@@ -235,13 +252,11 @@ class ZigGenerator(GeneratorBase):
                                 pass
                     case StructCursor() as s:
                         override_name = None
-                        if s.cursor.spelling == '':
+                        if i < len(types):
                             typedef = types[i]
-                            # i+=1
-                            if isinstance(typedef, TypedefCursor):
+                            if is_typedef_underlying(typedef, s):
                                 override_name = typedef.cursor.spelling
-                            else:
-                                raise Exception()
+                                print(f'{s.name} => {override_name}')
 
                         self.write_struct(
                             s, config=header.structs.get(s.spelling), override_name=override_name)
