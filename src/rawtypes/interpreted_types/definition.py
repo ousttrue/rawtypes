@@ -46,7 +46,7 @@ class TypedefType(BaseType):
 class StructType(BaseType):
     def __init__(self, name: str, cursor: cindex.Cursor, is_const=False, wrap_type: Optional[WrapFlags] = None):
         if name.startswith('struct '):
-            name = name[len('struct ')]
+            name = name[len('struct '):]
         super().__init__(name, is_const=is_const)
         self.cursor = cursor
         self.wrap_type = wrap_type
