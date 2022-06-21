@@ -14,9 +14,9 @@ class TypedefType(BaseType):
         from .function_types import FunctionProto
         if isinstance(self.base, FunctionProto):
             return True
-        # if isinstance(self.base, PointerType):
-        #     if isinstance(self.base.base, FunctionProto):
-        #         return True
+        if isinstance(self.base, PointerType):
+            if isinstance(self.base.base, FunctionProto):
+                return True
         return False
 
     def resolve(self) -> BaseType:
@@ -46,7 +46,7 @@ class TypedefType(BaseType):
 class StructType(BaseType):
     def __init__(self, name: str, cursor: cindex.Cursor, is_const=False, wrap_type: Optional[WrapFlags] = None):
         if name.startswith('struct '):
-            name = name[7:]
+            name = name[len('struct ')]
         super().__init__(name, is_const=is_const)
         self.cursor = cursor
         self.wrap_type = wrap_type
@@ -79,6 +79,8 @@ class StructType(BaseType):
 
 class EnumType(BaseType):
     def __init__(self, name: str):
+        if name.startswith('enum '):
+            name = name[len('enum ')]
         super().__init__(name)
 
     @property

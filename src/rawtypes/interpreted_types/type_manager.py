@@ -178,11 +178,11 @@ class TypeManager:
                 return EnumType(c.type.spelling)
 
             case cindex.TypeKind.ELABORATED:
-                # anoymous
-                # for child in c.cursor.get_children():
-                #     if child.kind == cindex.CursorKind.STRUCT_DECL:
-                #         if child.is_anonymous():
-                #             return StructType('', child, is_const=is_const, nested_type=child)
+                # * anonymous type in struct/union field
+                # * anonymous type in typedef
+                for child in c.cursor.get_children():
+                    if child.kind == cindex.CursorKind.ENUM_DECL:
+                        return EnumType(c.cursor.spelling)
 
                 return StructType(c.type.spelling, c.cursor, is_const=is_const, wrap_type=self.get_wrap_type(c.type.spelling))
 
