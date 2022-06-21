@@ -49,6 +49,8 @@ class StructType(BaseType):
             name = name[len('const '):]
         if name.startswith('struct '):
             name = name[len('struct '):]
+        if name.startswith('union '):
+            name = name[len('union '):]
         super().__init__(name, is_const=is_const)
         self.cursor = cursor
         self.wrap_type = wrap_type

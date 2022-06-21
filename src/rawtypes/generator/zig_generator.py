@@ -37,7 +37,15 @@ def remove_const_ref(name: str) -> str:
     if name[0] == '*':
         name = name[1:].strip()
     if name.startswith('const '):
-        name = name[6:].strip()
+        name = name[len('const '):].strip()
+    return name
+
+
+def remove_prefix(name: str) -> str:
+    if name.startswith('enum '):
+        name = name[len('enum '):].strip()
+    if name.startswith('struct '):
+        name = name[len('struct '):].strip()
     return name
 
 
@@ -184,6 +192,11 @@ class ZigGenerator(GeneratorBase):
                 if enum_name:
                     if enum_name[-1] == '_':
                         enum_name = enum_name[:-1]
+                if not enum_name:
+                    # search typedef
+                    typedef = self.parser.find_typedef(e.cursor)
+                    if typedef:
+                        enum_name = typedef.name
 
                 if enum_name:
                     sio.write(f'pub const {enum_name} = enum(c_int) {{\n')
@@ -248,8 +261,14 @@ class ZigGenerator(GeneratorBase):
                                         f'{rename_symbol(param.name)}: {self.zig_type(param, True)}' for param in f.params]
                                     self.texts.append(
                                         f'const {td.spelling} = fn ({", ".join(args)}) callconv(.C) {self.zig_type(f.result, False)};')
-                            case _:
-                                pass
+                            case StructType():
+                                if underlying.name.startswith('(anonymous '):
+                                    self.type_manager.get(TypeWithCursor(td.underlying_type, td.cursor))                                            
+                                    pass
+                                else:
+                                    self.texts.append(
+                                        f'const {td.spelling} = {underlying.name};')
+                                        
                     case StructCursor() as s:
                         override_name = None
                         if i < len(types):

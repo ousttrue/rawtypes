@@ -191,9 +191,21 @@ class TypeManager:
             case cindex.TypeKind.ELABORATED:
                 # * anonymous type in struct/union field
                 # * anonymous type in typedef
-                for child in c.cursor.get_children():
-                    if child.kind == cindex.CursorKind.ENUM_DECL:
-                        return EnumType(c.cursor.spelling)
+                children = [child for child in c.cursor.get_children()]
+                assert(len(children) == 1)
+                for child in children:
+                    match child.kind:
+                        case cindex.CursorKind.ENUM_DECL:
+                            return EnumType(c.cursor.spelling)
+                        case cindex.CursorKind.STRUCT_DECL | cindex.CursorKind.UNION_DECL:
+                            return StructType(c.type.spelling, child, is_const=is_const, wrap_type=self.get_wrap_type(c.type.spelling))
+                        case cindex.CursorKind.TYPE_REF:
+                            ref = child.referenced
+                            ref_type = self.get(TypeWithCursor(ref.type, ref))
+                            return ref_type
+
+                        case _:
+                            raise NotImplementedError()
 
                 return StructType(c.type.spelling, c.cursor, is_const=is_const, wrap_type=self.get_wrap_type(c.type.spelling))
 
