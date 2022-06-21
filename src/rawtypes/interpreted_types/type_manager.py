@@ -40,11 +40,11 @@ class TypeWithCursor(NamedTuple):
             raise Exception()
 
         ref = self.ref_from_children()
-        if not ref:
-            raise Exception()
-
-        assert ref.referenced.kind == cindex.CursorKind.TYPEDEF_DECL
-        typedef_cursor = ref.referenced
+        if ref:
+            assert ref.referenced.kind == cindex.CursorKind.TYPEDEF_DECL
+            typedef_cursor = ref.referenced
+        else:
+            typedef_cursor = self.cursor
 
         for child in typedef_cursor.get_children():
             if child.kind == cindex.CursorKind.TYPE_REF:
@@ -192,7 +192,7 @@ class TypeManager:
                 # * anonymous type in struct/union field
                 # * anonymous type in typedef
                 children = [child for child in c.cursor.get_children()]
-                assert(len(children) == 1)
+                # assert(len(children) == 1)
                 for child in children:
                     match child.kind:
                         case cindex.CursorKind.ENUM_DECL:
@@ -203,7 +203,8 @@ class TypeManager:
                             ref = child.referenced
                             ref_type = self.get(TypeWithCursor(ref.type, ref))
                             return ref_type
-
+                        case cindex.CursorKind.NAMESPACE_REF:
+                            pass
                         case _:
                             raise NotImplementedError()
 

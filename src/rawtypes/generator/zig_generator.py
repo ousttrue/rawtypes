@@ -14,7 +14,7 @@ from ..interpreted_types.pointer_types import PointerType, VoidType, ArrayType, 
 from ..interpreted_types.primitive_types import (FloatType, DoubleType,
                                                  Int8Type, Int16Type, Int32Type, Int64Type,
                                                  UInt8Type, UInt16Type, UInt32Type, UInt64Type,
-                                                 SizeType)
+                                                 SizeType, PrimitiveType)
 from ..interpreted_types.definition import StructType
 from ..interpreted_types.string_types import CStringType
 
@@ -47,6 +47,27 @@ def remove_prefix(name: str) -> str:
         name = name[len('enum '):].strip()
     if name.startswith('struct '):
         name = name[len('struct '):].strip()
+    return name
+
+
+ZIG_TYPE_MAP = {
+    'char': 'i8',
+    'short': 'i16',
+    'int': 'i32',
+    'long long': 'i64',
+    'unsigned char': 'u8',
+    'unsigned short': 'u16',
+    'unsigned int': 'u32',
+    'unsigned long long': 'u64',
+}
+
+
+def get_zig_type(name: str) -> Optional[str]:
+    if '<' in name:
+        return None
+    zig_type = ZIG_TYPE_MAP.get(name)
+    if zig_type:
+        return None
     return name
 
 
@@ -141,6 +162,8 @@ class ZigGenerator(GeneratorBase):
             case TypedefType():
                 if isinstance(t.base, PointerType) and isinstance(t.base.base, FunctionProto):
                     zig_type = f'*const {t.name}'
+                elif isinstance(t.base, PrimitiveType):
+                    zig_type = self.from_type(t.resolve(), False)
                 else:
                     zig_type = t.name
             case FunctionProto():
@@ -177,6 +200,7 @@ class ZigGenerator(GeneratorBase):
         ]
 
         workaround_codes: List[Workaround] = []
+        used = set()
         for header in self.headers:
             if header.begin:
                 self.texts.append(header.begin)
@@ -202,6 +226,7 @@ class ZigGenerator(GeneratorBase):
                         enum_name = typedef.spelling
 
                 if enum_name:
+                    used.add(enum_name)
                     sio.write(f'pub const {enum_name} = enum(c_int) {{\n')
                     for value in e.get_values():
                         name = value.spelling
@@ -264,15 +289,23 @@ class ZigGenerator(GeneratorBase):
                                         f'{rename_symbol(param.name)}: {self.zig_type(param, True)}' for param in f.params]
                                     self.texts.append(
                                         f'const {td.spelling} = fn ({", ".join(args)}) callconv(.C) {self.zig_type(f.result, False)};')
+                            case PrimitiveType():
+                                pass
+                            case TypedefType():
+                                pass
                             case _:
                                 if underlying.name.startswith('(anonymous '):
                                     self.type_manager.get(TypeWithCursor(
                                         td.underlying_type, td.cursor))
                                     pass
                                 else:
-                                    if td.spelling != underlying.name:
-                                        self.texts.append(
-                                            f'pub const {td.spelling} = {underlying.name};')
+                                    if td.spelling not in used:
+                                        if td.spelling != underlying.name:
+                                            zig_type = get_zig_type(
+                                                underlying.name)
+                                            if zig_type:
+                                                self.texts.append(
+                                                    f'pub const {td.spelling} = {zig_type};')
 
                     case StructCursor() as s:
                         override_name = None
