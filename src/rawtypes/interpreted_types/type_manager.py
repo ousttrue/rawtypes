@@ -168,7 +168,7 @@ class TypeManager:
                 underlying = c.underlying
                 assert(underlying)
                 underlying_type = self.get(underlying, is_const)
-                if self.use_typedef and underlying.type.kind != cindex.TypeKind.ELABORATED:
+                if self.use_typedef or underlying.cursor.is_anonymous():
                     return TypedefType(c.spelling, underlying_type, is_const=is_const)
                 else:
                     return underlying_type

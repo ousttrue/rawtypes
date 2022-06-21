@@ -130,12 +130,10 @@ class ZigGenerator(GeneratorBase):
             case CStringType():
                 zig_type = '?[*:0]const u8'
             case TypedefType():
-                if t.is_function_pointer():
-                    zig_type = t.name
                 if isinstance(t.base, PointerType) and isinstance(t.base.base, FunctionProto):
                     zig_type = f'*const {t.name}'
                 else:
-                    zig_type = self.from_type(t.resolve(), is_arg)
+                    zig_type = t.name
             case FunctionProto():
                 f = t.function
                 args = [
