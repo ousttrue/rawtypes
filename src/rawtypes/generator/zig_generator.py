@@ -213,10 +213,12 @@ class ZigGenerator(GeneratorBase):
             #
             # typedef / struct
             #
-            last = None
-            for t in self.parser.typedef_struct_list:
-                if t.path != header.path:
-                    continue
+            i = 0
+            types = [
+                t for t in self.parser.typedef_struct_list if t.path == header.path]
+            while i < len(types):
+                t = types[i]
+                i += 1
                 match t:
                     case TypedefCursor() as td:
                         underlying = self.type_manager.get(
@@ -231,23 +233,20 @@ class ZigGenerator(GeneratorBase):
                                         f'{rename_symbol(param.name)}: {self.zig_type(param, True)}' for param in f.params]
                                     self.texts.append(
                                         f'const {td.spelling} = fn ({", ".join(args)}) callconv(.C) {self.zig_type(f.result, False)};')
-                            case StructType():
-                                if isinstance(last, StructCursor):
-                                    if not last.cursor.spelling == '':
-                                        print(td.spelling)
-                                        pass
-                            case EnumType():
-                                pass
                             case _:
                                 pass
-                                # raise NotImplementedError()
-                            # case _:
-                            #     self.texts.append(
-                            #         f'const {td.spelling} = {self.from_type(underlying, False)};')
                     case StructCursor() as s:
+                        override_name = None
+                        if s.cursor.spelling == '':
+                            typedef = types[i]
+                            # i+=1
+                            if isinstance(typedef, TypedefCursor):
+                                override_name = typedef.cursor.spelling
+                            else:
+                                raise Exception()
+
                         self.write_struct(
-                            s, config=header.structs.get(s.spelling))
-                last = t
+                            s, config=header.structs.get(s.spelling), override_name=override_name)
 
             #
             # function
@@ -276,14 +275,15 @@ class ZigGenerator(GeneratorBase):
 
         return workaround_codes
 
-    def write_struct(self, s: StructCursor, *, indent='', sio: Optional[io.StringIO] = None, config: Optional[StructConfiguration] = None):
+    def write_struct(self, s: StructCursor, *, indent='', sio: Optional[io.StringIO] = None, config: Optional[StructConfiguration] = None, override_name: Optional[str] = None):
         if s.is_forward_decl:
             return
         if s.is_template:
             return
 
+        name = override_name if override_name else s.name
         if not s.fields:
-            self.texts.append(f'pub const {s.name} = opaque {{}};')
+            self.texts.append(f'pub const {name} = opaque {{}};')
             return
 
         struct_or_union = 'union' if s.is_union else 'struct'
@@ -294,8 +294,8 @@ class ZigGenerator(GeneratorBase):
             nested = False
             sio = io.StringIO()
             sio.write(
-                f'pub const {s.name} = extern {struct_or_union} {{\n')
-            self.struct_map[s.name] = len(s.fields)
+                f'pub const {name} = extern {struct_or_union} {{\n')
+            self.struct_map[name] = len(s.fields)
 
         has_bitfields = False
         for f in s.fields:
