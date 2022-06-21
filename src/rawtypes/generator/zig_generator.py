@@ -7,6 +7,7 @@ from ..parser.type_context import TypeContext, ParamContext
 from ..parser.struct_cursor import StructCursor
 from ..parser.typedef_cursor import TypedefCursor
 from ..parser.function_cursor import FunctionCursor
+from ..parser.enum_cursor import EnumCursor
 from ..parser.header import Header, StructConfiguration
 from ..interpreted_types import BaseType, TypeManager, TypeWithCursor, FunctionProto, TypedefType, EnumType
 from ..interpreted_types.pointer_types import PointerType, VoidType, ArrayType, ReferenceType
@@ -183,7 +184,9 @@ class ZigGenerator(GeneratorBase):
             #
             # enum
             #
-            for e in self.parser.enums:
+            for e in self.parser.decls:
+                if not isinstance(e, EnumCursor):
+                    continue
                 if e.path != header.path:
                     continue
 
@@ -196,7 +199,7 @@ class ZigGenerator(GeneratorBase):
                     # search typedef
                     typedef = self.parser.find_typedef(e.cursor)
                     if typedef:
-                        enum_name = typedef.name
+                        enum_name = typedef.spelling
 
                 if enum_name:
                     sio.write(f'pub const {enum_name} = enum(c_int) {{\n')
@@ -243,7 +246,7 @@ class ZigGenerator(GeneratorBase):
                 return False
             i = 0
             types = [
-                t for t in self.parser.typedef_struct_list if t.path == header.path]
+                t for t in self.parser.decls if t.path == header.path]
             while i < len(types):
                 t = types[i]
                 i += 1
@@ -261,21 +264,27 @@ class ZigGenerator(GeneratorBase):
                                         f'{rename_symbol(param.name)}: {self.zig_type(param, True)}' for param in f.params]
                                     self.texts.append(
                                         f'const {td.spelling} = fn ({", ".join(args)}) callconv(.C) {self.zig_type(f.result, False)};')
-                            case StructType():
+                            case _:
                                 if underlying.name.startswith('(anonymous '):
-                                    self.type_manager.get(TypeWithCursor(td.underlying_type, td.cursor))                                            
+                                    self.type_manager.get(TypeWithCursor(
+                                        td.underlying_type, td.cursor))
                                     pass
                                 else:
-                                    self.texts.append(
-                                        f'const {td.spelling} = {underlying.name};')
-                                        
+                                    if td.spelling != underlying.name:
+                                        self.texts.append(
+                                            f'pub const {td.spelling} = {underlying.name};')
+
                     case StructCursor() as s:
                         override_name = None
-                        if i < len(types):
-                            typedef = types[i]
-                            if is_typedef_underlying(typedef, s):
-                                override_name = typedef.cursor.spelling
-                                print(f'{s.name} => {override_name}')
+                        if not s.cursor.spelling:
+                            typedef = self.parser.find_typedef(s.cursor)
+                            if typedef:
+                                override_name = typedef.spelling
+                        # if i < len(types):
+                        #     typedef = types[i]
+                        #     if is_typedef_underlying(typedef, s):
+                        #         override_name = typedef.cursor.spelling
+                        #         print(f'{s.name} => {override_name}')
 
                         self.write_struct(
                             s, config=header.structs.get(s.spelling), override_name=override_name)
@@ -283,7 +292,9 @@ class ZigGenerator(GeneratorBase):
             #
             # function
             #
-            for f in self.parser.functions:
+            for f in self.parser.decls:
+                if not isinstance(f, FunctionCursor):
+                    continue
                 if header.path != f.path:
                     continue
                 if is_exclude_function and is_exclude_function(f):

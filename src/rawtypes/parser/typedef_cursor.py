@@ -37,3 +37,21 @@ class TypedefCursor(NamedTuple):
     @property
     def underlying_type(self) -> cindex.Type:
         return self.cursor.underlying_typedef_type
+
+    def has_underlying(self, cursor: cindex.Cursor) -> bool:
+        for child in self.cursor.get_children():
+            if child == cursor:
+                return True
+            match child.kind:
+                case cindex.CursorKind.TYPE_REF:
+                    if child.referenced == cursor:
+                        return True
+                case cindex.CursorKind.STRUCT_DECL | cindex.CursorKind.UNION_DECL:
+                    pass
+                case cindex.CursorKind.PARM_DECL:
+                    pass
+                case cindex.CursorKind.ENUM_DECL:
+                    pass
+                case _:
+                    raise NotImplementedError()
+        return False
