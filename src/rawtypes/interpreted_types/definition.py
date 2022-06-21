@@ -45,6 +45,8 @@ class TypedefType(BaseType):
 
 class StructType(BaseType):
     def __init__(self, name: str, cursor: cindex.Cursor, is_const=False, wrap_type: Optional[WrapFlags] = None):
+        if name.startswith('const '):
+            name = name[len('const '):]
         if name.startswith('struct '):
             name = name[len('struct '):]
         super().__init__(name, is_const=is_const)
