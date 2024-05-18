@@ -5,7 +5,7 @@
 MANIFEST
 *.pyc
 __pycache__/
-/src/rawtypes/clang
+/src/rawtypes/clang1*
 _version.py
 .eggs
 /tmp/

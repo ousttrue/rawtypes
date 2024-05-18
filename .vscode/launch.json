@@ -18,11 +18,13 @@
         {
             "name": "generate rawtypes.clang.cindex typings",
             "type": "debugpy",
-            // "python": "C:/Python39/python.exe",
             "request": "launch",
-            "program": "${workspaceFolder}/src/rawtypes/clang_util/generate_cindex_stub.py",
+            "env": {
+                "PYTHONPATH": "src",
+            },
+            "module": "rawtypes.clang_util.generate_cindex_stub",
             "args": [
-                "--dst", "typings"
+                "typings"
             ],
             "console": "integratedTerminal",
             "justMyCode": false

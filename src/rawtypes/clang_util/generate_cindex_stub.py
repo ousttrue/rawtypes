@@ -1,137 +1,246 @@
-from typing import List, Tuple
+from typing import NamedTuple, Callable
 import types
+import dataclasses
 import logging
 import argparse
 import pathlib
-import io
 import re
+import platform
+import os
+import io
 from inspect import signature
-from rawtypes import clang_util
-from rawtypes.clang import cindex
 
 
+LOGGER = logging.getLogger(__name__)
 HERE = pathlib.Path(__file__).absolute().parent
-logger = logging.getLogger(__name__)
+CINDEX_VERSION_MINOR_PATTERN = re.compile(r"#define CINDEX_VERSION_MINOR (\d+)")
+CINDEX_VERSION_MINOR_TO_LLVM_VERSION_MAP: dict[str, str] = {
+    "62": "15",
+}
+
+SO_UBUNTU = pathlib.Path("/usr/lib/x86_64-linux-gnu/libclang-13.so")
+SO_GENTOO = pathlib.Path("/usr/lib/llvm/13/lib64/libclang.so.13")
 
 
-class Parser:
-    def __init__(self, entrypoint: str):
-        self.entrypoint = entrypoint
-        self.tu = clang_util.get_tu(self.entrypoint)
-        self.functions = []
-        self.enums = []
-
-    def filter(self, *cursor_path: cindex.Cursor):
-        cursor = cursor_path[-1]
-        location: cindex.SourceLocation = cursor.location
-        if not location:
-            return False
-        if not location.file:
-            return False
-
-        if location.file.name == self.entrypoint:
-            if cursor.kind == cindex.CursorKind.FUNCTION_DECL:
-                self.functions.append(cursor_path)
-            elif cursor.kind == cindex.CursorKind.ENUM_DECL:
-                self.enums.append(cursor_path)
-
-        return True
-
-    def traverse(self):
-        clang_util.traverse(self.tu, self.filter)
+class Unsaved(NamedTuple):
+    name: str
+    content: str
 
 
-def remove_prefix(values: List[str]):
-    def get_prefix(l, r):
-        i = 0
-        for i in range(len(l)):
-            if l[i] != r[i]:
-                break
-        return l[:i]
+def generate(src: pathlib.Path, dst_dir: pathlib.Path) -> None:
+    if not src.exists():
+        raise FileExistsError(src)
+    m = CINDEX_VERSION_MINOR_PATTERN.search(src.read_text())
+    if not m:
+        raise RuntimeError()
+    minor_version = m.group(1)
+    llvm_version = CINDEX_VERSION_MINOR_TO_LLVM_VERSION_MAP.get(minor_version)
+    match llvm_version:
+        case "15":
+            from ..clang15 import cindex
+        case _:
+            raise NotImplementedError(minor_version)
 
-    prefix = get_prefix(values[0], values[1])
-    for value in values[2:]:
-        if not value.startswith(prefix):
-            prefix = get_prefix(value, prefix)
+    def get_tu(
+        entrypoint: str,
+        *,
+        include_dirs: list[str] | None = None,
+        definitions: list[str] | None = None,
+        flags: list[str] | None = None,
+        unsaved: list[Unsaved] | None = None,
+        target: str = "",
+    ) -> cindex.TranslationUnit:
+        arguments = [
+            "-x",
+            "c++",
+            "-std=c++17",
+        ]
+        if target:
+            pass
+        elif platform.system() == "Windows":
+            target = "x86_64-windows-msvc"
 
-    logger.debug(f"prefix: {prefix}")
+        if platform.system() == "Windows":
+            arguments += [
+                "-target",
+                target,
+                "-fdeclspec",
+                "-fms-compatibility-version=18",
+                "-fms-compatibility",
+                "-DNOMINMAX",
+            ]
+        else:
+            arguments += [
+                "-I/usr/lib/clang/13.0.1/include",
+            ]
+        if include_dirs:
+            arguments.extend(f"-I{i}" for i in include_dirs)
+        if definitions:
+            arguments.extend(f"-D{d}" for d in definitions)
+        if flags:
+            arguments.extend(flags)
 
-    return [value[len(prefix) :] for value in values]
+        # path of libclang.dll
+        if "LLVM_PATH" in os.environ:
+            # https://github.com/KyleMayes/install-llvm-action
+            cindex.Config.library_path = os.environ["LLVM_PATH"] + "/lib"
+            cindex.Config.library_file = "libclang.so"
+        elif os.name == "nt":
+            cindex.Config.library_path = "C:\\Program Files\\LLVM\\bin"
+        elif platform.system() == "Linux":
+            if SO_UBUNTU.exists():
+                # apt install libclang1-13
+                cindex.Config.library_path = str(SO_UBUNTU.parent)
+                cindex.Config.library_file = SO_UBUNTU.name
+            elif SO_GENTOO.exists():
+                cindex.Config.library_path = str(SO_GENTOO.parent)
+                cindex.Config.library_file = SO_GENTOO.name
 
+        index = cindex.Index.create()
+        LOGGER.debug(arguments)
+        tu = index.parse(
+            entrypoint,
+            arguments,
+            unsaved,
+            cindex.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD
+            | cindex.TranslationUnit.PARSE_SKIP_FUNCTION_BODIES,
+        )
 
-def upper_snake(s: str):
-    return "_".join(
-        re.sub(
-            r"(\s|_|-)+",
-            " ",
+        return tu
+
+    def _traverse(
+        callback: Callable[[cindex.Cursor], bool], *cursor_path: cindex.Cursor
+    ):
+        if callback(*cursor_path):
+            for child in cursor_path[-1].get_children():
+                _traverse(callback, *cursor_path, child)
+
+    def traverse(tu: cindex.TranslationUnit, callback: Callable[[cindex.Cursor], bool]):
+        for child in tu.cursor.get_children():
+            _traverse(callback, child)
+
+    def remove_prefix(values: list[str]) -> list[str]:
+        def get_prefix(l: str, r: str):
+            i = 0
+            for i in range(len(l)):
+                if l[i] != r[i]:
+                    break
+            return l[:i]
+
+        prefix = get_prefix(values[0], values[1])
+        for value in values[2:]:
+            if not value.startswith(prefix):
+                prefix = get_prefix(value, prefix)
+
+        LOGGER.debug(f"prefix: {prefix}")
+
+        return [value[len(prefix) :] for value in values]
+
+    def upper_snake(s: str) -> str:
+        return "_".join(
             re.sub(
-                r"[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+",
-                lambda mo: " " + mo.group(0).upper(),
-                s,
-            ),
-        ).split()
-    )
+                r"(\s|_|-)+",
+                " ",
+                re.sub(
+                    r"[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+",
+                    lambda mo: " " + mo.group(0).upper(),
+                    s,
+                ),
+            ).split()
+        )
 
+    def generate_enum(
+        w: io.IOBase,
+        tu: cindex.TranslationUnit,
+        functions: list[tuple[cindex.Cursor, ...]],
+    ):
+        used: set[str] = set()
+        for f in functions:
+            c = f[-1]
+            if c.spelling:
+                if c.spelling in used:
+                    continue
 
-def generate_enum(w: io.IOBase, tu, functions: List[Tuple[cindex.Cursor, ...]]):
-    used = set()
-    for f in functions:
-        c = f[-1]
-        if c.spelling:
-            if c.spelling in used:
-                continue
+                children = []
+                for child in c.get_children():
+                    if child.kind == cindex.CursorKind.ENUM_CONSTANT_DECL:
+                        children.append(child.spelling)
 
-            children = []
-            for child in c.get_children():
-                if child.kind == cindex.CursorKind.ENUM_CONSTANT_DECL:
-                    children.append(child.spelling)
+                if len(children) > 1:
+                    LOGGER.debug(c.spelling)
+                    used.add(c.spelling)
 
-            if len(children) > 1:
-                logger.debug(c.spelling)
-                used.add(c.spelling)
+                    children = remove_prefix(children)
+                    children = [upper_snake(child) for child in children]
 
-                children = remove_prefix(children)
-                children = [upper_snake(child) for child in children]
+                    name = c.spelling[2:]  # remove prefix CX
+                    if name == "TypeKind":
+                        children = [child.replace("_", "") for child in children]
+                    if name == "TranslationUnit_Flags":
+                        name = "TranslationUnit"
+                        w.write(f"class {name}(BaseEnumeration):\n")
+                        for child in children:
+                            w.write(f"    PARSE_{child}: ClassVar[{name}]\n")
+                    else:
+                        w.write(f"class {name}(BaseEnumeration):\n")
+                        for child in children:
+                            w.write(f"    {child}: ClassVar[{name}]\n")
+                    w.write("\n")
 
-                name = c.spelling[2:]  # remove prefix CX
-                if name == "TypeKind":
-                    children = [child.replace("_", "") for child in children]
-                if name == "TranslationUnit_Flags":
-                    name = "TranslationUnit"
-                    w.write(f"class {name}(BaseEnumeration):\n")
-                    for child in children:
-                        w.write(f"    PARSE_{child}: ClassVar[{name}]\n")
+    def generate_instance(w: io.IOBase, obj: object):
+        LOGGER.debug(obj.__class__.__name__)
+        w.write(f"class {obj.__class__.__name__}:\n")
+        for k, v in obj.__class__.__dict__.items():
+            # print(k, v)
+            if isinstance(v, types.FunctionType):
+                args = signature(v)
+                w.write(f"    def {k}{args}:")
+                if v.__doc__:
+                    w.write('\n        """')
+                    w.write(v.__doc__)
+                    w.write('"""\n')
+                    w.write("        ...\n")
                 else:
-                    w.write(f"class {name}(BaseEnumeration):\n")
-                    for child in children:
-                        w.write(f"    {child}: ClassVar[{name}]\n")
-                w.write("\n")
+                    w.write(" ...\n")
+            elif isinstance(v, property):
+                w.write(f"    {k}: Any\n")
+        w.write("\n")
 
+    @dataclasses.dataclass
+    class Parser:
+        entrypoint: str
+        tu: cindex.TranslationUnit | None = None
+        functions: list[str] = dataclasses.field(default_factory=list)
+        enums: list[str] = dataclasses.field(default_factory=list)
 
-def generate_instance(w: io.IOBase, obj: object):
-    logger.debug(obj.__class__.__name__)
-    w.write(f"class {obj.__class__.__name__}:\n")
-    for k, v in obj.__class__.__dict__.items():
-        # print(k, v)
-        if isinstance(v, types.FunctionType):
-            args = signature(v)
-            w.write(f"    def {k}{args}:")
-            if v.__doc__:
-                w.write('\n        """')
-                w.write(v.__doc__)
-                w.write('"""\n')
-                w.write("        ...\n")
-            else:
-                w.write(" ...\n")
-        elif isinstance(v, property):
-            w.write(f"    {k}: Any\n")
-    w.write("\n")
+        def __post_init__(self):
+            self.tu = get_tu(self.entrypoint)
 
+        def filter(self, *cursor_path: cindex.Cursor) -> bool:
+            cursor = cursor_path[-1]
+            location: cindex.SourceLocation = cursor.location
+            if not location:
+                return False
+            if not location.file:
+                return False
 
-def generate(src: pathlib.Path, dst: pathlib.Path):
+            if location.file.name == self.entrypoint:
+                if cursor.kind == cindex.CursorKind.FUNCTION_DECL:
+                    self.functions.append(cursor_path)
+                elif cursor.kind == cindex.CursorKind.ENUM_DECL:
+                    self.enums.append(cursor_path)
+
+            return True
+
+        def traverse(self):
+            traverse(self.tu, self.filter)
+
     parser = Parser(str(src))
     parser.traverse()
+
+    dst = dst_dir / f"rawtypes/clang{llvm_version}/cindex.pyi"
     dst.parent.mkdir(parents=True, exist_ok=True)
+    LOGGER.info(f"{src} => {dst}")
     with dst.open("w") as w:
         w.write(
             """from typing import ClassVar, Any
@@ -154,17 +263,31 @@ class BaseEnumeration(object):
         generate_instance(w, parser.functions[0][-1].result_type)
 
 
-if __name__ == "__main__":
+def main():
     logging.basicConfig(level=logging.DEBUG)
+    parser = argparse.ArgumentParser(
+        prog="cindex stub generator",
+        description="pyi from LLVM/include/clang-c/Index.h",
+    )
+    parser.add_argument(
+        "--src",
+        help="path to clang-c/Index.h",
+        type=pathlib.Path,
+        default="C:/Program Files/LLVM/include/clang-c/Index.h",
+    )
+    # ubuntu: libclang-13-dev
+    # "/usr/lib/llvm-13/include/clang-c/Index.h"
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--src")
-    parser.add_argument("--dst", type=pathlib.Path)
+    parser.add_argument(
+        "dst",
+        help="root directory for pyi. DST_DIR/rawtypes/clangXX/cindex.pyi will be generated.",
+        type=pathlib.Path,
+        default=HERE / "typings",
+    )
     args = parser.parse_args()
 
-    src = pathlib.Path(
-        args.src if args.src else "C:/Program Files/LLVM/include/clang-c/Index.h"
-    ).absolute()
-    dst = pathlib.Path(args.dst / "rawtypes/clang/cindex.pyi").absolute()
+    generate(args.src, args.dst)
 
-    generate(src, dst)
+
+if __name__ == "__main__":
+    main()

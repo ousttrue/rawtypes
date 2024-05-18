@@ -3,7 +3,7 @@ import io
 import pathlib
 import logging
 from rawtypes.clang import cindex
-from rawtypes import clang_util
+from rawtypes.clang_util.generate_cindex_stub import get_tu
 from .typedef_cursor import TypedefCursor
 from .struct_cursor import StructCursor
 from .enum_cursor import EnumCursor
@@ -34,8 +34,8 @@ class Parser:
 
         _include_dirs = [str(header.parent)
                          for header in headers] + [str(dir) for dir in include_dirs]
-        unsaved = clang_util.Unsaved('tmp.h', sio.getvalue())
-        tu = clang_util.get_tu(
+        unsaved = get_tu.Unsaved('tmp.h', sio.getvalue())
+        tu = get_tu.get_tu(
             'tmp.h', include_dirs=_include_dirs, definitions=definitions, unsaved=[unsaved], flags=[], target=target)
 
         parser = Parser(tu, headers)
@@ -44,8 +44,8 @@ class Parser:
 
     @staticmethod
     def parse_source(src: str) -> "Parser":
-        tu = clang_util.get_tu(
-            'tmp.h', unsaved=[clang_util.Unsaved('tmp.h', src)])
+        tu = get_tu.get_tu(
+            'tmp.h', unsaved=[get_tu.Unsaved('tmp.h', src)])
         parser = Parser(tu, [pathlib.Path('tmp.h')])
         parser._traverse()
         return parser
@@ -122,7 +122,7 @@ class Parser:
         return False
 
     def _traverse(self):
-        clang_util.traverse(self.tu, self._callback)
+        get_tu.traverse(self.tu, self._callback)
 
     def get_function(self, name: str) -> FunctionCursor:
         for d in self.decls:
