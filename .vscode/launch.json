@@ -5,15 +5,8 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
-            "type": "python",
-            "request": "test", // <----- this is for tests
-            "console": "integratedTerminal",
-            "justMyCode": false,
-        },
-        {
             "name": "setup.py sdist",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/setup.py",
             "args": [
@@ -24,11 +17,13 @@
         },
         {
             "name": "generate rawtypes.clang.cindex typings",
-            "type": "python",
-            "python": "C:/Python39/python.exe",
+            "type": "debugpy",
+            // "python": "C:/Python39/python.exe",
             "request": "launch",
             "program": "${workspaceFolder}/src/rawtypes/clang_util/generate_cindex_stub.py",
-            "args": [],
+            "args": [
+                "--dst", "typings"
+            ],
             "console": "integratedTerminal",
             "justMyCode": false
         }

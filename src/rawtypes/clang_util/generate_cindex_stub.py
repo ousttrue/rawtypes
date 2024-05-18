@@ -4,11 +4,11 @@ import logging
 import argparse
 import pathlib
 import io
-import pathlib
 import re
 from inspect import signature
 from rawtypes import clang_util
 from rawtypes.clang import cindex
+
 
 HERE = pathlib.Path(__file__).absolute().parent
 logger = logging.getLogger(__name__)
@@ -54,16 +54,23 @@ def remove_prefix(values: List[str]):
         if not value.startswith(prefix):
             prefix = get_prefix(value, prefix)
 
-    logger.debug(f'prefix: {prefix}')
+    logger.debug(f"prefix: {prefix}")
 
-    return [value[len(prefix):] for value in values]
+    return [value[len(prefix) :] for value in values]
 
 
 def upper_snake(s: str):
-    return '_'.join(
-        re.sub(r"(\s|_|-)+", " ",
-               re.sub(r"[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+",
-                      lambda mo: ' ' + mo.group(0).upper(), s)).split())
+    return "_".join(
+        re.sub(
+            r"(\s|_|-)+",
+            " ",
+            re.sub(
+                r"[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+",
+                lambda mo: " " + mo.group(0).upper(),
+                s,
+            ),
+        ).split()
+    )
 
 
 def generate_enum(w: io.IOBase, tu, functions: List[Tuple[cindex.Cursor, ...]]):
@@ -87,51 +94,53 @@ def generate_enum(w: io.IOBase, tu, functions: List[Tuple[cindex.Cursor, ...]]):
                 children = [upper_snake(child) for child in children]
 
                 name = c.spelling[2:]  # remove prefix CX
-                if name == 'TypeKind':
-                    children = [child.replace('_', '') for child in children]
-                if name == 'TranslationUnit_Flags':
-                    name = 'TranslationUnit'
-                    w.write(f'class {name}(BaseEnumeration):\n')
+                if name == "TypeKind":
+                    children = [child.replace("_", "") for child in children]
+                if name == "TranslationUnit_Flags":
+                    name = "TranslationUnit"
+                    w.write(f"class {name}(BaseEnumeration):\n")
                     for child in children:
-                        w.write(f'    PARSE_{child}: ClassVar[{name}]\n')
+                        w.write(f"    PARSE_{child}: ClassVar[{name}]\n")
                 else:
-                    w.write(f'class {name}(BaseEnumeration):\n')
+                    w.write(f"class {name}(BaseEnumeration):\n")
                     for child in children:
-                        w.write(f'    {child}: ClassVar[{name}]\n')
-                w.write('\n')
+                        w.write(f"    {child}: ClassVar[{name}]\n")
+                w.write("\n")
 
 
 def generate_instance(w: io.IOBase, obj: object):
     logger.debug(obj.__class__.__name__)
-    w.write(f'class {obj.__class__.__name__}:\n')
+    w.write(f"class {obj.__class__.__name__}:\n")
     for k, v in obj.__class__.__dict__.items():
         # print(k, v)
         if isinstance(v, types.FunctionType):
             args = signature(v)
-            w.write(f'    def {k}{args}:')
+            w.write(f"    def {k}{args}:")
             if v.__doc__:
                 w.write('\n        """')
                 w.write(v.__doc__)
                 w.write('"""\n')
-                w.write('        ...\n')
+                w.write("        ...\n")
             else:
-                w.write(' ...\n')
+                w.write(" ...\n")
         elif isinstance(v, property):
-            w.write(f'    {k}: Any\n')
-    w.write('\n')
+            w.write(f"    {k}: Any\n")
+    w.write("\n")
 
 
 def generate(src: pathlib.Path, dst: pathlib.Path):
     parser = Parser(str(src))
     parser.traverse()
     dst.parent.mkdir(parents=True, exist_ok=True)
-    with dst.open('w') as w:
-        w.write('''from typing import ClassVar, Any
+    with dst.open("w") as w:
+        w.write(
+            """from typing import ClassVar, Any
 
 class BaseEnumeration(object):
     pass
 
-''')
+"""
+        )
         generate_enum(w, parser.tu, parser.enums)
 
         # from object instance
@@ -145,18 +154,17 @@ class BaseEnumeration(object):
         generate_instance(w, parser.functions[0][-1].result_type)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--src')
-    parser.add_argument('--dst')
+    parser.add_argument("--src")
+    parser.add_argument("--dst", type=pathlib.Path)
     args = parser.parse_args()
 
     src = pathlib.Path(
-        args.src if args.src else "C:/Program Files/LLVM/include/clang-c/Index.h").absolute()
-
-    dst = pathlib.Path(
-        args.dst if args.dst else (HERE.parent.parent.parent / "src/rawtypes/clang/cindex.pyi")).absolute()
+        args.src if args.src else "C:/Program Files/LLVM/include/clang-c/Index.h"
+    ).absolute()
+    dst = pathlib.Path(args.dst / "rawtypes/clang/cindex.pyi").absolute()
 
     generate(src, dst)

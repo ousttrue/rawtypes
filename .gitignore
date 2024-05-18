@@ -10,3 +10,5 @@ _version.py
 .eggs
 /tmp/
 /docs/apidoc/
+
+/typings/
