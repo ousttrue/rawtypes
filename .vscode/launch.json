@@ -28,6 +28,19 @@
             ],
             "console": "integratedTerminal",
             "justMyCode": false
-        }
+        },
+        {
+            "name": "generate zig module",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "rawtypes.generator",
+            "args": [
+                "--src",
+                // "${env:GLFW_DIR}/include/GLFW/glfw3.h",
+                "C:/Program Files/LLVM/include/clang-c/Index.h",
+                "--dst",
+                "zig/main.zig",
+            ]
+        },
     ]
 }

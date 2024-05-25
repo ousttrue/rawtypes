@@ -1,7 +1,7 @@
 from typing import List, Optional, NamedTuple, Callable
 import io
 import re
-from ..clang import cindex
+from ..clang15 import cindex
 from ..parser.type_context import TypeContext
 from ..parser.struct_cursor import WrapFlags
 from ..parser.function_cursor import FunctionCursor
@@ -9,7 +9,7 @@ from .basetype import BaseType
 from .definition import StructType, TypedefType, EnumType
 from .function_types import FunctionProto
 from .pointer_types import PointerType, ReferenceType, ArrayType, ReferenceToStdArrayType
-from .string_types import CppStringType, CStringType, CharPointerType
+from .string_types import CppStringType, CStringType
 from .wrap_types import PointerToStructType, ReferenceToStructType
 from . import primitive_types
 

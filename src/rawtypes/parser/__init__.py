@@ -1,6 +1,12 @@
 from typing import Iterable
 import pathlib
 from .parser import Parser
+from .header import Header
+
+__all__ = [
+    "Parser",
+    "Header",
+]
 
 
 def parse(*headers: pathlib.Path, include_dirs: Iterable[pathlib.Path] = ()) -> Parser:

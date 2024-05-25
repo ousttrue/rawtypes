@@ -1,4 +1,4 @@
-from typing import NamedTuple, Callable
+from typing import NamedTuple, Callable, Type
 import types
 import dataclasses
 import logging
@@ -40,7 +40,9 @@ HARDCODING_TYPE_MAP: dict[str, str] = {
 }
 
 
-def generate(src: pathlib.Path, dst_dir: pathlib.Path) -> None:
+def get_cindex_module(
+    src: pathlib.Path = pathlib.Path("C:/Program Files/LLVM/include/clang-c/Index.h"),
+):
     if not src.exists():
         raise FileExistsError(src)
     m = CINDEX_VERSION_MINOR_PATTERN.search(src.read_text())
@@ -211,7 +213,7 @@ def generate(src: pathlib.Path, dst_dir: pathlib.Path) -> None:
 
     def generate_instance(
         w: io.IOBase, obj: object, flags: TranslationUnitFlags | None = None
-    ):
+    ) -> None:
         LOGGER.debug(obj.__class__.__name__)
         w.write(f"class {obj.__class__.__name__}:\n")
 
@@ -231,6 +233,8 @@ def generate(src: pathlib.Path, dst_dir: pathlib.Path) -> None:
                 ret = ""
                 if k == "get_children":
                     ret = "->Iterator[Cursor]"
+                elif k == "get_tokens":
+                    ret = "->Iterator[Token]"
                 elif k in ("__eq__", "__ne__"):
                     ret = "->bool"
                 elif k.startswith("is_"):
@@ -281,33 +285,76 @@ def generate(src: pathlib.Path, dst_dir: pathlib.Path) -> None:
         def traverse(self):
             traverse(self.tu, self.filter)
 
-    parser = Parser.create(str(src))
+    class CIndexModule(NamedTuple):
+        get_tu: Callable[
+            ...,
+            cindex.TranslationUnit,
+        ]
+        traverse: Callable[
+            [cindex.TranslationUnit, Callable[[cindex.Cursor], bool]], None
+        ]
+        llvm_version: str
+        parser: Type[Parser]
+        generate_enum: Callable[
+            [io.IOBase, cindex.TranslationUnit, list[tuple[cindex.Cursor, ...]]],
+            TranslationUnitFlags,
+        ]
+        generate_instance: Callable[
+            [io.IOBase, object, TranslationUnitFlags | None], None
+        ]
+
+    return CIndexModule(
+        get_tu, traverse, llvm_version, Parser, generate_enum, generate_instance
+    )
+
+
+def generate(src: pathlib.Path, dst_dir: pathlib.Path) -> None:
+
+    c_mod = get_cindex_module(src)
+
+    parser = c_mod.parser.create(str(src))
     parser.traverse()
 
-    dst = dst_dir / f"rawtypes/clang{llvm_version}/cindex/__init__.pyi"
+    dst = dst_dir / f"rawtypes/clang{c_mod.llvm_version}/cindex/__init__.pyi"
     dst.parent.mkdir(parents=True, exist_ok=True)
     LOGGER.info(f"{src} => {dst}")
     with dst.open("w") as w:
         w.write(
             """from typing import ClassVar, Any, Iterator
+import ctypes
 
+        
+class Token(ctypes.Structure):
+    _fields_ = [
+        ('int_data', c_uint * 4),
+        ('ptr_data', c_void_p)
+    ]
+    @property
+    def spelling(self)->str:...
+    @property
+    def kind(self):...
+    @property
+    def location(self):...
+    @property
+    def extent(self):...
+    @property
+    def cursor(self):...
 
+    
 class BaseEnumeration(object):
     pass
 
 """
         )
-        flags = generate_enum(w, parser.tu, parser.enums)
-
+        flags = c_mod.generate_enum(w, parser.tu, parser.enums)
         # from object instance
-        generate_instance(w, parser.tu, flags)
-
+        c_mod.generate_instance(w, parser.tu, flags)
         # cursor
-        generate_instance(w, parser.enums[0][0])
+        c_mod.generate_instance(w, parser.enums[0][0], None)
         # location
-        generate_instance(w, parser.enums[0][0].location)
+        c_mod.generate_instance(w, parser.enums[0][0].location, None)
         # type
-        generate_instance(w, parser.functions[0][-1].result_type)
+        c_mod.generate_instance(w, parser.functions[0][-1].result_type, None)
 
 
 def main():

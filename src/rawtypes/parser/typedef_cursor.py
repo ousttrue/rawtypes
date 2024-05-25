@@ -1,7 +1,7 @@
 from typing import NamedTuple, Tuple
 import pathlib
 import re
-from rawtypes.clang import cindex
+from rawtypes.clang15 import cindex
 
 
 FP_PATTERN = re.compile(r'(.*)\(\*\)(.*)')

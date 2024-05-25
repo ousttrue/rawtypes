@@ -1,4 +1,4 @@
-from typing import List, Optional, Callable, Dict, NamedTuple
+from typing import Callable, NamedTuple
 import logging
 import pathlib
 
@@ -12,22 +12,26 @@ class StructConfiguration(NamedTuple):
 
 
 class Header:
-    def __init__(self, path: pathlib.Path, *,
-                 prefix: str = '',
-                 include_dirs: Optional[List[pathlib.Path]] = None,
-                 begin='',
-                 before_include='',
-                 after_include='',
-                 definitions: Optional[List[str]] = None,
-                 include_only=False,
-                 if_include: Callable[[str], bool] = lambda _: True,
-                 additional_functions: Optional[Dict[str, str]] = None,
-                 structs: Optional[List[StructConfiguration]] = None) -> None:
+    def __init__(
+        self,
+        path: pathlib.Path,
+        *,
+        prefix: str = "",
+        include_dirs: list[pathlib.Path] | None = None,
+        begin: str = "",
+        before_include: str = "",
+        after_include: str = "",
+        definitions: list[str] | None = None,
+        include_only: bool = False,
+        if_include: Callable[[str], bool] = lambda _: True,
+        additional_functions: dict[str, str] | None = None,
+        structs: list[StructConfiguration] | None = None
+    ) -> None:
         self.path = path
         self.prefix = prefix
         self.include_dirs = include_dirs or ()
         self.definitions = definitions or ()
-        self.current_namespace: Optional[str] = None
+        self.current_namespace: str | None = None
         self.begin = begin
         self.before_include = before_include
         self.after_include = after_include

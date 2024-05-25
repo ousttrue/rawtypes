@@ -1,57 +1,81 @@
-from typing import List, Union, Iterable, TypeAlias, Optional
+from typing import List, Union, Iterable, TypeAlias
 import io
 import pathlib
 import logging
-from rawtypes.clang import cindex
-from rawtypes.clang_util.generate_cindex_stub import get_tu
+from rawtypes.clang15 import cindex
+from rawtypes.clang_util.generate_cindex_stub import get_cindex_module, Unsaved
 from .typedef_cursor import TypedefCursor
 from .struct_cursor import StructCursor
 from .enum_cursor import EnumCursor
 from .function_cursor import FunctionCursor
+
 LOGGER = logging.getLogger(__name__)
 
-DeclCursor: TypeAlias = Union[FunctionCursor,
-                              EnumCursor, TypedefCursor, StructCursor]
+DeclCursor: TypeAlias = Union[FunctionCursor, EnumCursor, TypedefCursor, StructCursor]
 
 
 class Parser:
-    def __init__(self, tu: cindex.TranslationUnit, headers: List[pathlib.Path]) -> None:
+    def __init__(
+        self,
+        tu: cindex.TranslationUnit,
+        headers: List[pathlib.Path],
+        use_mangling: bool,
+    ) -> None:
         self.tu = tu
         self.headers = headers
         self.decls: List[DeclCursor] = []
         self.used = []
         self.skip = []
+        self.use_mangling = use_mangling
 
     @staticmethod
-    def parse(headers: Iterable[pathlib.Path], *, include_dirs: Iterable[pathlib.Path] = (), definitions=(), target='') -> "Parser":
+    def parse(
+        headers: Iterable[pathlib.Path],
+        *,
+        include_dirs: Iterable[pathlib.Path] = (),
+        definitions: Iterable[str] = (),
+        target: str = "",
+        use_mangling: bool = True,
+    ) -> "Parser":
         headers = list(headers)
         for header in headers:
-            assert(header.exists())
+            assert header.exists()
 
         sio = io.StringIO()
         for header in headers:
             sio.write(f'#include "{header.name}"\n')
 
-        _include_dirs = [str(header.parent)
-                         for header in headers] + [str(dir) for dir in include_dirs]
-        unsaved = get_tu.Unsaved('tmp.h', sio.getvalue())
-        tu = get_tu.get_tu(
-            'tmp.h', include_dirs=_include_dirs, definitions=definitions, unsaved=[unsaved], flags=[], target=target)
+        _include_dirs = [str(header.parent) for header in headers] + [
+            str(dir) for dir in include_dirs
+        ]
+        unsaved = Unsaved("tmp.h", sio.getvalue())
+        tu = get_cindex_module().get_tu(
+            "tmp.h",
+            include_dirs=_include_dirs,
+            definitions=definitions,
+            unsaved=[unsaved],
+            flags=[],
+            target=target,
+        )
 
-        parser = Parser(tu, headers)
+        parser = Parser(tu, headers, use_mangling)
         parser._traverse()
         return parser
 
     @staticmethod
     def parse_source(src: str) -> "Parser":
-        tu = get_tu.get_tu(
-            'tmp.h', unsaved=[get_tu.Unsaved('tmp.h', src)])
-        parser = Parser(tu, [pathlib.Path('tmp.h')])
+        tu = get_cindex_module().get_tu("tmp.h", unsaved=[Unsaved("tmp.h", src)])
+        parser = Parser(tu, [pathlib.Path("tmp.h")])
         parser._traverse()
         return parser
 
     def _callback(self, *cursor_path: cindex.Cursor) -> bool:
         cursor = cursor_path[-1]
+        if 'createIndex' in cursor.displayname:
+            pass
+        elif cursor.spelling == 'clang_disposeIndex':
+            pass
+
         location: cindex.SourceLocation = cursor.location
         if not location:
             return False
@@ -60,7 +84,7 @@ class Parser:
 
         if pathlib.Path(location.file.name) in self.headers:
             if location.file.name not in self.used:
-                LOGGER.debug(f'header: {location.file.name}')
+                LOGGER.debug(f"header: {location.file.name}")
                 self.used.append(location.file.name)
             match cursor.kind:
                 case cindex.CursorKind.NAMESPACE:
@@ -77,31 +101,30 @@ class Parser:
                 case cindex.CursorKind.MACRO_INSTANTIATION:
                     pass
 
-                case (
-                    cindex.CursorKind.NAMESPACE_REF
-                    | cindex.CursorKind.TEMPLATE_REF
-                ):
+                case cindex.CursorKind.NAMESPACE_REF | cindex.CursorKind.TEMPLATE_REF:
                     pass
 
                 case cindex.CursorKind.FUNCTION_DECL:
-                    if(cursor.spelling.startswith('operator ')):
+                    if cursor.spelling.startswith("operator "):
                         pass
                     else:
-                        self.decls.append(FunctionCursor(
-                            cursor_path[-1].result_type, cursor_path))
+                        self.decls.append(
+                            FunctionCursor(
+                                cursor_path[-1].result_type,
+                                cursor_path,
+                                self.use_mangling,
+                            )
+                        )
                 case cindex.CursorKind.ENUM_DECL:
                     self.decls.append(EnumCursor(cursor_path))
                 case cindex.CursorKind.TYPEDEF_DECL:
                     self.decls.append(TypedefCursor(cursor_path))
                 case cindex.CursorKind.STRUCT_DECL:
-                    self.decls.append(
-                        StructCursor(cursor_path, cursor.type, False))
+                    self.decls.append(StructCursor(cursor_path, cursor.type, False))
                 case cindex.CursorKind.CLASS_TEMPLATE:
-                    self.decls.append(
-                        StructCursor(cursor_path, cursor.type, False))
+                    self.decls.append(StructCursor(cursor_path, cursor.type, False))
                 case cindex.CursorKind.CLASS_DECL:
-                    self.decls.append(
-                        StructCursor(cursor_path, cursor.type, False))
+                    self.decls.append(StructCursor(cursor_path, cursor.type, False))
                 case cindex.CursorKind.UNEXPOSED_DECL:
                     # extern C etc...
                     return True
@@ -111,18 +134,20 @@ class Parser:
                     LOGGER.debug(cursor.kind)
 
         else:
-            if location.file.name.startswith('C:') or location.file.name.startswith('/usr'):
+            if location.file.name.startswith("C:") or location.file.name.startswith(
+                "/usr"
+            ):
                 pass
             else:
                 if location.file.name not in self.skip:
-                    if location.file.name != 'tmp.h':
-                        LOGGER.debug(f'unknown header: {location.file.name}')
+                    if location.file.name != "tmp.h":
+                        LOGGER.debug(f"unknown header: {location.file.name}")
                     self.skip.append(location.file.name)
 
         return False
 
     def _traverse(self):
-        get_tu.traverse(self.tu, self._callback)
+        get_cindex_module().traverse(self.tu, self._callback)
 
     def get_function(self, name: str) -> FunctionCursor:
         for d in self.decls:
@@ -135,7 +160,7 @@ class Parser:
         found = None
         for d in self.decls:
             if isinstance(d, StructCursor):
-                if d.cursor.spelling == name or d.cursor.spelling == 'struct ' + name:
+                if d.cursor.spelling == name or d.cursor.spelling == "struct " + name:
                     if not d.is_forward_decl:
                         return d
                     found = d
@@ -144,7 +169,7 @@ class Parser:
             return found
         raise KeyError(name)
 
-    def find_typedef(self, underlying: cindex.Cursor) -> Optional[TypedefCursor]:
+    def find_typedef(self, underlying: cindex.Cursor) -> TypedefCursor | None:
         for d in self.decls:
             if isinstance(d, TypedefCursor):
                 if d.has_underlying(underlying):

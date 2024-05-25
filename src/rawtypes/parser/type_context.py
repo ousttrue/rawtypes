@@ -2,7 +2,7 @@ from lib2to3.pgen2 import token
 from typing import NamedTuple, Optional, List
 import logging
 import re
-from rawtypes.clang import cindex
+from rawtypes.clang15 import cindex
 
 logger = logging.getLogger(__name__)
 

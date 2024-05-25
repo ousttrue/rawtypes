@@ -2,30 +2,52 @@ from typing import List, Optional, Callable, TypeAlias, NamedTuple, Tuple
 import io
 import pathlib
 from .generator_base import GeneratorBase
-from ..clang import cindex
+from ..clang15 import cindex
 from ..parser.type_context import TypeContext, ParamContext
 from ..parser.struct_cursor import StructCursor
 from ..parser.typedef_cursor import TypedefCursor
 from ..parser.function_cursor import FunctionCursor
 from ..parser.enum_cursor import EnumCursor
 from ..parser.header import Header, StructConfiguration
-from ..interpreted_types import BaseType, TypeManager, TypeWithCursor, FunctionProto, TypedefType, EnumType
-from ..interpreted_types.pointer_types import PointerType, VoidType, ArrayType, ReferenceType
-from ..interpreted_types.primitive_types import (FloatType, DoubleType,
-                                                 Int8Type, Int16Type, Int32Type, Int64Type,
-                                                 UInt8Type, UInt16Type, UInt32Type, UInt64Type,
-                                                 SizeType, PrimitiveType)
+from ..interpreted_types import (
+    BaseType,
+    TypeManager,
+    TypeWithCursor,
+    FunctionProto,
+    TypedefType,
+    EnumType,
+)
+from ..interpreted_types.pointer_types import (
+    PointerType,
+    VoidType,
+    ArrayType,
+    ReferenceType,
+)
+from ..interpreted_types.primitive_types import (
+    FloatType,
+    DoubleType,
+    Int8Type,
+    Int16Type,
+    Int32Type,
+    Int64Type,
+    UInt8Type,
+    UInt16Type,
+    UInt32Type,
+    UInt64Type,
+    SizeType,
+    PrimitiveType,
+)
 from ..interpreted_types.definition import StructType
 from ..interpreted_types.string_types import CStringType
 
 TYPE_CALLBACK: TypeAlias = Callable[[BaseType], Optional[str]]
-ZIG_SYMBOLS = ['type', 'align', 'async']
-DEFAULT_ARG_NAME = '__default'
+ZIG_SYMBOLS = ["type", "align", "async"]
+DEFAULT_ARG_NAME = "__default"
 
 
 def to_cpp_arg(p: ParamContext):
     # t = generator.type_manager.to_type(p)
-    return f'{p.type.spelling} {p.name}'
+    return f"{p.type.spelling} {p.name}"
 
 
 def rename_symbol(name: str) -> str:
@@ -35,35 +57,35 @@ def rename_symbol(name: str) -> str:
 
 
 def remove_const_ref(name: str) -> str:
-    if name[0] == '*':
+    if name[0] == "*":
         name = name[1:].strip()
-    if name.startswith('const '):
-        name = name[len('const '):].strip()
+    if name.startswith("const "):
+        name = name[len("const ") :].strip()
     return name
 
 
 def remove_prefix(name: str) -> str:
-    if name.startswith('enum '):
-        name = name[len('enum '):].strip()
-    if name.startswith('struct '):
-        name = name[len('struct '):].strip()
+    if name.startswith("enum "):
+        name = name[len("enum ") :].strip()
+    if name.startswith("struct "):
+        name = name[len("struct ") :].strip()
     return name
 
 
 ZIG_TYPE_MAP = {
-    'char': 'i8',
-    'short': 'i16',
-    'int': 'i32',
-    'long long': 'i64',
-    'unsigned char': 'u8',
-    'unsigned short': 'u16',
-    'unsigned int': 'u32',
-    'unsigned long long': 'u64',
+    "char": "i8",
+    "short": "i16",
+    "int": "i32",
+    "long long": "i64",
+    "unsigned char": "u8",
+    "unsigned short": "u16",
+    "unsigned int": "u32",
+    "unsigned long long": "u64",
 }
 
 
 def get_zig_type(name: str) -> Optional[str]:
-    if '<' in name:
+    if "<" in name:
         return None
     zig_type = ZIG_TYPE_MAP.get(name)
     if zig_type:
@@ -83,85 +105,101 @@ class FunctionOverload:
     def get_overloaded_func_name(self, func_name: str) -> str:
         overload_count = self.overload_map.get(func_name, 0) + 1
         self.overload_map[func_name] = overload_count
-        overload = ''
+        overload = ""
         if overload_count > 1:
-            overload += f'_{overload_count}'
-        return f'{func_name}{overload}'
+            overload += f"_{overload_count}"
+        return f"{func_name}{overload}"
 
 
 class ZigGenerator(GeneratorBase):
-    def __init__(self, *headers: Header, include_dirs=[]) -> None:
+    def __init__(
+        self,
+        *headers: Header,
+        include_dirs: list[pathlib.Path] | None = None,
+        use_mangling: bool = True,
+    ) -> None:
         import platform
-        target = 'x86_64-windows-gnu' if platform.system() == 'Windows' else ''
-        super().__init__(*headers, use_typdef=True, include_dirs=include_dirs, target=target)
+
+        target = "x86_64-windows-gnu" if platform.system() == "Windows" else ""
+        super().__init__(
+            *headers,
+            use_typdef=True,
+            include_dirs=include_dirs,
+            target=target,
+            use_mangling=use_mangling,
+        )
         self.custom: Optional[TYPE_CALLBACK] = None
         self.struct_map = {}
         self.function_overload = FunctionOverload()
 
-    def from_type(self, t: BaseType, is_arg: bool, *, bit_width: Optional[int] = None) -> str:
+    def from_type(
+        self, t: BaseType, is_arg: bool, *, bit_width: Optional[int] = None
+    ) -> str:
         if bit_width:
-            return f'u{bit_width}'
+            return f"u{bit_width}"
 
         if self.custom:
             if custom_result := self.custom(t):
                 return custom_result
 
-        zig_type = ''
+        zig_type = ""
         match t:
             case VoidType():
-                zig_type = 'void'
+                zig_type = "void"
             case ArrayType():
                 base = self.from_type(t.base, False)
                 if is_arg:
                     # to pointer
-                    zig_type = f'*{base}'
+                    zig_type = f"*{base}"
                 else:
                     # array or slice ?
-                    zig_type = f'[{t.size}]{base}'
+                    zig_type = f"[{t.size}]{base}"
             case PointerType():
                 base = self.from_type(t.base, False)
-                if base == '(':
+                if base == "(":
                     self.from_type(t.base, False)
                     pass
-                const = ''
+                const = ""
                 if is_arg:
                     if t.base.is_const:
-                        const = 'const '
+                        const = "const "
                 if isinstance(t.base, FunctionProto):
-                    const = 'const '
+                    const = "const "
 
-                pointer = '*' if isinstance(t, ReferenceType) else '?*'
-                if base == 'void':
-                    zig_type = f'{pointer}{const}anyopaque'
+                pointer = "*" if isinstance(t, ReferenceType) else "?*"
+                if base == "void":
+                    zig_type = f"{pointer}{const}anyopaque"
                 else:
-                    zig_type = f'{pointer}{const}{base}'
+                    zig_type = f"{pointer}{const}{base}"
             case Int8Type():
-                zig_type = 'i8'
+                zig_type = "i8"
             case Int16Type():
-                zig_type = 'c_short'
+                zig_type = "c_short"
             case Int32Type():
-                zig_type = 'c_int'
+                zig_type = "c_int"
             case Int64Type():
-                zig_type = 'c_longlong'
+                zig_type = "c_longlong"
             case UInt8Type():
-                zig_type = 'u8'
+                zig_type = "u8"
             case UInt16Type():
-                zig_type = 'c_ushort'
+                zig_type = "c_ushort"
             case UInt32Type():
-                zig_type = 'c_uint'
+                zig_type = "c_uint"
             case UInt64Type():
-                zig_type = 'c_ulonglong'
+                zig_type = "c_ulonglong"
             case SizeType():
-                zig_type = 'usize'
+                zig_type = "usize"
             case FloatType():
-                zig_type = 'f32'
+                zig_type = "f32"
             case DoubleType():
-                zig_type = 'f64'
+                zig_type = "f64"
             case CStringType():
-                zig_type = '?[*:0]const u8'
+                zig_type = "?[*:0]const u8"
             case TypedefType():
-                if isinstance(t.base, PointerType) and isinstance(t.base.base, FunctionProto):
-                    zig_type = f'*const {t.name}'
+                if isinstance(t.base, PointerType) and isinstance(
+                    t.base.base, FunctionProto
+                ):
+                    zig_type = f"*const {t.name}"
                 elif isinstance(t.base, PrimitiveType):
                     zig_type = self.from_type(t.resolve(), False)
                 else:
@@ -169,20 +207,24 @@ class ZigGenerator(GeneratorBase):
             case FunctionProto():
                 f = t.function
                 args = [
-                    f'{rename_symbol(param.name)}: {self.zig_type(param, True)}' for param in f.params]
+                    f"{rename_symbol(param.name)}: {self.zig_type(param, True)}"
+                    for param in f.params
+                ]
                 zig_type = f'fn ({", ".join(args)}) {self.zig_type(f.result, False)}'
             case _:
                 zig_type = t.name
-                if zig_type.startswith('const '):
+                if zig_type.startswith("const "):
                     zig_type = zig_type[6:]
 
         assert zig_type
-        if zig_type.startswith('class '):
-            zig_type = 'anyopaque'
-        zig_type = zig_type.replace('const const', 'const')
-        return f'{zig_type}'
+        if zig_type.startswith("class "):
+            zig_type = "anyopaque"
+        zig_type = zig_type.replace("const const", "const")
+        return f"{zig_type}"
 
-    def zig_type(self, c: TypeContext, is_arg: bool, *, bit_width: Optional[int] = None) -> str:
+    def zig_type(
+        self, c: TypeContext, is_arg: bool, *, bit_width: Optional[int] = None
+    ) -> str:
         t = self.type_manager.to_type(c)
         return self.from_type(t, is_arg, bit_width=bit_width)
 
@@ -192,11 +234,18 @@ class ZigGenerator(GeneratorBase):
             return False
         return t.base.is_const
 
-    def generate(self, path: pathlib.Path, *, is_exclude_function=None, custom: Optional[TYPE_CALLBACK] = None, return_byvalue_workaround=False) -> List[Workaround]:
+    def generate(
+        self,
+        path: pathlib.Path,
+        *,
+        is_exclude_function=None,
+        custom: Optional[TYPE_CALLBACK] = None,
+        return_byvalue_workaround=False,
+    ) -> List[Workaround]:
         self.custom = custom
         self.texts = [
-            '// this is generated by rawtypes',
-            'const expect = @import("std").testing.expect;'
+            "// this is generated by rawtypes",
+            'const expect = @import("std").testing.expect;',
         ]
 
         workaround_codes: List[Workaround] = []
@@ -217,7 +266,7 @@ class ZigGenerator(GeneratorBase):
                 sio = io.StringIO()
                 enum_name = e.cursor.spelling
                 if enum_name:
-                    if enum_name[-1] == '_':
+                    if enum_name[-1] == "_":
                         enum_name = enum_name[:-1]
                 if not enum_name:
                     # search typedef
@@ -227,16 +276,16 @@ class ZigGenerator(GeneratorBase):
 
                 if enum_name:
                     used.add(enum_name)
-                    sio.write(f'pub const {enum_name} = enum(c_int) {{\n')
+                    sio.write(f"pub const {enum_name} = enum(c_int) {{\n")
                     for value in e.get_values():
                         name = value.spelling
                         if name.startswith(enum_name):
                             if name[len(enum_name)].isdigit():
                                 pass
                             else:
-                                name = name[len(enum_name):]
-                        sio.write(f'    {name} = {value.enum_value},\n')
-                    sio.write('};\n')
+                                name = name[len(enum_name) :]
+                        sio.write(f"    {name} = {value.enum_value},\n")
+                    sio.write("};\n")
                 else:
                     for value in e.get_values():
                         name = value.spelling
@@ -244,8 +293,8 @@ class ZigGenerator(GeneratorBase):
                             if name[len(enum_name)].isdigit():
                                 pass
                             else:
-                                name = name[len(enum_name):]
-                        sio.write(f'const {name} = {value.enum_value};\n')
+                                name = name[len(enum_name) :]
+                        sio.write(f"const {name} = {value.enum_value};\n")
 
                 self.texts.append(sio.getvalue())
 
@@ -269,16 +318,17 @@ class ZigGenerator(GeneratorBase):
                             case _:
                                 pass
                 return False
+
             i = 0
-            types = [
-                t for t in self.parser.decls if t.path == header.path]
+            types = [t for t in self.parser.decls if t.path == header.path]
             while i < len(types):
                 t = types[i]
                 i += 1
                 match t:
                     case TypedefCursor() as td:
                         underlying = self.type_manager.get(
-                            TypeWithCursor(td.underlying_type, td.cursor))
+                            TypeWithCursor(td.underlying_type, td.cursor)
+                        )
                         # if underlying.name == td.spelling:
                         #     return
                         match underlying:
@@ -286,26 +336,30 @@ class ZigGenerator(GeneratorBase):
                                 if isinstance(underlying.base, FunctionProto):
                                     f = underlying.base.function
                                     args = [
-                                        f'{rename_symbol(param.name)}: {self.zig_type(param, True)}' for param in f.params]
+                                        f"{rename_symbol(param.name)}: {self.zig_type(param, True)}"
+                                        for param in f.params
+                                    ]
                                     self.texts.append(
-                                        f'const {td.spelling} = fn ({", ".join(args)}) callconv(.C) {self.zig_type(f.result, False)};')
+                                        f'const {td.spelling} = fn ({", ".join(args)}) callconv(.C) {self.zig_type(f.result, False)};'
+                                    )
                             case PrimitiveType():
                                 pass
                             case TypedefType():
                                 pass
                             case _:
-                                if underlying.name.startswith('(anonymous '):
-                                    self.type_manager.get(TypeWithCursor(
-                                        td.underlying_type, td.cursor))
+                                if underlying.name.startswith("(anonymous "):
+                                    self.type_manager.get(
+                                        TypeWithCursor(td.underlying_type, td.cursor)
+                                    )
                                     pass
                                 else:
                                     if td.spelling not in used:
                                         if td.spelling != underlying.name:
-                                            zig_type = get_zig_type(
-                                                underlying.name)
+                                            zig_type = get_zig_type(underlying.name)
                                             if zig_type:
                                                 self.texts.append(
-                                                    f'pub const {td.spelling} = {zig_type};')
+                                                    f"pub const {td.spelling} = {zig_type};"
+                                                )
 
                     case StructCursor() as s:
                         override_name = None
@@ -320,7 +374,10 @@ class ZigGenerator(GeneratorBase):
                         #         print(f'{s.name} => {override_name}')
 
                         self.write_struct(
-                            s, config=header.structs.get(s.spelling), override_name=override_name)
+                            s,
+                            config=header.structs.get(s.spelling),
+                            override_name=override_name,
+                        )
 
             #
             # function
@@ -336,7 +393,8 @@ class ZigGenerator(GeneratorBase):
                     continue
 
                 code = self.write_function(
-                    f, return_byvalue_workaround=return_byvalue_workaround)
+                    f, return_byvalue_workaround=return_byvalue_workaround
+                )
                 if code:
                     workaround_codes.append(code)
 
@@ -344,14 +402,22 @@ class ZigGenerator(GeneratorBase):
         # write texts
         #
         path.parent.mkdir(parents=True, exist_ok=True)
-        with path.open('w', encoding='utf-8') as w:
+        with path.open("w", encoding="utf-8") as w:
             for text in self.texts:
                 w.write(text)
-                w.write('\n')
+                w.write("\n")
 
         return workaround_codes
 
-    def write_struct(self, s: StructCursor, *, indent='', sio: Optional[io.StringIO] = None, config: Optional[StructConfiguration] = None, override_name: Optional[str] = None):
+    def write_struct(
+        self,
+        s: StructCursor,
+        *,
+        indent="",
+        sio: Optional[io.StringIO] = None,
+        config: Optional[StructConfiguration] = None,
+        override_name: Optional[str] = None,
+    ):
         if s.is_forward_decl:
             return
         if s.is_template:
@@ -359,39 +425,44 @@ class ZigGenerator(GeneratorBase):
 
         name = override_name if override_name else s.name
         if not s.fields:
-            self.texts.append(f'pub const {name} = opaque {{}};')
+            self.texts.append(f"pub const {name} = opaque {{}};")
             return
 
-        struct_or_union = 'union' if s.is_union else 'struct'
+        struct_or_union = "union" if s.is_union else "struct"
         if sio:
             nested = True
-            sio.write(f' extern {struct_or_union} {{\n')
+            sio.write(f" extern {struct_or_union} {{\n")
         else:
             nested = False
             sio = io.StringIO()
-            sio.write(
-                f'pub const {name} = extern {struct_or_union} {{\n')
+            sio.write(f"pub const {name} = extern {struct_or_union} {{\n")
             self.struct_map[name] = len(s.fields)
 
         has_bitfields = False
         for f in s.fields:
             if f.cursor.is_anonymous():
-                sio.write(
-                    f'{indent}    {rename_symbol(f.name)}:')
-                decl = next(child for child in f.cursor.get_children() if child.kind in (
-                    cindex.CursorKind.STRUCT_DECL, cindex.CursorKind.UNION_DECL))
+                sio.write(f"{indent}    {rename_symbol(f.name)}:")
+                decl = next(
+                    child
+                    for child in f.cursor.get_children()
+                    if child.kind
+                    in (cindex.CursorKind.STRUCT_DECL, cindex.CursorKind.UNION_DECL)
+                )
                 anonymous_decl = StructCursor(
-                    s.cursors + (f.cursor, decl), decl.type, decl.kind == cindex.CursorKind.UNION_DECL)
-                self.write_struct(
-                    anonymous_decl, indent=indent+'    ', sio=sio)
-                sio.write(',\n')
+                    s.cursors + (f.cursor, decl),
+                    decl.type,
+                    decl.kind == cindex.CursorKind.UNION_DECL,
+                )
+                self.write_struct(anonymous_decl, indent=indent + "    ", sio=sio)
+                sio.write(",\n")
             else:
                 bit_width = None
                 if f.cursor.is_bitfield():
                     has_bitfields = True
                     bit_width = f.cursor.get_bitfield_width()
                 sio.write(
-                    f'{indent}    {rename_symbol(f.name)}: {self.zig_type(f, False, bit_width=bit_width)},\n')
+                    f"{indent}    {rename_symbol(f.name)}: {self.zig_type(f, False, bit_width=bit_width)},\n"
+                )
 
         if config and config.methods:
             overload = FunctionOverload()
@@ -399,143 +470,168 @@ class ZigGenerator(GeneratorBase):
                 self.write_method(s, method, sio, overload)
 
         if nested:
-            sio.write(f'{indent}}}')
+            sio.write(f"{indent}}}")
         else:
-            sio.write('};\n')
+            sio.write("};\n")
             text = sio.getvalue()
             if has_bitfields:
                 # pub const XXX = extern struct
-                text = text.replace(' extern ', ' packed ', 1)
+                text = text.replace(" extern ", " packed ", 1)
             self.texts.append(text)
 
         # test size of
         if s.spelling and s.sizeof > 1:
-            self.texts.append(f'''test "sizeof {s.spelling}" {{
+            self.texts.append(
+                f"""test "sizeof {s.spelling}" {{
     // Optional pointers are the same size as normal pointers, because pointer
     // value 0 is used as the null value.
     try expect(@sizeOf({s.spelling}) == {s.sizeof});
 }}
-''')
+"""
+            )
 
-    def write_method(self, s: StructCursor, f: FunctionCursor, sio: io.StringIO, overload: FunctionOverload):
-        args = [f'self: * {s.spelling}'] + [
-            f'{rename_symbol(param.name)}: {self.zig_type(param, True)}' for param in f.params]
+    def write_method(
+        self,
+        s: StructCursor,
+        f: FunctionCursor,
+        sio: io.StringIO,
+        overload: FunctionOverload,
+    ):
+        args = [f"self: * {s.spelling}"] + [
+            f"{rename_symbol(param.name)}: {self.zig_type(param, True)}"
+            for param in f.params
+        ]
         self.texts.append(
-            f'''extern fn {f.mangled_name}({", ".join(args)}) {self.zig_type(f.result, False)};''')
+            f"""extern fn {f.mangled_name}({", ".join(args)}) {self.zig_type(f.result, False)};"""
+        )
 
         with_default, arg_names = self.get_params(f)
-        arg_names = ['self'] + arg_names
+        arg_names = ["self"] + arg_names
         if with_default:
-            with_default = f'self: * {s.spelling}, ' + with_default
+            with_default = f"self: * {s.spelling}, " + with_default
         else:
-            with_default = f'self: * {s.spelling}'
+            with_default = f"self: * {s.spelling}"
 
         func_name = overload.get_overloaded_func_name(f.spelling)
-        sio.write(f'''    pub fn {func_name}({with_default}) {self.zig_type(f.result, True)}
+        sio.write(
+            f"""    pub fn {func_name}({with_default}) {self.zig_type(f.result, True)}
     {{
         return {f.mangled_name}({", ".join(arg_names)});
     }}
-'''
-                  )
+"""
+        )
 
-    def write_function(self, f: FunctionCursor, return_byvalue_workaround=False) -> Optional[Workaround]:
+    def write_function(
+        self, f: FunctionCursor, return_byvalue_workaround=False
+    ) -> Optional[Workaround]:
         args = [
-            f'{rename_symbol(param.name)}: {self.zig_type(param, True)}' for param in f.params]
+            f"{rename_symbol(param.name)}: {self.zig_type(param, True)}"
+            for param in f.params
+        ]
         if f.is_variadic:
-            args.append('...')
+            args.append("...")
         if f.spelling == f.mangled_name:
             self.texts.append(
-                f'pub extern "c" fn {f.mangled_name}({", ".join(args)}) {self.zig_type(f.result, False)};')
+                f'pub extern "c" fn {f.mangled_name}({", ".join(args)}) {self.zig_type(f.result, False)};'
+            )
             return
 
         if f.return_struct_byvalue and return_byvalue_workaround:
             # [zig]
             # call workaround wrapper
             result = self.type_manager.to_type(f.result)
-            args = [f'v: *{result.name}'] + args
+            args = [f"v: *{result.name}"] + args
             self.texts.append(
-                f'extern "c" fn imgui_{f.spelling}({", ".join(args)}) void;')
+                f'extern "c" fn imgui_{f.spelling}({", ".join(args)}) void;'
+            )
 
-            self.texts.append(f'''pub fn {f.spelling}() {result.name}
+            self.texts.append(
+                f"""pub fn {f.spelling}() {result.name}
 {{
     var v: {result.name} = undefined;
     imgui_{f.spelling}(&v);
     return v;
 }}
-''')
+"""
+            )
 
             # [cpp]
             # workaround wrapper
-            args = [f'{result.name} *__ret__'] + \
-                [to_cpp_arg(p) for p in f.params]
+            args = [f"{result.name} *__ret__"] + [to_cpp_arg(p) for p in f.params]
 
-            code = f'''
+            code = f"""
 void imgui_{f.cursor.spelling}({", ".join(args)})
 {{
     *__ret__ = ImGui::{f.cursor.spelling}({", ".join(p.name for p in f.params)});
 }}
-'''
+"""
             return Workaround(f, code)
 
         else:
             with_default, arg_names = self.get_params(f)
 
             # mangle version
+            # self.texts.append(
+            #     f'extern "c" fn {f.mangled_name}({", ".join(args)}) {self.zig_type(f.result, False)};')
             self.texts.append(
-                f'extern "c" fn {f.mangled_name}({", ".join(args)}) {self.zig_type(f.result, False)};')
+                f'extern "c" fn {f.spelling}({", ".join(args)}) {self.zig_type(f.result, False)};'
+            )
 
             # wrap
-            func_name = self.function_overload.get_overloaded_func_name(
-                f.spelling)
+            func_name = self.function_overload.get_overloaded_func_name(f.spelling)
             if f.is_variadic:
-                with_default += ', __va__: anytype'
-                self.texts.append(f'''pub fn {func_name}({with_default}) {self.zig_type(f.result, False)}
+                with_default += ", __va__: anytype"
+                self.texts.append(
+                    f"""pub fn {func_name}({with_default}) {self.zig_type(f.result, False)}
 {{
     return @call(.{{}}, {f.mangled_name}, .{{{", ".join(arg_names)}}} ++ __va__);
-}}''')
+}}"""
+                )
             else:
-                self.texts.append(f'''pub fn {func_name}({with_default}) {self.zig_type(f.result, False)}
+                self.texts.append(
+                    f"""pub fn {func_name}({with_default}) {self.zig_type(f.result, False)}
 {{
     return {f.mangled_name}({", ".join(arg_names)});
-}}''')
+}}"""
+                )
 
     def get_params(self, f: FunctionCursor) -> Tuple[str, List[str]]:
-        with_default = ''
+        with_default = ""
         has_default = False
         arg_names = []
         for i, param in enumerate(f.params):
             if with_default:
-                with_default += ', '
+                with_default += ", "
 
             zig_type = self.zig_type(param, True)
             if param.default_value:
                 if not has_default:
-                    with_default += DEFAULT_ARG_NAME + ': struct{'
+                    with_default += DEFAULT_ARG_NAME + ": struct{"
                     has_default = True
 
                 if self.is_const_reference(param):
                     # remove pointer
-                    assert zig_type[0] == '*'
+                    assert zig_type[0] == "*"
                     zig_type = remove_const_ref(zig_type)
-                    with_default += f'{rename_symbol(param.name)}: {zig_type}= {param.default_value.zig_value}'
+                    with_default += f"{rename_symbol(param.name)}: {zig_type}= {param.default_value.zig_value}"
                     # restore pointer
                     arg_names.append(
-                        '&' + DEFAULT_ARG_NAME + '.' + rename_symbol(param.name))
+                        "&" + DEFAULT_ARG_NAME + "." + rename_symbol(param.name)
+                    )
                 else:
-                    with_default += f'{rename_symbol(param.name)}: {zig_type}= {param.default_value.zig_value}'
-                    arg_names.append(
-                        DEFAULT_ARG_NAME + '.' + rename_symbol(param.name))
+                    with_default += f"{rename_symbol(param.name)}: {zig_type}= {param.default_value.zig_value}"
+                    arg_names.append(DEFAULT_ARG_NAME + "." + rename_symbol(param.name))
             else:
                 if self.is_const_reference(param):
                     # remove pointer
-                    assert zig_type[0] == '*'
+                    assert zig_type[0] == "*"
                     zig_type = remove_const_ref(zig_type)
-                    with_default += f'{rename_symbol(param.name)}: {zig_type}'
+                    with_default += f"{rename_symbol(param.name)}: {zig_type}"
                     # restore pointer
-                    arg_names.append('&'+rename_symbol(param.name))
+                    arg_names.append("&" + rename_symbol(param.name))
                 else:
-                    with_default += f'{rename_symbol(param.name)}: {zig_type}'
+                    with_default += f"{rename_symbol(param.name)}: {zig_type}"
                     arg_names.append(rename_symbol(param.name))
         if has_default:
-            with_default += '}'
+            with_default += "}"
         return with_default, arg_names
