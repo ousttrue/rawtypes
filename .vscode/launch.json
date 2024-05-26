@@ -19,6 +19,18 @@
             "justMyCode": false
         },
         {
+            "name": "rawtypes.tree",
+            "type": "debugpy",
+            "request": "launch",
+            "env": {
+                "PYTHONPATH": "src",
+            },
+            "module": "rawtypes.tree",
+            "args": [],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
             "name": "generate zig module",
             "type": "debugpy",
             "request": "launch",

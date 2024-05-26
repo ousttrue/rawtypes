@@ -5,7 +5,7 @@ import os
 import logging
 import platform
 import dataclasses
-from ..clang15 import cindex
+from rawtypes.clang15 import cindex
 
 
 LOGGER = logging.getLogger(__name__)
