@@ -17,6 +17,14 @@ HARDCODING_TYPE_MAP: dict[str, str] = {
     "location": "SourceLocation",
     # "spelling": "ctypes.c_char_p",
     "spelling": "str",
+    "hash": "int",
+}
+
+HARDCODING_METHOD_MAP: dict[str, str] = {
+    "get_children": "->list[Cursor]",
+    "get_tokens": "->Iterator[Token]",
+    "__eq__": "->bool",
+    "__ne__": "->bool",
 }
 
 
@@ -117,12 +125,8 @@ def generate_instance(
         if isinstance(v, types.FunctionType):
             args = inspect.signature(v)
             ret = ""
-            if k == "get_children":
-                ret = "->Iterator[Cursor]"
-            elif k == "get_tokens":
-                ret = "->Iterator[Token]"
-            elif k in ("__eq__", "__ne__"):
-                ret = "->bool"
+            if k in HARDCODING_METHOD_MAP:
+                ret = HARDCODING_METHOD_MAP[k]
             elif k.startswith("is_"):
                 ret = "->bool"
             w.write(f"    def {k}{args}{ret}:")

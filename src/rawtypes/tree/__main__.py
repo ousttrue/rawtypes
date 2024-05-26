@@ -1,11 +1,82 @@
+from typing import NamedTuple, cast
 import pathlib
 import sys
 import logging
-from PySide6 import QtWidgets
+from PySide6 import QtWidgets, QtCore
 from .. import cindex_util
-
+from rawtypes.clang15 import cindex
 
 LOGGER = logging.getLogger(__name__)
+
+
+class CursorNode(NamedTuple):
+    cursor: cindex.Cursor
+    children: list["CursorNode"]
+    parent: "CursorNode|None"
+
+
+class CIndexCursorModel(QtCore.QAbstractTableModel):
+    def __init__(self, tu: cindex.TranslationUnit):
+        super().__init__()
+        self.headers = ["displayname"]
+        self.tu = tu
+        self.root = self._traverse(tu.cursor)
+
+    def _traverse(
+        self, cursor: cindex.Cursor, parent: CursorNode | None = None
+    ) -> CursorNode:
+        node = CursorNode(cursor, [], parent)
+        for child in cursor.get_children():
+            child_node = self._traverse(child, node)
+            node.children.append(child_node)
+        return node
+
+    def columnCount(self, parent: QtCore.QModelIndex | QtCore.QPersistentModelIndex) -> int:  # type: ignore
+        return len(self.headers)
+
+    def headerData(self, section: int, orientation: QtCore.Qt.Orientation, role: QtCore.Qt.ItemDataRole) -> str | None:  # type: ignore
+        match orientation, role:
+            case QtCore.Qt.Horizontal, QtCore.Qt.DisplayRole:  # type: ignore
+                return self.headers[section]
+            case _:
+                pass
+
+    def data(self, index: QtCore.QModelIndex | QtCore.QPersistentModelIndex, role: QtCore.Qt.ItemDataRole) -> str | None:  # type: ignore
+        if index.isValid():
+            if role == QtCore.Qt.DisplayRole:  # type: ignore
+                node = cast(CursorNode, index.internalPointer())  # type: ignore
+                return node.cursor.displayname
+
+    def rowCount(self, parent: QtCore.QModelIndex | QtCore.QPersistentModelIndex) -> int:  # type: ignore
+        if parent.isValid():
+            parent_node = cast(CursorNode, parent.internalPointer())
+        else:
+            parent_node = self.root
+        return len(parent_node.children)
+
+    def index(  # type: ignore
+        self,
+        row: int,
+        column: int,
+        parent: QtCore.QModelIndex | QtCore.QPersistentModelIndex,
+    ) -> QtCore.QModelIndex:
+        if parent.isValid():
+            parent_node = cast(CursorNode, parent.internalPointer())
+        else:
+            parent_node = self.root
+        child_node = parent_node.children[row]
+        return self.createIndex(row, column, child_node)
+
+    def parent(  # type: ignore
+        self,
+        child: QtCore.QModelIndex | QtCore.QPersistentModelIndex,
+    ) -> QtCore.QModelIndex:
+        if child.isValid():
+            child_node = cast(CursorNode, child.internalPointer())
+            if child_node.parent:
+                return self.createIndex(0, 0, child_node.parent)
+
+        return QtCore.QModelIndex()
 
 
 class Window(QtWidgets.QMainWindow):
@@ -15,6 +86,15 @@ class Window(QtWidgets.QMainWindow):
         # menu
         self.menubar = self.menuBar()
         self.menubar.setNativeMenuBar(False)
+
+        self.tree = QtWidgets.QTreeView()
+        self.setCentralWidget(self.tree)
+
+    def open_header(self, header: pathlib.Path) -> None:
+        LOGGER.debug(header)
+        tu = cindex_util.get_tu(header)
+        model = CIndexCursorModel(tu)
+        self.tree.setModel(model)
 
 
 def main(header: pathlib.Path = cindex_util.CINDEX_HEADER):
@@ -27,7 +107,7 @@ def main(header: pathlib.Path = cindex_util.CINDEX_HEADER):
     window = Window()
     window.resize(1024, 768)
     window.show()
-    # window.open_file(path)
+    window.open_header(header)
     sys.exit(app.exec())
 
 

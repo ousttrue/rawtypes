@@ -42,7 +42,7 @@ class Unsaved(NamedTuple):
 
 
 def get_tu(
-    entrypoint: str,
+    entrypoint: str | pathlib.Path,
     *,
     include_dirs: list[str] | None = None,
     definitions: list[str] | None = None,
@@ -55,6 +55,9 @@ def get_tu(
         "c++",
         "-std=c++17",
     ]
+    if isinstance(entrypoint, pathlib.Path):
+        entrypoint = str(entrypoint)
+
     if target:
         pass
     elif platform.system() == "Windows":
