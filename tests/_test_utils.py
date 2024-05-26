@@ -7,7 +7,7 @@ generator = ZigGenerator()
 
 
 def parse_source(src: str) -> cindex.TranslationUnit:
-    from rawtypes.clang_util.generate_cindex_stub import get_tu
+    from rawtypes.cindex_util.generate_cindex_stub import get_tu
     unsaved = get_tu.Unsaved('tmp.h', src)
     return get_tu.get_tu('tmp.h', unsaved=[unsaved])
 

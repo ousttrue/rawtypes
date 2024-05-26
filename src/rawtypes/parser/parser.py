@@ -3,7 +3,7 @@ import io
 import pathlib
 import logging
 from rawtypes.clang15 import cindex
-from rawtypes.clang_util.generate_cindex_stub import get_cindex_module, Unsaved
+from rawtypes.cindex_util.generate_cindex_stub import get_cindex_module, Unsaved
 from .typedef_cursor import TypedefCursor
 from .struct_cursor import StructCursor
 from .enum_cursor import EnumCursor

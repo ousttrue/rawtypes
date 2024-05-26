@@ -3,7 +3,7 @@ import logging
 import pathlib
 from . import zig_generator
 from ..parser import Header
-from ..clang_util.generate_cindex_stub import get_cindex_module
+from ..cindex_util.generate_cindex_stub import get_cindex_module
 
 
 def main():

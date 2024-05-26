@@ -9,6 +9,7 @@ import platform
 import os
 import io
 import inspect
+from rawtypes.clang15 import cindex
 
 
 LOGGER = logging.getLogger(__name__)
@@ -50,15 +51,6 @@ def get_cindex_module(
         raise RuntimeError()
     minor_version = m.group(1)
     llvm_version = CINDEX_VERSION_MINOR_TO_LLVM_VERSION_MAP.get(minor_version)
-    match llvm_version:
-        case "15":
-            from rawtypes.clang15 import cindex
-        # case "16":
-        #     from ..clang16 import cindex
-        # case "17":
-        #     from ..clang17 import cindex
-        case _:
-            raise NotImplementedError(minor_version)
 
     def get_tu(
         entrypoint: str,

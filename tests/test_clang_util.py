@@ -1,5 +1,5 @@
 import unittest
-import rawtypes.clang_util.get_tu
+import rawtypes.cindex_util.get_tu
 
 SRC = '''
 void add(int a, inb b);

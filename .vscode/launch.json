@@ -5,24 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "setup.py sdist",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/setup.py",
-            "args": [
-                "sdist",
-            ],
-            "console": "integratedTerminal",
-            "justMyCode": false
-        },
-        {
-            "name": "generate rawtypes.clang.cindex typings",
+            "name": "gen => rawtypes.clang.cindex.pyi",
             "type": "debugpy",
             "request": "launch",
             "env": {
                 "PYTHONPATH": "src",
             },
-            "module": "rawtypes.clang_util.generate_cindex_stub",
+            "module": "rawtypes.cindex_util.generate_cindex_stub",
             "args": [
                 "typings"
             ],
@@ -41,6 +30,20 @@
                 "--dst",
                 "zig/main.zig",
             ]
+        },
+        {
+            "name": "----"
+        },
+        {
+            "name": "setup.py sdist",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/setup.py",
+            "args": [
+                "sdist",
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false
         },
     ]
 }
