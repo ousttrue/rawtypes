@@ -18,7 +18,7 @@ class CursorNode(NamedTuple):
 class CIndexCursorModel(QtCore.QAbstractTableModel):
     def __init__(self, tu: cindex.TranslationUnit):
         super().__init__()
-        self.headers = ["displayname"]
+        self.headers = ["displayname", "kind"]
         self.tu = tu
         self.root = self._traverse(tu.cursor)
 
@@ -43,9 +43,15 @@ class CIndexCursorModel(QtCore.QAbstractTableModel):
 
     def data(self, index: QtCore.QModelIndex | QtCore.QPersistentModelIndex, role: QtCore.Qt.ItemDataRole) -> str | None:  # type: ignore
         if index.isValid():
+            node = cast(CursorNode, index.internalPointer())  # type: ignore
             if role == QtCore.Qt.DisplayRole:  # type: ignore
-                node = cast(CursorNode, index.internalPointer())  # type: ignore
-                return node.cursor.displayname
+                match index.column():
+                    case 0:
+                        return node.cursor.displayname
+                    case 1:
+                        return str(node.cursor.kind)
+                    case _:
+                        raise RuntimeError()
 
     def rowCount(self, parent: QtCore.QModelIndex | QtCore.QPersistentModelIndex) -> int:  # type: ignore
         if parent.isValid():
