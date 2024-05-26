@@ -1,9 +1,9 @@
-from typing import List, Union, Iterable, TypeAlias
+from typing import Iterable, TypeAlias
 import io
 import pathlib
 import logging
 from rawtypes.clang15 import cindex
-from rawtypes.cindex_util.generate_cindex_stub import get_cindex_module, Unsaved
+from .. import cindex_util
 from .typedef_cursor import TypedefCursor
 from .struct_cursor import StructCursor
 from .enum_cursor import EnumCursor
@@ -11,29 +11,29 @@ from .function_cursor import FunctionCursor
 
 LOGGER = logging.getLogger(__name__)
 
-DeclCursor: TypeAlias = Union[FunctionCursor, EnumCursor, TypedefCursor, StructCursor]
+DeclCursor: TypeAlias = FunctionCursor | EnumCursor | TypedefCursor | StructCursor
 
 
 class Parser:
     def __init__(
         self,
         tu: cindex.TranslationUnit,
-        headers: List[pathlib.Path],
+        headers: list[pathlib.Path],
         use_mangling: bool,
     ) -> None:
         self.tu = tu
         self.headers = headers
-        self.decls: List[DeclCursor] = []
-        self.used = []
-        self.skip = []
+        self.decls: list[DeclCursor] = []
+        self.used: list[str] = []
+        self.skip: list[str] = []
         self.use_mangling = use_mangling
 
     @staticmethod
     def parse(
         headers: Iterable[pathlib.Path],
         *,
-        include_dirs: Iterable[pathlib.Path] = (),
-        definitions: Iterable[str] = (),
+        include_dirs: Iterable[pathlib.Path] | None = None,
+        definitions: Iterable[str] | None = None,
         target: str = "",
         use_mangling: bool = True,
     ) -> "Parser":
@@ -45,14 +45,16 @@ class Parser:
         for header in headers:
             sio.write(f'#include "{header.name}"\n')
 
-        _include_dirs = [str(header.parent) for header in headers] + [
-            str(dir) for dir in include_dirs
-        ]
-        unsaved = Unsaved("tmp.h", sio.getvalue())
-        tu = get_cindex_module().get_tu(
+        _include_dirs = [str(header.parent) for header in headers]
+        if include_dirs:
+            for include_dir in include_dirs:
+                _include_dirs.append(str(include_dir))
+
+        unsaved = cindex_util.Unsaved("tmp.h", sio.getvalue())
+        tu = cindex_util.get_tu(
             "tmp.h",
             include_dirs=_include_dirs,
-            definitions=definitions,
+            definitions=[d for d in definitions] if definitions else [],
             unsaved=[unsaved],
             flags=[],
             target=target,
@@ -63,17 +65,17 @@ class Parser:
         return parser
 
     @staticmethod
-    def parse_source(src: str) -> "Parser":
-        tu = get_cindex_module().get_tu("tmp.h", unsaved=[Unsaved("tmp.h", src)])
-        parser = Parser(tu, [pathlib.Path("tmp.h")])
+    def parse_source(src: str, use_mangling: bool) -> "Parser":
+        tu = cindex_util.get_tu("tmp.h", unsaved=[cindex_util.Unsaved("tmp.h", src)])
+        parser = Parser(tu, [pathlib.Path("tmp.h")], use_mangling)
         parser._traverse()
         return parser
 
     def _callback(self, *cursor_path: cindex.Cursor) -> bool:
         cursor = cursor_path[-1]
-        if 'createIndex' in cursor.displayname:
+        if "createIndex" in cursor.displayname:
             pass
-        elif cursor.spelling == 'clang_disposeIndex':
+        elif cursor.spelling == "clang_disposeIndex":
             pass
 
         location: cindex.SourceLocation = cursor.location
@@ -147,7 +149,7 @@ class Parser:
         return False
 
     def _traverse(self):
-        get_cindex_module().traverse(self.tu, self._callback)
+        cindex_util.traverse(self.tu, self._callback)
 
     def get_function(self, name: str) -> FunctionCursor:
         for d in self.decls:

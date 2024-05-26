@@ -3,7 +3,6 @@ import logging
 import pathlib
 from . import zig_generator
 from ..parser import Header
-from ..cindex_util.generate_cindex_stub import get_cindex_module
 
 
 def main():
@@ -33,7 +32,7 @@ def main():
             ],
         ),
         use_mangling=False,
-    )   
+    )
     generator.generate(args.dst)
 
 
