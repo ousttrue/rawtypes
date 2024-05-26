@@ -5,13 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "gen => rawtypes.clang.cindex.pyi",
+            "name": "rawtypes.gen_cindex_stub",
             "type": "debugpy",
             "request": "launch",
             "env": {
                 "PYTHONPATH": "src",
             },
-            "module": "rawtypes.cindex_util.generate_cindex_stub",
+            "module": "rawtypes.gen_cindex_stub",
             "args": [
                 "typings"
             ],
