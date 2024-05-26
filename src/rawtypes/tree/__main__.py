@@ -2,7 +2,7 @@ from typing import NamedTuple, cast
 import pathlib
 import sys
 import logging
-from PySide6 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore, QtGui
 from .. import cindex_util
 from rawtypes.clang15 import cindex
 
@@ -92,15 +92,36 @@ class Window(QtWidgets.QMainWindow):
         # menu
         self.menubar = self.menuBar()
         self.menubar.setNativeMenuBar(False)
+        self.menu_docks = self.menubar.addMenu("Docks")
+        # status bar
+        self.sb = self.statusBar()
+        self.sb.showMessage("ステータスバー")
 
+        # central
         self.tree = QtWidgets.QTreeView()
         self.setCentralWidget(self.tree)
+        self.proxy_model = QtCore.QSortFilterProxyModel()
+        self.tree.setModel(self.proxy_model)
+
+        # filter
+        self.filter = QtWidgets.QLineEdit(self)
+        self.filter.textChanged.connect(self.on_filterChanged)
+        self.filter_dock = QtWidgets.QDockWidget("filter", self)
+        self.filter_dock.setWidget(self.filter)
+        self.addDockWidget(QtCore.Qt.DockWidgetArea.TopDockWidgetArea, self.filter_dock)
+        self.menu_docks.addAction(self.filter_dock.toggleViewAction())  # type: ignore
+
+    def on_filterChanged(self):
+        self.proxy_model.setFilterKeyColumn(1)
+        self.proxy_model.setFilterFixedString(self.filter.text())
 
     def open_header(self, header: pathlib.Path) -> None:
         LOGGER.debug(header)
         tu = cindex_util.get_tu(header)
+
         model = CIndexCursorModel(tu)
-        self.tree.setModel(model)
+        self.proxy_model.setSourceModel(model)
+        self.proxy_model.setDynamicSortFilter(True)
 
 
 def main(header: pathlib.Path = cindex_util.CINDEX_HEADER):
