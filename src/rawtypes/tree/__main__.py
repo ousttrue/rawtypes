@@ -4,7 +4,7 @@ import sys
 import logging
 from PySide6 import QtWidgets, QtCore, QtGui
 from .. import cindex_util
-from rawtypes.clang import cindex
+from ..clang import cindex
 
 LOGGER = logging.getLogger(__name__)
 

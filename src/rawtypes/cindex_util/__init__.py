@@ -5,7 +5,7 @@ import os
 import logging
 import platform
 import dataclasses
-from rawtypes.clang import cindex
+from ..clang import cindex
 
 
 LOGGER = logging.getLogger(__name__)
@@ -152,3 +152,53 @@ class Parser:
 
     def traverse(self):
         traverse(self.tu, self.filter)
+
+
+LLVM_URL_MAP: dict[str, str] = {
+    "18": "https://github.com/llvm/llvm-project/raw/llvmorg-18.1.6/clang/bindings/python/clang/",
+    "17": "https://github.com/llvm/llvm-project/raw/llvmorg-17.0.6/clang/bindings/python/clang/",
+    "16": "https://github.com/llvm/llvm-project/raw/llvmorg-16.0.6/clang/bindings/python/clang/",
+    "15": "https://github.com/llvm/llvm-project/raw/llvmorg-15.0.7/clang/bindings/python/clang/",
+}
+
+
+def patch_enum(src: str) -> str:
+    return src.replace(
+        "import clang.enumerations", "from . import enumerations"
+    ).replace("clang.enumerations", "enumerations")
+
+
+def http_get(
+    url_base: str,
+    dst_dir: pathlib.Path,
+    name: str,
+    patch: Callable[[str], str] | None = None,
+):
+    dst = dst_dir / name
+    if dst.exists():
+        return
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    url = url_base + name
+    print(url)
+    import urllib.request
+
+    req = urllib.request.Request(url)
+    with urllib.request.urlopen(req) as res:
+        data = res.read().decode("utf-8")
+        if patch:
+            data = patch(data)
+        dst.write_text(data)
+
+
+def download_clang_cindex(dst_dir: pathlib.Path) -> None:
+    """
+    downlod clang package.
+    save as `rawtypes.clang`
+    """
+    import rawtypes.cindex_util
+
+    base_url = LLVM_URL_MAP[rawtypes.cindex_util.LLVM_VERSION]
+
+    http_get(base_url, dst_dir, "__init__.py")
+    http_get(base_url, dst_dir, "cindex.py", patch_enum)
+    http_get(base_url, dst_dir, "enumerations.py")

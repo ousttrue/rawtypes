@@ -2,7 +2,7 @@ from typing import NamedTuple, Tuple, Dict, Union, List, Optional, Iterable
 import io
 import pathlib
 #
-from rawtypes.clang import cindex
+from ..clang import cindex
 from rawtypes.parser import function_cursor
 from rawtypes.parser.function_cursor import FunctionCursor
 #

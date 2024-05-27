@@ -1,67 +1,22 @@
-from typing import Callable
 import setuptools
 import pathlib
 import sys
 
 
 HERE = pathlib.Path(__file__).absolute().parent
-sys.path.append(str(HERE / "src"))
-
-
-LLVM_URL_MAP: dict[str, str] = {
-    "18": "https://github.com/llvm/llvm-project/raw/llvmorg-18.1.6/clang/bindings/python/clang/",
-    "17": "https://github.com/llvm/llvm-project/raw/llvmorg-17.0.6/clang/bindings/python/clang/",
-    "16": "https://github.com/llvm/llvm-project/raw/llvmorg-16.0.6/clang/bindings/python/clang/",
-    "15": "https://github.com/llvm/llvm-project/raw/llvmorg-15.0.7/clang/bindings/python/clang/",
-}
-
-
-def patch_enum(src: str) -> str:
-    return src.replace(
-        "import clang.enumerations", "from . import enumerations"
-    ).replace("clang.enumerations", "enumerations")
-
-
-def http_get(
-    url_base: str,
-    dst_dir: pathlib.Path,
-    name: str,
-    patch: Callable[[str], str] | None = None,
-):
-    dst = dst_dir / name
-    if dst.exists():
-        return
-    dst.parent.mkdir(parents=True, exist_ok=True)
-    url = url_base + name
-    print(url)
-    import urllib.request
-
-    req = urllib.request.Request(url)
-    with urllib.request.urlopen(req) as res:
-        data = res.read().decode("utf-8")
-        if patch:
-            data = patch(data)
-        dst.write_text(data)
-
-
-def download_clang_cindex() -> None:
-    """
-    downlod clang package.
-    save as `rawtypes.clang`
-    """
-    import rawtypes.cindex_util
-
-    base_url = LLVM_URL_MAP[rawtypes.cindex_util.LLVM_VERSION]
-    dst_dir = HERE / "src/rawtypes/clang"
-
-    http_get(base_url, dst_dir, "__init__.py")
-    http_get(base_url, dst_dir, "cindex.py", patch_enum)
-    http_get(base_url, dst_dir, "enumerations.py")
 
 
 def main() -> None:
+    sys.path.append(str(HERE / "src"))
+    import rawtypes.cindex_util
+    import rawtypes.gen_cindex_stub
 
-    download_clang_cindex()
+    # download cindex.py
+    dst_dir = HERE / "src/rawtypes/clang"
+    rawtypes.cindex_util.download_clang_cindex(dst_dir)
+
+    # generate cindex.pyi
+    rawtypes.gen_cindex_stub.generate(rawtypes.cindex_util.CINDEX_HEADER, HERE / "src")
 
     setuptools.setup(
         name="rawtypes",

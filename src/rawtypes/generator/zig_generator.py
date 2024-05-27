@@ -2,7 +2,7 @@ from typing import List, Optional, Callable, TypeAlias, NamedTuple, Tuple
 import io
 import pathlib
 from .generator_base import GeneratorBase
-from rawtypes.clang import cindex
+from ..clang import cindex
 from ..parser.type_context import TypeContext, ParamContext
 from ..parser.struct_cursor import StructCursor
 from ..parser.typedef_cursor import TypedefCursor

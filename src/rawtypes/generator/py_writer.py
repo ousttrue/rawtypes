@@ -1,7 +1,7 @@
 from typing import Iterable, List
 import io
 from jinja2 import Environment
-from rawtypes.clang import cindex
+from ..clang import cindex
 from rawtypes.interpreted_types import TypeManager
 from rawtypes.parser.struct_cursor import StructCursor, WrapFlags
 from rawtypes.parser.type_context import FieldContext, ParamContext, ResultContext, TypeContext

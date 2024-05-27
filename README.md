@@ -27,7 +27,7 @@ This library is use 'clang.cindex` from <https://raw.githubusercontent.com/llvm/
 And placement in rawtypes.clang.
 
 ```py
-from rawtypes.clang import cindex
+from ..clang import cindex
 ```
 
 ## generated

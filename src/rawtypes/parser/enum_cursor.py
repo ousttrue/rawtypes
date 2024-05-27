@@ -1,6 +1,6 @@
 from typing import NamedTuple, Tuple, Iterable
 import io
-from rawtypes.clang import cindex
+from ..clang import cindex
 import pathlib
 
 

@@ -1,5 +1,5 @@
 from typing import Callable, Tuple
-from rawtypes.clang import cindex
+from ..clang import cindex
 from rawtypes.generator.zig_generator import ZigGenerator
 from rawtypes import interpreted_types
 

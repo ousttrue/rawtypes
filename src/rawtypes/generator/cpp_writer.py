@@ -1,7 +1,7 @@
 from typing import List, NamedTuple, Optional, Dict
 import io
 from jinja2 import Environment
-from rawtypes.clang import cindex
+from ..clang import cindex
 from rawtypes.interpreted_types import TypeManager
 from rawtypes.interpreted_types.basetype import BaseType
 from rawtypes.parser.function_cursor import FunctionCursor

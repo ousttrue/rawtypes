@@ -1,4 +1,4 @@
-from rawtypes.clang import cindex
+from ..clang import cindex
 from ..parser.struct_cursor import StructCursor, WrapFlags
 from .basetype import BaseType
 from .pointer_types import PointerType
