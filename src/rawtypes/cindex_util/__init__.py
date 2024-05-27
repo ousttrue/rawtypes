@@ -44,7 +44,7 @@ class Unsaved(NamedTuple):
 def get_tu(
     entrypoint: str | pathlib.Path,
     *,
-    include_dirs: list[str] | None = None,
+    include_dirs: list[pathlib.Path] | None = None,
     definitions: list[str] | None = None,
     flags: list[str] | None = None,
     unsaved: list[Unsaved] | None = None,
@@ -77,7 +77,7 @@ def get_tu(
             "-I/usr/lib/clang/13.0.1/include",
         ]
     if include_dirs:
-        arguments.extend(f"-I{i}" for i in include_dirs)
+        arguments.extend(f"-I{str(i)}" for i in include_dirs)
     if definitions:
         arguments.extend(f"-D{d}" for d in definitions)
     if flags:
