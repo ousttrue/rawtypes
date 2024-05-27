@@ -1,7 +1,7 @@
 from typing import List, Optional, NamedTuple, Callable
 import io
 import re
-from ..clang15 import cindex
+from rawtypes.clang import cindex
 from ..parser.type_context import TypeContext
 from ..parser.struct_cursor import WrapFlags
 from ..parser.function_cursor import FunctionCursor

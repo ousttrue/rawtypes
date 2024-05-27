@@ -1,4 +1,4 @@
-from rawtypes.clang15 import cindex
+from rawtypes.clang import cindex
 from rawtypes.parser.function_cursor import FunctionCursor
 from rawtypes.parser.type_context import TypeContext
 from .basetype import BaseType

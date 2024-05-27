@@ -2,8 +2,6 @@ from typing import Callable
 import setuptools
 import pathlib
 import sys
-import os
-import platform
 
 
 HERE = pathlib.Path(__file__).absolute().parent
@@ -46,20 +44,24 @@ def http_get(
         dst.write_text(data)
 
 
-def download_clang_cindex(base_url: str, dst_dir: pathlib.Path) -> None:
+def download_clang_cindex() -> None:
     """
     downlod clang package.
     save as `rawtypes.clang`
     """
+    import rawtypes.cindex_util
+
+    base_url = LLVM_URL_MAP[rawtypes.cindex_util.LLVM_VERSION]
+    dst_dir = HERE / "src/rawtypes/clang"
+
     http_get(base_url, dst_dir, "__init__.py")
     http_get(base_url, dst_dir, "cindex.py", patch_enum)
     http_get(base_url, dst_dir, "enumerations.py")
 
 
 def main() -> None:
-    for k, v in LLVM_URL_MAP.items():
-        dst = HERE / f"src/rawtypes/clang{k}"
-        download_clang_cindex(v, dst)
+
+    download_clang_cindex()
 
     setuptools.setup(
         name="rawtypes",

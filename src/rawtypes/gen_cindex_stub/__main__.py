@@ -7,7 +7,7 @@ import io
 import argparse
 import pathlib
 from .. import cindex_util
-from ..clang15 import cindex
+from rawtypes.clang import cindex
 
 LOGGER = logging.getLogger(__name__)
 
@@ -149,7 +149,7 @@ def generate(src: pathlib.Path, dst_dir: pathlib.Path) -> None:
     parser = cindex_util.Parser.create(str(src))
     parser.traverse()
 
-    dst = dst_dir / f"rawtypes/clang{cindex_util.LLVM_VERSION}/cindex.pyi"
+    dst = dst_dir / f"rawtypes/clang/cindex.pyi"
     dst.parent.mkdir(parents=True, exist_ok=True)
     LOGGER.info(f"{src} => {dst}")
     with dst.open("w") as w:
@@ -211,7 +211,7 @@ def main():
 
     parser.add_argument(
         "dst",
-        help="root directory for pyi. DST_DIR/rawtypes/clang15/cindex.pyi will be generated.",
+        help="root directory for pyi. DST_DIR/rawtypes/clang/cindex.pyi will be generated.",
         type=pathlib.Path,
     )
     args = parser.parse_args()

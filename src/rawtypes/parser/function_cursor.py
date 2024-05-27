@@ -1,7 +1,7 @@
 from typing import NamedTuple
 import pathlib
 import logging
-from rawtypes.clang15 import cindex
+from rawtypes.clang import cindex
 from .type_context import ParamContext, ResultContext, DefaultValue
 
 LOGGER = logging.getLogger(__name__)

@@ -2,7 +2,7 @@ from typing import Iterable, TypeAlias
 import io
 import pathlib
 import logging
-from rawtypes.clang15 import cindex
+from rawtypes.clang import cindex
 from .. import cindex_util
 from .typedef_cursor import TypedefCursor
 from .struct_cursor import StructCursor

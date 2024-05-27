@@ -5,7 +5,7 @@ import os
 import logging
 import platform
 import dataclasses
-from rawtypes.clang15 import cindex
+from rawtypes.clang import cindex
 
 
 LOGGER = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ CINDEX_VERSION_MINOR_TO_LLVM_VERSION_MAP: dict[str, str] = {
     # https://github.com/llvm/llvm-project/blob/llvmorg-15.0.7/clang/include/clang-c/Index.h
     "62": "15",
 }
-LLVM_VERSION = CINDEX_VERSION_MINOR_TO_LLVM_VERSION_MAP.get(minor_version)
+LLVM_VERSION = CINDEX_VERSION_MINOR_TO_LLVM_VERSION_MAP[minor_version]
 
 
 class Unsaved(NamedTuple):
