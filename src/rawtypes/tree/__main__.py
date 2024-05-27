@@ -2,9 +2,10 @@ from typing import NamedTuple, cast
 import pathlib
 import sys
 import logging
-from PySide6 import QtWidgets, QtCore, QtGui
+from PySide6 import QtWidgets, QtCore
 from .. import cindex_util
 from ..clang import cindex
+from .flowlayout import FlowLayout
 
 LOGGER = logging.getLogger(__name__)
 
@@ -20,11 +21,13 @@ class CIndexCursorModel(QtCore.QAbstractTableModel):
         super().__init__()
         self.headers = ["displayname", "kind"]
         self.tu = tu
+        self.kind_map: dict[cindex.CursorKind, int] = {}
         self.root = self._traverse(tu.cursor)
 
     def _traverse(
         self, cursor: cindex.Cursor, parent: CursorNode | None = None
     ) -> CursorNode:
+        self.kind_map[cursor.kind] = self.kind_map.get(cursor.kind, 0) + 1
         node = CursorNode(cursor, [], parent)
         for child in cursor.get_children():
             child_node = self._traverse(child, node)
@@ -85,6 +88,19 @@ class CIndexCursorModel(QtCore.QAbstractTableModel):
         return QtCore.QModelIndex()
 
 
+class Filter(QtWidgets.QWidget):
+    def __init__(self, parent: QtWidgets.QWidget | None = None):
+        super().__init__(parent)
+
+    def set_kinds(self, kinds: dict[cindex.CursorKind, int]) -> None:
+        self.kinds = FlowLayout()
+        for k, v in kinds.items():
+            checkbox = QtWidgets.QCheckBox(self)
+            checkbox.setText(f"{k}({v})")
+            self.kinds.addWidget(checkbox)
+        self.setLayout(self.kinds)
+
+
 class Window(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__(None)
@@ -104,22 +120,26 @@ class Window(QtWidgets.QMainWindow):
         self.tree.setModel(self.proxy_model)
 
         # filter
-        self.filter = QtWidgets.QLineEdit(self)
-        self.filter.textChanged.connect(self.on_filterChanged)
+        self.filter = Filter()
+        # self.filter.textChanged.connect(self.on_filterChanged)
         self.filter_dock = QtWidgets.QDockWidget("filter", self)
         self.filter_dock.setWidget(self.filter)
         self.addDockWidget(QtCore.Qt.DockWidgetArea.TopDockWidgetArea, self.filter_dock)
         self.menu_docks.addAction(self.filter_dock.toggleViewAction())  # type: ignore
 
     def on_filterChanged(self):
-        self.proxy_model.setFilterKeyColumn(1)
-        self.proxy_model.setFilterFixedString(self.filter.text())
+        pass
+        # self.proxy_model.setFilterKeyColumn(1)
+        # self.proxy_model.setFilterFixedString(self.filter.text())
 
     def open_header(self, header: pathlib.Path) -> None:
         LOGGER.debug(header)
         tu = cindex_util.get_tu(header)
 
         model = CIndexCursorModel(tu)
+
+        self.filter.set_kinds(model.kind_map)
+
         self.proxy_model.setSourceModel(model)
         self.proxy_model.setDynamicSortFilter(True)
 
