@@ -29,7 +29,7 @@ class CIndexCursorModel(QtCore.QAbstractItemModel):
         self, header: pathlib.Path, include_dirs: list[pathlib.Path] | None = None
     ):
         super().__init__()
-        self.headers = ["spelling", "CursorKind"]
+        self.headers = ["spelling", "CursorKind", "TypeKind", "line", "col"]
 
         self.tu = cindex_util.get_tu(header, include_dirs=include_dirs)
         self.header = header
@@ -82,6 +82,15 @@ class CIndexCursorModel(QtCore.QAbstractItemModel):
                         return node.cursor.spelling
                     case 1:
                         return node.cursor.kind.name
+                    case 2:
+                        if node.cursor.type:
+                            return str(node.cursor.type.kind)
+                    case 3:
+                        if node.cursor.location and node.cursor.location.file:
+                            return str(node.cursor.location.line)
+                    case 4:
+                        if node.cursor.location and node.cursor.location.file:
+                            return str(node.cursor.location.column)
                     case _:
                         raise RuntimeError()
 

@@ -127,11 +127,12 @@ class Parser:
                     self.decls.append(StructCursor(cursor_path, cursor.type, False))
                 case cindex.CursorKind.CLASS_DECL:
                     self.decls.append(StructCursor(cursor_path, cursor.type, False))
-                case cindex.CursorKind.UNEXPOSED_DECL:
+                case cindex.CursorKind.UNEXPOSED_DECL | cindex.CursorKind.LINKAGE_SPEC:
                     # extern C etc...
                     return True
                 case cindex.CursorKind.VAR_DECL:
                     pass
+
                 case _:
                     LOGGER.debug(cursor.kind)
 

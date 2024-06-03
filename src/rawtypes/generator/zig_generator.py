@@ -344,8 +344,8 @@ class ZigGenerator(GeneratorBase):
                                     )
                             case PrimitiveType():
                                 pass
-                            case TypedefType():
-                                pass
+                            case TypedefType() as td:
+                                self.texts.append(f'const {t.spelling} = {td.name};')
                             case _:
                                 if underlying.name.startswith("(anonymous "):
                                     self.type_manager.get(

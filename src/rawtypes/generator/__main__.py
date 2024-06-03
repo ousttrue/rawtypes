@@ -25,9 +25,9 @@ def main():
         Header(
             args.src,
             definitions=[
-                "_WIN32=1",
-                "CINDEX_EXPORTS=1",
-                "_CINDEX_LIB_=1",
+                # "_WIN32=1",
+                # "CINDEX_EXPORTS=1",
+                # "_CINDEX_LIB_=1",
                 # 'CINDEX_LINKAGE='
             ],
         ),

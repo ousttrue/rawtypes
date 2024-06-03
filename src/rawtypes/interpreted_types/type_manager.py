@@ -41,7 +41,7 @@ class TypeWithCursor(NamedTuple):
 
         ref = self.ref_from_children()
         if ref:
-            assert ref.referenced.kind == cindex.CursorKind.TYPEDEF_DECL
+            assert ref.referenced.kind == cindex.CursorKind.TYPEDEF_DECL or ref.referenced.kind == cindex.CursorKind.STRUCT_DECL
             typedef_cursor = ref.referenced
         else:
             typedef_cursor = self.cursor
@@ -51,10 +51,15 @@ class TypeWithCursor(NamedTuple):
                 child_ref = child.referenced
                 match child_ref.kind:
                     case cindex.CursorKind.STRUCT_DECL:
+                        assert child_ref.type.kind != cindex.TypeKind.INVALID
                         return TypeWithCursor(child_ref.type, child_ref)
                     case _:
                         pass
 
+        if typedef_cursor.kind == cindex.CursorKind.STRUCT_DECL: 
+            return TypeWithCursor(typedef_cursor.type, typedef_cursor)
+
+        assert typedef_cursor.underlying_typedef_type.kind != cindex.TypeKind.INVALID
         return TypeWithCursor(typedef_cursor.underlying_typedef_type, typedef_cursor)
 
 
@@ -215,7 +220,7 @@ class TypeManager:
                 if c.type.spelling[-1] == '>':
                     return StructType(c.type.spelling, c.cursor, is_const=is_const, wrap_type=self.get_wrap_type(c.type.spelling))
 
-        raise RuntimeError(f"unknown type: {c.cursor.location} {c.type.kind}")
+        raise RuntimeError(f"{c.cursor.location} => {c.cursor.kind}: {c.type.kind}")
 
     def from_cursor(self, cursor_type: cindex.Type, cursor: cindex.Cursor) -> BaseType:
         return self.get(TypeWithCursor(cursor_type, cursor))

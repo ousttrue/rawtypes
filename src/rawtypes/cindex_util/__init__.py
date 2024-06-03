@@ -100,7 +100,9 @@ def get_tu(
             cindex.Config.library_file = SO_GENTOO.name
 
     index = cindex.Index.create()  # type: ignore
+    LOGGER.debug(entrypoint)
     LOGGER.debug(arguments)
+    LOGGER.debug(unsaved)
     tu = index.parse(  # type: ignore
         entrypoint,
         arguments,
