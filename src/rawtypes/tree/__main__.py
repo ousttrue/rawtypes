@@ -156,10 +156,13 @@ class Window(QtWidgets.QMainWindow):
         # menu
         self.menubar = self.menuBar()
         self.menubar.setNativeMenuBar(False)
+        self.menu_file = self.menubar.addMenu("File")
+        self.menu_file.addAction("Open", self._on_file_open)  # type: ignore
         self.menu_docks = self.menubar.addMenu("Docks")
+
         # status bar
-        self.sb = self.statusBar()
-        self.sb.showMessage("ステータスバー")
+        # self.sb = self.statusBar()
+        # self.sb.showMessage("ステータスバー")
 
         # central
         self.text = QtWidgets.QTextEdit()
@@ -189,6 +192,15 @@ class Window(QtWidgets.QMainWindow):
         self.addDockWidget(area, dock)
         self.menu_docks.addAction(dock.toggleViewAction())  # type: ignore
         return dock
+
+    def _on_file_open(self) -> None:
+        file, ok = QtWidgets.QFileDialog.getOpenFileName(
+            self, "Open file", filter="header (*.h)"
+        )
+        if not ok:
+            return
+
+        self.open_header(pathlib.Path(file))
 
     # def on_filterChanged(self):
     #     self.proxy_model.setFilterKeyColumn(1)
