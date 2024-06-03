@@ -8,15 +8,16 @@ HERE = pathlib.Path(__file__).absolute().parent
 
 def main() -> None:
     sys.path.append(str(HERE / "src"))
-    import rawtypes.cindex_util
-    import rawtypes.gen_cindex_stub
+    from rawtypes import get_cindex
 
     # download cindex.py
     dst_dir = HERE / "src/rawtypes/clang"
-    rawtypes.cindex_util.download_clang_cindex(dst_dir)
+    get_cindex.download_clang_cindex(dst_dir)
 
     # generate cindex.pyi
-    rawtypes.gen_cindex_stub.generate(rawtypes.cindex_util.CINDEX_HEADER, HERE / "src")
+    import rawtypes.gen_cindex_stub
+
+    rawtypes.gen_cindex_stub.generate(get_cindex.CINDEX_HEADER, HERE / "src")
 
     setuptools.setup(
         name="rawtypes",
