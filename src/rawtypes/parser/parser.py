@@ -1,4 +1,4 @@
-from typing import Iterable, TypeAlias
+from typing import Iterable, TypeAlias, NamedTuple
 import io
 import pathlib
 import logging
@@ -14,6 +14,14 @@ LOGGER = logging.getLogger(__name__)
 DeclCursor: TypeAlias = FunctionCursor | EnumCursor | TypedefCursor | StructCursor
 
 
+class RaylibColor(NamedTuple):
+    name: str
+    r: int
+    g: int
+    b: int
+    a: int
+
+
 class Parser:
     def __init__(
         self,
@@ -27,6 +35,7 @@ class Parser:
         self.used: list[str] = []
         self.skip: list[str] = []
         self.use_mangling = use_mangling
+        self.raylib_colors: list[RaylibColor] = []
 
     @staticmethod
     def parse(
@@ -94,11 +103,35 @@ class Parser:
                     # logger.info(f'namespace: {cursor.spelling}')
                     return True
                 case (
-                    cindex.CursorKind.MACRO_DEFINITION
-                    | cindex.CursorKind.INCLUSION_DIRECTIVE
+                    cindex.CursorKind.INCLUSION_DIRECTIVE
                     | cindex.CursorKind.FUNCTION_TEMPLATE
                 ):
                     pass
+
+                case cindex.CursorKind.MACRO_DEFINITION:
+                    tokens = tuple([x.spelling for x in cursor.get_tokens()])
+                    match tokens:
+                        case (
+                            name,
+                            "CLITERAL",
+                            "(",
+                            "Color",
+                            ")",
+                            "{",
+                            r,
+                            ",",
+                            g,
+                            ",",
+                            b,
+                            ",",
+                            a,
+                            "}",
+                        ):
+                            self.raylib_colors.append(
+                                RaylibColor(name, int(r), int(g), int(b), int(a))
+                            )
+                        case _:
+                            pass
 
                 case cindex.CursorKind.MACRO_INSTANTIATION:
                     pass

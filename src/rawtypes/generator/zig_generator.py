@@ -345,7 +345,7 @@ class ZigGenerator(GeneratorBase):
                             case PrimitiveType():
                                 pass
                             case TypedefType() as td:
-                                self.texts.append(f'const {t.spelling} = {td.name};')
+                                self.texts.append(f"const {t.spelling} = {td.name};")
                             case _:
                                 if underlying.name.startswith("(anonymous "):
                                     self.type_manager.get(
@@ -397,6 +397,14 @@ class ZigGenerator(GeneratorBase):
                 )
                 if code:
                     workaround_codes.append(code)
+
+            #
+            # colors
+            #
+            for c in self.parser.raylib_colors:
+                self.texts.append(
+                    f"const {c.name} = Color{{ .r={c.r}, .g={c.g}, .b={c.b}, .a={c.a}}};"
+                )
 
         #
         # write texts
