@@ -41,7 +41,7 @@ from ..interpreted_types.definition import StructType
 from ..interpreted_types.string_types import CStringType
 
 TYPE_CALLBACK: TypeAlias = Callable[[BaseType], Optional[str]]
-ZIG_SYMBOLS = ["type", "align", "async"]
+ZIG_SYMBOLS = ["type", "align", "async", "error", "fn"]
 DEFAULT_ARG_NAME = "__default"
 
 
@@ -342,9 +342,15 @@ class ZigGenerator(GeneratorBase):
                                     self.texts.append(
                                         f'const {td.spelling} = fn ({", ".join(args)}) callconv(.C) {self.zig_type(f.result, False)};'
                                     )
-                                elif underlying.name == 'void*':
-                                    self.texts.append(
-                                        f'pub const {td.spelling} = *anyopaque;\n')
+                                elif underlying.name.endswith('*'):
+                                    base = underlying.base
+                                    match base.name:
+                                        case 'void':
+                                            self.texts.append(
+                                                f'pub const {td.spelling} = *anyopaque;\n')
+                                        case _:
+                                            self.texts.append(
+                                                f'pub const {td.spelling} = *{base.name};\n')
                             case PrimitiveType():
                                 pass
                             case TypedefType() as td:
