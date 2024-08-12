@@ -342,6 +342,9 @@ class ZigGenerator(GeneratorBase):
                                     self.texts.append(
                                         f'const {td.spelling} = fn ({", ".join(args)}) callconv(.C) {self.zig_type(f.result, False)};'
                                     )
+                                elif underlying.name == 'void*':
+                                    self.texts.append(
+                                        f'pub const {td.spelling} = *anyopaque;\n')
                             case PrimitiveType():
                                 pass
                             case TypedefType() as td:
