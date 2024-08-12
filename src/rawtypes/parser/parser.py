@@ -82,10 +82,6 @@ class Parser:
 
     def _callback(self, *cursor_path: cindex.Cursor) -> bool:
         cursor = cursor_path[-1]
-        if "createIndex" in cursor.displayname:
-            pass
-        elif cursor.spelling == "clang_disposeIndex":
-            pass
 
         location: cindex.SourceLocation = cursor.location
         if not location:

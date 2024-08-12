@@ -210,6 +210,8 @@ class TypeManager:
                             return ref_type
                         case cindex.CursorKind.NAMESPACE_REF:
                             pass
+                        case cindex.CursorKind.DLLIMPORT_ATTR:
+                            pass
                         case _:
                             raise NotImplementedError()
 
